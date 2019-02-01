@@ -1,0 +1,27 @@
+{
+  "name": "tfm_digital_twins",
+  "version": "0.0.1",
+  "description": "Plataforma para ver e interactuar con tus gemelos digitales",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/carlosmg95/TFM_Digital_Twins.git"
+  },
+  "keywords": [
+    "VR",
+    "AR",
+    "IoT",
+    "MQTT",
+    "MongoDB",
+    "DigitalTwins"
+  ],
+  "author": "Carlos Moro García",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/carlosmg95/TFM_Digital_Twins/issues"
+  },
+  "homepage": "https://github.com/carlosmg95/TFM_Digital_Twins#readme"
+}
