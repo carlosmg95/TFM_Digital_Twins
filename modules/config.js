@@ -22,7 +22,7 @@ let packageConfig = {}
 // Extra configuration properties
 let extraConfig = {}
 
-const loadExtraConfiguration = function(customConfig, args) {
+const loadExtraConfiguration = function(customConfig) {
     // Package config (from package.json)
     packageConfig = JSON.parse(fs.readFileSync(path.join(__dirname, '..', 'package.json'), 'utf8'))
 
@@ -41,9 +41,8 @@ const loadExtraConfiguration = function(customConfig, args) {
 
 // Load
 // Parameters:
-// - args: [Array] Array of script parameters (process.argv)
 // - cb:   [Function] Callback.
-module.exports.load = function(args, cb) {
+module.exports.load = function(cb) {
 
     // Check that configuration file exists
     if(!fs.existsSync(path.join(__dirname, '..', 'conf', 'config.js'))) {
@@ -56,7 +55,7 @@ module.exports.load = function(args, cb) {
     let customConfig = validate(require('../conf/config'))
 
     // Load extra configuration
-    loadExtraConfiguration(customConfig, args)
+    loadExtraConfiguration(customConfig)
 
     // Append package.json properties and extra config properties to config
     customConfig = fns.concatObjects(customConfig, extraConfig)

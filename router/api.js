@@ -11,5 +11,5 @@ const controllers = require('../controllers')
 // ====================================================================================================================
 
 module.exports = function(app) {
-    
+    app.post('/api/join', controllers.users.create, controllers.render('index'))
 }

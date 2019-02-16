@@ -16,7 +16,7 @@ module.exports = {
         const files = glob.sync(path.join(__dirname, '*.js'))
         async.eachSeries(files, function(file, cb) {
             if (!/index.js$/.test(file)) {
-                require(file).load(args, cb)
+                require(file).load(cb)
             } else { 
                 cb() 
             }

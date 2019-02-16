@@ -83,6 +83,10 @@ const allowedOptions = {
  */
 module.exports.create = function(collection, article, callback, options={}) {
     connect(function(err, db) {
+        if (err) {
+            callback(err)
+            return
+        }
         let date = {
             "date_created": new Date(),
             "date_updated": new Date()
@@ -109,6 +113,11 @@ module.exports.create = function(collection, article, callback, options={}) {
  */
 module.exports.read = function(collection, where={}, callback, options) {
     connect(function(err, db) {
+        if (err) {
+            callback(err)
+            return
+        }
+
         cursor = db.collection(collection).find(where)
 
         for (let i in options) {
@@ -136,6 +145,10 @@ module.exports.read = function(collection, where={}, callback, options) {
  */
 module.exports.update = function(collection, where={}, set, callback, options={}) {
     connect(function(err, db) {
+        if (err) {
+            callback(err)
+            return
+        }
         set = fns.concatObjects(set, {"date_updated": new Date()})
         db.collection(collection).updateMany(where, {$set: set}, options, function(err, r) {
             client.close()  // Client closed
@@ -156,6 +169,10 @@ module.exports.update = function(collection, where={}, set, callback, options={}
  */
 module.exports.delete = function(collection, where={}, callback, options={}) {
     connect(function(err, db) {
+        if (err) {
+            callback(err)
+            return
+        }
         db.collection(collection).deleteMany(where, options, function(err, r) {
             client.close()  // Client closed
             callback(err, r)
@@ -179,9 +196,12 @@ module.exports.getAllowedOptions = getAllowedOptions = function() {
 
 const connect = function(callback) {
     client.connect(function(err, client) {
-        log.info('Connected correctly to server')
+        let db = null
+        if (!err) {
+            log.info('Connected correctly to server')
 
-        const db = client.db(dbName)
+            db = client.db(dbName)
+        }
 
         callback(err, db)
     })
