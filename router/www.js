@@ -13,4 +13,5 @@ const controllers = require('../controllers')
 module.exports = function(app) {
     // Index
     app.get('/', controllers.render('index'))
+    app.get('/login', controllers.render('login'))
 }
