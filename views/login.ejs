@@ -2,7 +2,7 @@
 <!-- Login box -->
 <div class="container" style="margin-top: 100px;">
   <div class="row">
-    <div class="col-lg-4 offset-lg-4 col-12 offset-0">
+    <div class="col-12 offset-0 col-md-8 offset-md-2 col-xl-4 offset-xl-4">
       <div class="card border-primary mb-3">
         <div class="card-header">Login</div>
         <!-- Body -->
@@ -11,19 +11,19 @@
           <form id="login-form" method="post">
             <!-- Username -->
             <div class="form-group has-feedback">
+              <label for="login-username"><i class="fas fa-user"></i></label>
               <input type="text" id="login-username" name="login-username" class="form-control" placeholder="Username">
-              <span class="glyphicon glyphicon-envelope form-control-feedback"></span>
             </div>  <!-- .Username -->
 
             <!-- Password -->
             <div class="form-group has-feedback">
+              <label for="login-password"><i class="fas fa-fingerprint"></i></label>
               <input type="password" id="login-password" name="login-password" class="form-control" placeholder="Password">
-              <span class="glyphicon glyphicon-lock form-control-feedback"></span>
             </div>  <!-- .Password -->
 
             <!-- Button -->
-            <div class="row float-right">
-              <div class="col-12">
+            <div class="row">
+              <div class="col-12 col-md-auto">
                 <button type="button" id="login" class="btn btn-primary btn-block btn-flat">Sign in</button>
               </div>
             </div>  <!-- .Button -->

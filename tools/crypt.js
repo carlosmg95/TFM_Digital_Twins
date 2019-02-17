@@ -2,15 +2,16 @@
 // Dependencies
 // ====================================================================================================================
 
-// Own modules
-const api = require('../api')
-const controllers = require('../controllers')
+// Node modules
+const CryptoJS = require('crypto-js')
 
 // ====================================================================================================================
-// Route definition
+// Module exports
 // ====================================================================================================================
 
-module.exports = function(app) {
-    app.post('/api/join', controllers.users.create, controllers.render('index'))
-    app.get('/api/users/existusername/:username', controllers.users.usernameExist, api.common.data)
+module.exports = {}
+
+// Define backend encryption function
+module.exports = function(data) {
+	return CryptoJS.SHA256(data).toString(CryptoJS.enc.Hex)
 }

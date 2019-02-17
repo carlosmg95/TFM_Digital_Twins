@@ -7,8 +7,10 @@ const glob = require('glob')
 const path = require('path')
 
 // Own modules
-const fns = require('../tools/functions')
-const errors = require('../tools/errors')
+global.crypt = require('../tools/crypt')
+global.errors = require('../tools/errors')
+global.fns = require('../tools/functions')
+
 
 // ====================================================================================================================
 // Module exports
