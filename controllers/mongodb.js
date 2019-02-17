@@ -16,9 +16,6 @@ const fns = require('../tools/functions')
 const dbName = config.mongoDatabase
 const connectUrl = `mongodb://${config.mongoUser}:${config.mongoPass}@${config.mongoHost}:${config.mongoPort}/${dbName}`
 
-const client = new MongoClient(connectUrl, { useNewUrlParser: true })
-
-
 // Allowed options that can be used with cursors
 const allowedOptions = {
     project: function(cursor, projection) {
@@ -82,7 +79,7 @@ const allowedOptions = {
  *
  */
 module.exports.create = function(collection, article, callback, options={}) {
-    connect(function(err, db) {
+    connect(function(err, client, db) {
         if (err) {
             callback(err)
             return
@@ -112,7 +109,7 @@ module.exports.create = function(collection, article, callback, options={}) {
  *
  */
 module.exports.read = function(collection, where={}, callback, options) {
-    connect(function(err, db) {
+    connect(function(err, client, db) {
         if (err) {
             callback(err)
             return
@@ -144,7 +141,7 @@ module.exports.read = function(collection, where={}, callback, options) {
  *
  */
 module.exports.update = function(collection, where={}, set, callback, options={}) {
-    connect(function(err, db) {
+    connect(function(err, client, db) {
         if (err) {
             callback(err)
             return
@@ -168,7 +165,7 @@ module.exports.update = function(collection, where={}, set, callback, options={}
  *
  */
 module.exports.delete = function(collection, where={}, callback, options={}) {
-    connect(function(err, db) {
+    connect(function(err, client, db) {
         if (err) {
             callback(err)
             return
@@ -195,7 +192,8 @@ module.exports.getAllowedOptions = getAllowedOptions = function() {
 // ====================================================================================================================
 
 const connect = function(callback) {
-    client.connect(function(err, client) {
+    const client = new MongoClient(connectUrl, { useNewUrlParser: true })
+    client.connect(function(err) {
         let db = null
         if (!err) {
             log.info('Connected correctly to server')
@@ -203,6 +201,6 @@ const connect = function(callback) {
             db = client.db(dbName)
         }
 
-        callback(err, db)
+        callback(err, client, db)
     })
 }
