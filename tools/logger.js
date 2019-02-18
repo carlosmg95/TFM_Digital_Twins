@@ -11,7 +11,7 @@ const util = require('util')
 
 // Logger function
 const log = function(type, message) {
-    console.log('[' + type + '] ' + message)
+    console.log(`[${type}] ${message}`)
 }
 
 // Get formatted message

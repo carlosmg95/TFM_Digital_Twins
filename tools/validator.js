@@ -15,7 +15,7 @@ const getDefaults = require('./defaults')
 // Exit with error
 const exitWithError = function(config, defaults, error) {
     require('./logger')(config.logLevel || defaults.logLevel.default)
-        .error('Error in file ' + path.join(__dirname, '..', 'conf', 'config.js') + ': ' + error)
+        .error(`Error in file ${path.join(__dirname, '..', 'conf', 'config.js')}:  ${error}`)
     console.log('')
     process.exit(1)
 }
