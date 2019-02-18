@@ -14,5 +14,7 @@ module.exports = {
     // [REQUIRED] Mongo password.
     mongoPass: 'password',
     // [REQUIRED] Mongo database.
-    mongoDatabase: 'digital_twins'
+    mongoDatabase: 'digital_twins',
+    // [OPTIONAL] Reserved words. A user cannot have theses usernames.
+    reservedWords: ['admin', 'join', 'login']
 }

@@ -1,26 +1,28 @@
-const createUser = function () {
+const createUser = async function () {
     let username = $('#signup-username').val()
     let email = $('#signup-email').val()
     let password1 = hash($('#signup-password').val())
     let password2 = hash($('#signup-repeat-password').val())
 
+    let rightUsername = await checkUsername(username)
+    let rightEmail = await checkEmail(email)
+    let rightPasswords = checkPasswords(password1, password2)
     
-
-    checkUsername(username)
-
-    $.post('/api/join', {
-        username: username,
-        email: email,
-        password: password1
-    })
-    .done(function(data) {
-        if(data.error) {
-            //showErrors(errorContainerSelector, data.error)
-        } else {
-            console.log('Todo OK')
-            //window.location.href = getUrlParam(window.location.href, 'redir') || '/dashboard'
-        }
-    })
+    if (rightUsername && rightEmail && rightPasswords) {
+        $.post('/api/join', {
+            username: username,
+            email: email,
+            password: password1
+        })
+        .done(function(data) {
+            if(data.error) {
+                //showErrors(errorContainerSelector, data.error)
+            } else {
+                console.log('Todo OK')
+                //window.location.href = getUrlParam(window.location.href, 'redir') || '/dashboard'
+            }
+        })
+    }
 }
 
 // ================================================================================================================== //
@@ -40,19 +42,60 @@ const checkPasswords = function(pass1, pass2) {
     return equals
 }
 
-// Check if the username exists
-const checkUsername = function(username) {
-    username = username || $('#signup-username').val()
-    $.get(`/api/users/existusername/${username}`, function(result) {
+// Check if the email exists
+const checkEmail = async function(email) {
+    email = email || $('#signup-email').val()
+    let exists = false
+    let wrongEmail = !validateEmail(email)
+
+    if (wrongEmail) {
+        showErrorMsg($('#signup-email'))
+        return false
+    } else {
+        hideErrorMsg($('#signup-email'))
+    }
+
+    await $.get(`/api/users/existemail/${email}`, function(result) {
         let code = result.code
         let errorMsg = result.error
-        
-        if (existingUsernameErrorCode === code) {
-            showErrorMsg($('#signup-username'), errorMsg)
+
+        if (existingEmailErrorCode === code) {
+            showErrorMsg($('#signup-email'), errorMsg)
+            exists = true
         } else {
-            hideErrorMsg($('#signup-username'))
+            hideErrorMsg($('#signup-email'))
+            exists = false
         }
     })
+    return !exists
+}
+
+// Check if the username exists
+const checkUsername = async function(username) {
+    username = username || $('#signup-username').val()
+    let exists = false
+    let wrongUsername = username.search(/\s|\?|=|\+|\$|\&|%|~/) !== -1
+
+    if (wrongUsername) {
+        showErrorMsg($('#signup-username'))
+        return false
+    } else {
+        hideErrorMsg($('#signup-username'))
+    }
+
+    await $.get(`/api/users/existusername/${username}`, function(result) {
+        let code = result.code
+        let errorMsg = result.error
+
+        if (existingUsernameErrorCode === code) {
+            showErrorMsg($('#signup-username'), errorMsg)
+            exists = true
+        } else {
+            hideErrorMsg($('#signup-username'))
+            exists = false
+        }
+    })
+    return !exists
 }
 
 const hash = function(pass) {
@@ -75,4 +118,9 @@ const showErrorMsg = function(inputElement, errorMsg) {
     
     inputElement.get(0).setCustomValidity(msg)
     small.innerText = msg
+}
+
+// Validate an email
+const validateEmail = function(email) {
+    return /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/.test(email)
 }

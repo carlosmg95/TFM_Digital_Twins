@@ -20,6 +20,7 @@ const apiErrors = {
     NO_PARAMS:                  {code: 105, message: 'Faltan parámetros'},
     // Validation errors
     EXISTING_USERNAME:          {code: 600, message: 'El usuario "%p" ya existe'},
+    EXISTING_EMAIL:             {code: 601, message: 'El email "%p" ya existe'},
 }
 
 // Client-side errors

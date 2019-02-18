@@ -1,5 +1,6 @@
 <script type="text/javascript">
   const existingUsernameErrorCode = +"<%= fns.getErrorCode('EXISTING_USERNAME') %>"
+  const existingEmailErrorCode = +"<%= fns.getErrorCode('EXISTING_EMAIL') %>"
 </script>
 
 <!-- Sign Up box -->
@@ -7,42 +8,42 @@
   <div class="row">
     <div class="col-12 offset-0 col-md-8 offset-md-2 col-xl-4 offset-xl-4">
       <div class="card border-primary mb-3">
-        <div class="card-header">Sign Up</div>
+        <div class="card-header">Registrarse</div>
         <!-- Body -->
         <div class="card-body text-primary">
           <!-- Form -->
-          <form id="signup-form" action="javascript:void(0);" onsubmit="createUser()">
+          <form id="signup-form" action="javascript:void(0);">
             <!-- Username -->
             <div class="form-group has-feedback">
               <label for="signup-username"><i class="fas fa-user"></i></label>
               <input type="text" id="signup-username" name="signup-username" class="form-control" placeholder="Username" onchange="checkUsername()" required>
-              <div class="form-group-error" data-err="Username en uso"><small class="form-text text-danger"></small></div>
+              <div class="form-group-error" data-err="El nombre de usuario no puede contener espacios ni caracteres especiales"><small class="form-text text-danger"></small></div>
             </div>  <!-- .Username -->
 
             <!-- email -->
             <div class="form-group has-feedback">
               <label for="signup-email"><i class="fas fa-at"></i></label>
-              <input type="email" id="signup-email" name="signup-email" class="form-control" placeholder="Email" required>
-              <div class="form-group-error" data-err="Email en uso"><small class="form-text text-danger"></small></div>
+              <input type="email" id="signup-email" name="signup-email" class="form-control" placeholder="Email" onchange="checkEmail()" required>
+              <div class="form-group-error" data-err="Formato incorrecto"><small class="form-text text-danger"></small></div>
             </div>  <!-- .email -->
 
             <!-- Password -->
             <div class="form-group has-feedback">
               <label for="signup-password"><i class="fas fa-lock"></i></label>
-              <input type="password" id="signup-password" name="signup-password" class="form-control" placeholder="Password" onchange="checkPasswords()" required>
+              <input type="password" id="signup-password" name="signup-password" class="form-control" placeholder="Contraseña" onchange="checkPasswords()" required>
             </div>  <!-- .Password -->
 
             <!-- Repeat password -->
             <div class="form-group has-feedback">
               <label for="signup-repeat-password"><i class="fas fa-lock"></i></label>
-              <input type="password" id="signup-repeat-password" name="signup-repeat-password" class="form-control" placeholder="Repeat password" onchange="checkPasswords()" required>
+              <input type="password" id="signup-repeat-password" name="signup-repeat-password" class="form-control" placeholder="Repetir contraseña" onchange="checkPasswords()" required>
               <div class="form-group-error" data-err="Las contraseñas deben ser igual"><small class="form-text text-danger"></small></div>
             </div>  <!-- .Repeat password -->
 
             <!-- Button -->
             <div class="row">
               <div class="col-12 col-md-auto">
-                <button type="submit" id="signup-btn" class="btn btn-primary btn-block btn-flat">Sign up</button>
+                <button type="submit" id="signup-btn" class="btn btn-primary btn-block btn-flat" onclick="createUser()">Registrarse</button>
               </div>
             </div>  <!-- .Button -->
           </form>  <!-- .Form -->

@@ -69,8 +69,11 @@ String.prototype.format = function(params, replaceChar) {
 
 // Substitutes a character in an error object
 module.exports.formatError = function(error, replaceContent, replaceChar) {
-    error.message = error.message.format(replaceContent, replaceChar)
-    return error
+    let err = {
+        "code": error.code,
+        "message": error.message.format(replaceContent, replaceChar)
+    }
+    return err
 }
 
 // Get the code of an error
