@@ -8,6 +8,7 @@ const path = require('path')
 
 // Own modules
 const fns = require('../tools/functions')
+const config = require('../conf/config')
 
 // ====================================================================================================================
 // Module exports

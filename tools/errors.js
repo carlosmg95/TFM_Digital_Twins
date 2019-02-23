@@ -25,6 +25,18 @@ const apiErrors = {
 
 // Client-side errors
 const clientSideErrors = {
+    401: {
+        code: 401,
+        status: 'Unauthorized',
+        message: 'You are not authorized to perform the requested action',
+        image: '/images/sad.ico'
+    },
+    403: {
+        code: 403,
+        status: 'Forbidden',
+        message: 'You cannot access to this page',
+        image: '/images/sad.ico'
+    },
     404: {
         code: 404,
         status: 'Not Found',
@@ -35,12 +47,6 @@ const clientSideErrors = {
         code: 500,
         status: 'Internal Server Error',
         message: 'There was an error while processing your request',
-        image: '/images/sad.ico'
-    },
-    401: {
-        code: 401,
-        status: 'Unauthorized',
-        message: 'You are not authorized to perform the requested action',
         image: '/images/sad.ico'
     }
 }

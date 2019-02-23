@@ -28,3 +28,18 @@ html {
     height: 1px;
     width: 100%;
 }
+/* Error page */
+div.error-container {
+    margin-top: 100px;
+    text-align: center;
+}
+div.error-container img {
+    margin-top: -8px;
+    max-height: 40px;
+}
+div.error-container h1 {
+    font-size: 12em;
+}
+div.error-container h2 {
+    margin-top: -20px;
+}

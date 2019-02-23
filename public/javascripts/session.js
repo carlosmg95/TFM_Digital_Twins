@@ -4,6 +4,9 @@ const createUser = async function () {
     let password1 = hash($('#signup-password').val())
     let password2 = hash($('#signup-repeat-password').val())
 
+    strButton = $('#signup-btn')[0].innerText  // Save the text of the button
+    $('#signup-btn')[0].innerHTML = '<i class="fas fa-spinner fa-spin"></i>'  // Show a wait icon
+
     let rightUsername = await checkUsername(username)
     let rightEmail = await checkEmail(email)
     let rightPasswords = checkPasswords(password1, password2)
@@ -18,10 +21,14 @@ const createUser = async function () {
             if(data.error) {
                 //showErrors(errorContainerSelector, data.error)
             } else {
-                console.log('Todo OK')
-                //window.location.href = getUrlParam(window.location.href, 'redir') || '/dashboard'
+                window.location.href = /*getUrlParam(window.location.href, 'redir') ||*/ '/'
             }
         })
+        .always(function() {
+            $('#signup-btn')[0].innerText = strButton  // Recover the last text
+        })
+    } else {
+        $('#signup-btn')[0].innerText = strButton  // Recover the last text
     }
 }
 

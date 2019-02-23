@@ -8,6 +8,7 @@ const glob = require('glob')
 
 // Own modules
 const api = require('../api')
+const controllers = require('../controllers')
 
 // ====================================================================================================================
 // Module exports
@@ -17,9 +18,11 @@ module.exports = {
     // Function for initializingthe router
     mount: function(app){
         // Prepare the error handler
-        app.use('/*', api.error)
+        app.use('/api/*', api.error)
         // Init the res obj in api calls
-        app.all('/*', api.init)
+        app.all('/api/*', api.init)
+        // Init the res obj in controllers
+        app.all('/*', controllers.init)
 
         return glob(path.join(__dirname, '*.js'), function(err, files) {
             for (let i in files) {
@@ -33,7 +36,8 @@ module.exports = {
                 router(app)
             }
             //  Default fallback
-            app.all('/*', api.fallback)
+            app.all('/api/*', api.fallback)
+            app.all('/*', controllers.fallback)
         })
     }
 }
