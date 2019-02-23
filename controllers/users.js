@@ -99,6 +99,15 @@ module.exports.emailExist = function (req, res, next) {
     })
 }
 
+// Show a given user
+module.exports.show = function(req, res, next) {
+    const username = req.params.username || req.user.username
+    getUser(username, function(error, docs) {
+        req.user = docs[0]
+        next()
+    })
+}
+
 
 // Check if an username exist
 module.exports.usernameExist = function (req, res, next) {
@@ -121,4 +130,12 @@ module.exports.usernameExist = function (req, res, next) {
         }
         return next()
     })
+}
+
+// ====================================================================================================================
+// Private functions
+// ====================================================================================================================
+
+const getUser = function(username, callback) {
+    controllers.mongodb.read('users', {"username": username}, callback)
 }

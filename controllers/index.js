@@ -32,10 +32,11 @@ module.exports.index = function(req, res, next) {
 }
 
 // Render common locals
-module.exports.prerender = function(req, res) {
-    res.locals.path =     req.path
+module.exports.prerender = function(req, res) {    
     res.locals.baseUrl = 'http://' + config.domain + (config.port === 80 ? '' : ':' + config.port)
     res.locals.fns =      fns
+    res.locals.path =     req.path
+    res.locals.user =     req.user || null
 }
 
 // Function to render a page

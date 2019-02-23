@@ -21,7 +21,7 @@ const createUser = async function () {
             if(data.error) {
                 //showErrors(errorContainerSelector, data.error)
             } else {
-                window.location.href = /*getUrlParam(window.location.href, 'redir') ||*/ '/'
+                window.location.href = /*getUrlParam(window.location.href, 'redir') ||*/ `/profile/${username}`
             }
         })
         .always(function() {
