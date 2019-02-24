@@ -22,7 +22,6 @@ module.exports.create = function (req, res, next) {
         function emailExist(cb) {
             controllers.mongodb.read('users', {"email": email}, function(error, docs) {
                 if (error) {
-                    log.error(error)
                     req.error = error
                     return res.renderError(500)
                 }
@@ -40,7 +39,6 @@ module.exports.create = function (req, res, next) {
         function usernameExist(cb) {
             controllers.mongodb.read('users', {"username": username}, function(error, docs) {
                 if (error) {
-                    log.error(error)
                     req.error = error
                     return res.renderError(500)
                 }
@@ -59,7 +57,6 @@ module.exports.create = function (req, res, next) {
         function saveUser(cb) {
             controllers.mongodb.create('users', article, function(error, result) {
                 if (error) {
-                    log.error(error)
                     req.error = error
                     return res.renderError(500)
                 }
@@ -83,7 +80,6 @@ module.exports.emailExist = function (req, res, next) {
 
     controllers.mongodb.read('users', {"email": email}, function(error, docs) {
         if (error) {
-            log.error(error)
             req.error = error
             return res.renderError(500)
         }
@@ -101,7 +97,7 @@ module.exports.emailExist = function (req, res, next) {
 
 // Show a given user
 module.exports.show = function(req, res, next) {
-    const username = req.params.username || req.user.username
+    const username = req.params.username || req.session.user.username
     getUser(username, function(error, docs) {
         if (!docs || docs.length === 0) {
             return res.renderError(404)
@@ -118,7 +114,6 @@ module.exports.usernameExist = function (req, res, next) {
 
     controllers.mongodb.read('users', {"username": username}, function(error, docs) {
         if (error) {
-            log.error(error)
             req.error = error
             return res.renderError(500)
         }

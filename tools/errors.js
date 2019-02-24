@@ -21,6 +21,7 @@ const apiErrors = {
     // Validation errors
     EXISTING_USERNAME:          {code: 600, message: 'El usuario "%p" ya existe'},
     EXISTING_EMAIL:             {code: 601, message: 'El email "%p" ya existe'},
+    WRONG_USER:                 {code: 602, message: 'Usuario o contraseña incorrecta'}
 }
 
 // Client-side errors

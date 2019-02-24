@@ -15,4 +15,5 @@ module.exports = function(app) {
     app.get('/', controllers.render('index'))
     app.get('/login', controllers.render('login'))
     app.get('/join', controllers.render('join'))
+    app.delete('/session', controllers.session.destroy)
 }

@@ -4,17 +4,18 @@
 
 // Node modules
 const cookieParser = require('cookie-parser')
-const partials = require('express-partials')
 const express = require('express')
+const http = require('http')
 const methodOverride = require('method-override')
 const morgan = require('morgan')
 const parser = require('body-parser')
-const http = require('http')
+const partials = require('express-partials')
 const path = require('path')
+const session = require('express-session')
 
 // Own modules
-const router = require('./router')
 const modules = require('./modules')
+const router = require('./router')
 
 // ====================================================================================================================
 // Functions
@@ -106,6 +107,13 @@ app.use(cookieParser())
 
 // Partials
 app.use(partials())
+
+// Session
+app.use(session({ "secret": "digital_twins", "resave": false, saveUninitialized: true }))
+app.use(function(req, res, next) {
+    res.locals.session = req.session
+    next()
+})
 
 // Declare public files URL
 app.use(express.static(path.join(__dirname, 'public')))

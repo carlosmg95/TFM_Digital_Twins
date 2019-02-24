@@ -1,35 +1,46 @@
+<script type="text/javascript">
+  const wrongUserErrorCode = +"<%= fns.getErrorCode('WRONG_USER') %>"
+</script>
 
 <!-- Login box -->
 <div class="container" style="margin-top: 100px;">
   <div class="row">
     <div class="col-12 offset-0 col-md-8 offset-md-2 col-xl-4 offset-xl-4">
-      <div class="card border-primary mb-3">
+      <!-- Card -->
+      <div class="card border-primary mb-1">
         <div class="card-header">Iniciar sesión</div>
         <!-- Body -->
         <div class="card-body text-primary">
           <!-- Form -->
-          <form id="login-form" method="post">
+          <form id="login-form" action="javascript:void(0);">
             <!-- Username -->
             <div class="form-group has-feedback">
               <label for="login-username"><i class="fas fa-user"></i></label>
-              <input type="text" id="login-username" name="login-username" class="form-control" placeholder="Username">
+              <input type="text" id="login-username" name="login-username" class="form-control" placeholder="Username" required>
+              <div class="form-group-error" data-err="Introduzca el usuario"><small class="form-text text-danger"></small></div>
             </div>  <!-- .Username -->
 
             <!-- Password -->
             <div class="form-group has-feedback">
               <label for="login-password"><i class="fas fa-fingerprint"></i></label>
-              <input type="password" id="login-password" name="login-password" class="form-control" placeholder="Contraseña">
+              <input type="password" id="login-password" name="login-password" class="form-control" placeholder="Contraseña" required>
+              <div class="form-group-error" data-err="Introduzca la contraseña"><small class="form-text text-danger"></small></div>
             </div>  <!-- .Password -->
 
             <!-- Button -->
             <div class="row">
               <div class="col-12 col-md-auto">
-                <button type="button" id="login" class="btn btn-primary btn-block btn-flat">Iniciar sesión</button>
+                <button type="button" id="login-btn" class="btn btn-primary btn-block btn-flat" onclick="login()">Iniciar sesión</button>
               </div>
             </div>  <!-- .Button -->
           </form>  <!-- .Form -->
         </div>  <!-- .Body -->
-      </div>
+      </div>  <!-- Card -->
+      <!-- Alert -->
+      <div id="login-err" class="alert alert-danger text-center" role="alert" hidden></div>   <!-- .Alert -->
     </div>
   </div>
 </div>  <!-- .Login box -->
+
+<script type="text/javascript" src="/components/crypto-js/crypto-js.js"></script>
+<script type="text/javascript" src="/javascripts/session.js"></script>

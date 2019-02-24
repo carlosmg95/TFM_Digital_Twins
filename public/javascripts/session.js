@@ -1,4 +1,4 @@
-const createUser = async function () {
+const createUser = async function() {
     let username = $('#signup-username').val()
     let email = $('#signup-email').val()
     let password1 = hash($('#signup-password').val())
@@ -19,8 +19,9 @@ const createUser = async function () {
         })
         .done(function(data) {
             if(data.error) {
-                //showErrors(errorContainerSelector, data.error)
+                showError('signup-err', data.error)
             } else {
+                hideError('signup-err')
                 window.location.href = /*getUrlParam(window.location.href, 'redir') ||*/ `/profile/${username}`
             }
         })
@@ -29,6 +30,47 @@ const createUser = async function () {
         })
     } else {
         $('#signup-btn')[0].innerText = strButton  // Recover the last text
+    }
+}
+
+const login = async function() {
+    let username = $('#login-username').val()
+    let password = hash($('#login-password').val())
+
+    strButton = $('#login-btn')[0].innerText  // Save the text of the button
+    $('#login-btn')[0].innerHTML = '<i class="fas fa-spinner fa-spin"></i>'  // Show a wait icon
+    
+    if (username && $('#login-password').val()) {
+        await $.post('/api/login', {
+            username: username,
+            password: password
+        })
+        .done(function(data) {
+            let code = data.code
+            let errorMsg = data.error
+
+            if (wrongUserErrorCode === code) {
+                showError('login-err', errorMsg)
+            } else {
+                hideError('login-err')
+                window.location.href = /*getUrlParam(window.location.href, 'redir') ||*/ `/profile`
+            }
+        })
+        .always(function() {
+            $('#login-btn')[0].innerText = strButton  // Recover the last text
+        })
+    } else {
+        if (!username) {
+            showErrorMsg($('#login-username'))
+        } else {
+            hideErrorMsg($('#login-username'))
+        }
+        if (!$('#login-password').val()) {
+            showErrorMsg($('#login-password'))
+        } else {
+            hideErrorMsg($('#login-password'))
+        }
+        $('#login-btn')[0].innerText = strButton  // Recover the last text
     }
 }
 
@@ -109,6 +151,22 @@ const hash = function(pass) {
     return CryptoJS.SHA256(pass).toString(CryptoJS.enc.Hex)
 }
 
+// Function to hide error message under a form
+const hideError = function(id) {
+    let div = $(`#${id}`)[0]
+    let card = $(div).parent().find('.card')[0]
+    let cardBody = $(card).find('.card-body')[0]
+
+    $(card).removeClass('border-danger')
+    $(card).addClass('border-primary')
+
+    $(cardBody).removeClass('text-danger')
+    $(cardBody).addClass('text-primary')
+
+    div.hidden = true
+    div.innerText = ''
+}
+
 // Function to hide error message under an input
 const hideErrorMsg = function(inputElement) {
     let div = $(inputElement).parent().find('.form-group-error')[0]
@@ -117,12 +175,29 @@ const hideErrorMsg = function(inputElement) {
     small.innerText = ''
 }
 
+// Function to show error message under a form
+const showError = function(id, errorMsg) {
+    let div = $(`#${id}`)[0]
+    let card = $(div).parent().find('.card')[0]
+    let cardBody = $(card).find('.card-body')[0]
+    let msg = errorMsg ||  $(div).attr('data-err')
+
+    $(card).removeClass('border-primary')
+    $(card).addClass('border-danger')
+
+    $(cardBody).removeClass('text-primary')
+    $(cardBody).addClass('text-danger')
+
+    div.hidden = false
+    div.innerText = msg
+}
+
 // Function to show error message under an input
 const showErrorMsg = function(inputElement, errorMsg) {
     let div = $(inputElement).parent().find('.form-group-error')[0]
     let small = div.children[0]
     let msg = errorMsg ||  $(div).attr('data-err')
-    
+
     inputElement.get(0).setCustomValidity(msg)
     small.innerText = msg
 }
