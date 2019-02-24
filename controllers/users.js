@@ -103,6 +103,9 @@ module.exports.emailExist = function (req, res, next) {
 module.exports.show = function(req, res, next) {
     const username = req.params.username || req.user.username
     getUser(username, function(error, docs) {
+        if (!docs || docs.length === 0) {
+            return res.renderError(404)
+        }
         req.user = docs[0]
         next()
     })

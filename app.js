@@ -6,6 +6,7 @@
 const cookieParser = require('cookie-parser')
 const partials = require('express-partials')
 const express = require('express')
+const methodOverride = require('method-override')
 const morgan = require('morgan')
 const parser = require('body-parser')
 const http = require('http')
@@ -92,6 +93,9 @@ app.use('/components', express.static(path.join(__dirname, 'node_modules')))
 // Use morgan
 morgan.token('status', responseColor)
 app.use(morgan('tiny'))
+
+// Use methods PUT and DELETE
+app.use(methodOverride('_method', { methods: ['POST', 'GET'] }))
 
 // Parse application/json and application/x-www-form-urlencoded
 app.use(parser.json())
