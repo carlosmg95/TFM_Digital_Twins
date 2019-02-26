@@ -123,7 +123,7 @@ const checkEmail = async function(email) {
 const checkUsername = async function(username) {
     username = username || $('#signup-username').val()
     let exists = false
-    let wrongUsername = username.search(/\s|\?|=|\+|\$|\&|%|~/) !== -1
+    let wrongUsername = username.search(/\s|\?|=|\+|\$|\&|%|~|\*|\//) !== -1
 
     if (wrongUsername) {
         showErrorMsg($('#signup-username'))

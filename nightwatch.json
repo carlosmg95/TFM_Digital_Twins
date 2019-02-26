@@ -1,0 +1,56 @@
+{
+  "src_folders" : ["./tests"],
+  "output_folder" : "./tests/reports",
+  "custom_commands_path" : "./tests/custom-commands",
+  "custom_assertions_path" : "./tests/custom-assertions",
+  "disable_colors": false,
+  "test_workers" : false,
+
+  "webdriver" : {
+    "start_process": true,
+    "host": "localhost",
+    "port": 4444
+  },
+
+  "test_settings" : {
+    "default" : {
+      "webdriver": {
+        "server_path": "./node_modules/.bin/geckodriver",
+        "cli_args": [
+          "--log", "debug"
+        ]
+      },
+      "disable_colors": false,
+      "screenshots" : {
+        "enabled" : false,
+        "path" : "./tests/screenshots"
+      },
+      "request_timeout_options": {
+        "timeout": 60000,
+        "retry_attempts": 5
+      },
+      "filter": ["./tests"],
+      "desiredCapabilities" : {
+        "browserName" : "firefox",
+        "acceptInsecureCerts" : true
+      }
+    }
+  },
+
+  "selenium_server" : {
+    "selenium" : {
+      "start_process": true,
+      "host": "localhost",
+      "port": 4444,
+      "server_path": "./bin/selenium-server-standalone-3.9.1.jar",
+      "cli_args": {
+        "webdriver.gecko.driver": "./node_modules/.bin/geckodriver"
+      }
+    },
+
+    "desiredCapabilities" : {
+      "browserName" : "firefox",
+      "acceptSslCerts": true
+    }
+  }
+}

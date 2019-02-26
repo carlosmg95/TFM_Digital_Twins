@@ -4,7 +4,8 @@
   "description": "Plataforma para ver e interactuar con tus gemelos digitales",
   "main": "app.js",
   "scripts": {
-    "start": "node app.js"
+    "start": "node app.js",
+    "test": "nightwatch --config nightwatch.json"
   },
   "repository": {
     "type": "git",
@@ -47,5 +48,9 @@
     "serve-favicon": "^2.5.0",
     "startbootstrap-one-page-wonder": "^5.0.2",
     "underscore": "^1.9.1"
+  },
+  "devDependencies": {
+    "geckodriver": "^1.15.1",
+    "nightwatch": "^1.0.19"
   }
 }
