@@ -7,22 +7,37 @@ const createUser = async function() {
     strButton = $('#signup-btn')[0].innerText  // Save the text of the button
     $('#signup-btn')[0].innerHTML = '<i class="fas fa-spinner fa-spin"></i>'  // Show a wait icon
 
-    let rightUsername = await checkUsername(username)
+    let rightUsername = !emptyUsername() && await checkUsername(username)
     let rightEmail = await checkEmail(email)
-    let rightPasswords = checkPasswords(password1, password2)
+    let rightPasswords = !emptyPassword() && checkPasswords(password1, password2)
     
     if (rightUsername && rightEmail && rightPasswords) {
-        $.post('/api/join', {
+        await $.post('/api/join', {
             username: username,
             email: email,
             password: password1
         })
         .done(function(data) {
             if(data.error) {
+                console.log(data.error)
                 showError('signup-err', data.error)
             } else {
                 hideError('signup-err')
-                window.location.href = /*getUrlParam(window.location.href, 'redir') ||*/ `/profile/${username}`
+                $.post('/api/login', {
+                    username: username,
+                    password: password1
+                })
+                .done(function(data) {
+                    let code = data.code
+                    let errorMsg = data.error
+
+                    if (wrongUserErrorCode === code) {
+                        showError('signup-err', errorMsg)
+                    } else {
+                        hideError('signup-err')
+                        window.location.href = 'profile'
+                    }
+                })
             }
         })
         .always(function() {
@@ -78,19 +93,6 @@ const login = async function() {
 //  Private functions                                                                                                 //
 // ================================================================================================================== //
 
-const checkPasswords = function(pass1, pass2) {
-    pass1 = pass1 || hash($('#signup-password').val())
-    pass2 = pass2 || hash($('#signup-repeat-password').val())
-    let equals = pass1 === pass2
-
-    if (equals) {
-        hideErrorMsg($('#signup-repeat-password'))
-    } else {
-        showErrorMsg($('#signup-repeat-password'))
-    }
-    return equals
-}
-
 // Check if the email exists
 const checkEmail = async function(email) {
     email = email || $('#signup-email').val()
@@ -119,6 +121,19 @@ const checkEmail = async function(email) {
     return !exists
 }
 
+const checkPasswords = function(pass1, pass2) {
+    pass1 = pass1 || hash($('#signup-password').val())
+    pass2 = pass2 || hash($('#signup-repeat-password').val())
+    let equals = pass1 === pass2
+
+    if (equals) {
+        hideErrorMsg($('#signup-repeat-password'))
+    } else {
+        showErrorMsg($('#signup-repeat-password'))
+    }
+    return equals
+}
+
 // Check if the username exists
 const checkUsername = async function(username) {
     username = username || $('#signup-username').val()
@@ -145,6 +160,36 @@ const checkUsername = async function(username) {
         }
     })
     return !exists
+}
+
+// Check if some of the passwords input is empty
+const emptyPassword = function() {
+    let emptyPassword1 = $('#signup-password').val() === ""
+    let emptyPassword2 = $('#signup-repeat-password').val() === ""
+
+    if (emptyPassword1) {
+        showErrorMsg($('#signup-password'), 'Rellenar contraseña')
+    } else {
+        hideErrorMsg($('#signup-password'))
+    }
+    if (emptyPassword2) {
+        showErrorMsg($('#signup-repeat-password'), 'Rellenar contraseña')
+    } else {
+        hideErrorMsg($('#signup-repeat-password'))
+    }
+    return emptyPassword1 || emptyPassword2
+}
+
+// Check if the username input is empty
+const emptyUsername = function() {
+    let emptyUsername = $('#signup-username').val() === ""
+
+    if (emptyUsername) {
+        showErrorMsg($('#signup-username'), 'Rellenar username')
+    } else {
+        hideErrorMsg($('#signup-username'))
+    }
+    return emptyUsername
 }
 
 const hash = function(pass) {

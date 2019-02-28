@@ -1,6 +1,7 @@
 <script type="text/javascript">
   const existingUsernameErrorCode = +"<%= fns.getErrorCode('EXISTING_USERNAME') %>"
   const existingEmailErrorCode = +"<%= fns.getErrorCode('EXISTING_EMAIL') %>"
+  const wrongUserErrorCode = +"<%= fns.getErrorCode('WRONG_USER') %>"
 </script>
 
 <!-- Sign Up box -->
@@ -32,6 +33,7 @@
             <div class="form-group has-feedback">
               <label for="signup-password"><i class="fas fa-lock"></i></label>
               <input type="password" id="signup-password" name="signup-password" class="form-control" placeholder="Contraseña" value="" required>
+              <div class="form-group-error" data-err=""><small class="form-text text-danger"></small></div>
             </div>  <!-- .Password -->
 
             <!-- Repeat password -->
