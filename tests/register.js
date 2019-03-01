@@ -1,6 +1,17 @@
-let config = require('../nightwatch.json')
-let errors = require('../tools/errors')
-let fns = require('../tools/functions')
+// ====================================================================================================================
+// Dependencies
+// ====================================================================================================================
+
+// Own modules
+const config = require('../nightwatch.json')
+const errors = require('../tools/errors')
+const fns = require('../tools/functions')
+
+let username = `${Math.random()}carlos${Math.random()}`
+
+// ====================================================================================================================
+// Module exports
+// ====================================================================================================================
 
 module.exports = {
     '@tags': ['create', 'user'],
@@ -19,14 +30,25 @@ module.exports = {
 
     beforeEach : function(browser) {
         browser
-            .clearValue('form#signup-form input[name=signup-username]')
-            .clearValue('form#signup-form input[name=signup-email]')
-            .clearValue('form#signup-form input[name=signup-password]')
-            .clearValue('form#signup-form input[name=signup-repeat-password]')
-            .setValue('form#signup-form input[name=signup-username]', `${Math.random()}carlos${Math.random()}`)
-            .setValue('form#signup-form input[name=signup-email]', `${Math.random()}carlos${Math.random()}@prueba.com`)
-            .setValue('form#signup-form input[name=signup-password]', '1234')
-            .setValue('form#signup-form input[name=signup-repeat-password]', '1234')
+            .getAttribute('form', 'id', function(result) {
+                if (result.value && result.value === 'signup-form') {
+                    browser
+                        .clearValue('form#signup-form input[name=signup-username]')
+                        .clearValue('form#signup-form input[name=signup-email]')
+                        .clearValue('form#signup-form input[name=signup-password]')
+                        .clearValue('form#signup-form input[name=signup-repeat-password]')
+                        .setValue('form#signup-form input[name=signup-username]', username)
+                        .setValue('form#signup-form input[name=signup-email]', `${Math.random()}carlos${Math.random()}@prueba.com`)
+                        .setValue('form#signup-form input[name=signup-password]', '1234')
+                        .setValue('form#signup-form input[name=signup-repeat-password]', '1234')
+                } else if (result.value && result.value === 'login-form') {
+                    browser
+                        .clearValue('form#login-form input[name=login-username]')
+                        .clearValue('form#login-form input[name=login-password]')
+                        .setValue('form#login-form input[name=login-username]', username)
+                        .setValue('form#login-form input[name=login-password]', '1234')
+                }
+            })
     },
 
     // Try to send empty form - Should FAIL -> Error in every input
@@ -64,13 +86,13 @@ module.exports = {
 
     // Try to send form with existing username - Should FAIL -> Error in username input
     'Try to send form with existing username': function(browser) {
-        let username = 'carlosmg95'
+        let localUsername = 'carlosmg95'
         browser
             .clearValue('form#signup-form input[name=signup-username]')
-            .setValue('form#signup-form input[name=signup-username]', username)
+            .setValue('form#signup-form input[name=signup-username]', localUsername)
             .click('button#signup-btn')
             .waitForElementVisible('form#signup-form input[name=signup-username] + div.form-group-error', 'Error appears')
-            .assert.containsText('form#signup-form input[name=signup-username] + div.form-group-error', fns.formatError(errors.EXISTING_USERNAME, username).message, 'Error because the username exists')
+            .assert.containsText('form#signup-form input[name=signup-username] + div.form-group-error', fns.formatError(errors.EXISTING_USERNAME, localUsername).message, 'Error because the username exists')
             .assert.containsText('button#signup-btn', 'Registrarse', 'We are not waiting for data')
             .assert.urlEquals('http://localhost:3000/join', 'It cannot send no data')
             .saveScreenshot('tests/screenshots/existingUsername.png')
@@ -178,5 +200,66 @@ module.exports = {
             .waitForElementVisible('body')
             .assert.urlEquals('http://localhost:3000/profile', 'It access to the profile page')
             .saveScreenshot('tests/screenshots/rightForm.png')
+    },
+
+    // Try to login without username - Should FAIL -> Show /login url and error username input
+    'Try to login without username': function(browser) {
+        browser
+            .click('a#logout-link')
+            .waitForElementVisible('body')
+            .assert.urlEquals('http://localhost:3000/login', 'Succed logout')
+            .setValue('form#login-form input[name=login-password]', '5678')
+            .click('button#login-btn')
+            .waitForElementVisible('form#login-form input[name=login-username] + div.form-group-error', 'Error appears')
+            .assert.containsText('form#login-form input[name=login-username] + div.form-group-error', 'Introduzca el usuario', 'Error because empty username')
+            .assert.containsText('button#login-btn', 'Iniciar sesión', 'We are not waiting for data')
+            .assert.urlEquals('http://localhost:3000/login', 'It cannot send no data')
+            .saveScreenshot('tests/screenshots/emptyUsernameLogin.png')
+    },
+
+    // Try to login without password - Should FAIL -> Show /login url and error email input
+    'Try to login without password': function(browser) {
+        browser
+            .clearValue('form#login-form input[name=login-password]')
+            .click('button#login-btn')
+            .waitForElementVisible('form#login-form input[name=login-password] + div.form-group-error', 'Error appears')
+            .assert.containsText('form#login-form input[name=login-password] + div.form-group-error', 'Introduzca la contraseña', 'Error because empty password')
+            .assert.containsText('button#login-btn', 'Iniciar sesión', 'We are not waiting for data')
+            .assert.urlEquals('http://localhost:3000/login', 'It cannot send no data')
+            .saveScreenshot('tests/screenshots/emptyPasswordLogin.png')
+    },
+
+    // Try to login with wrong username - Should FAIL -> Show /login url and error wrong user
+    'Try to login with wrong username': function(browser) {
+        browser
+            .setValue('form#login-form input[name=login-username]', username)
+            .click('button#login-btn')
+            .waitForElementVisible('div#login-err', 'Error appears')
+            .assert.containsText('div#login-err', 'Usuario o contraseña incorrecta', 'Error because wrong username')
+            .assert.containsText('button#login-btn', 'Iniciar sesión', 'We are not waiting for data')
+            .assert.urlEquals('http://localhost:3000/login', 'It cannot send no data')
+            .saveScreenshot('tests/screenshots/wrongUsernameLogin.png')
+    },
+
+    // Try to login with wrong password - Should FAIL -> Show /login url and error wrong user
+    'Try to login with wrong password': function(browser) {
+        browser
+            .clearValue('form#login-form input[name=login-password]')
+            .setValue('form#login-form input[name=login-password]', '5678')
+            .click('button#login-btn')
+            .waitForElementVisible('div#login-err', 'Error appears')
+            .assert.containsText('div#login-err', 'Usuario o contraseña incorrecta', 'Error because wrong password')
+            .assert.containsText('button#login-btn', 'Iniciar sesión', 'We are not waiting for data')
+            .assert.urlEquals('http://localhost:3000/login', 'It cannot send no data')
+            .saveScreenshot('tests/screenshots/wrongPasswordLogin.png')
+    },
+
+    // Try to login with good form - Should SUCCESS -> Show /profile url
+    'Try to login with good form': function(browser) {
+        browser
+            .click('button#login-btn')
+            .waitForElementVisible('body')
+            .assert.urlEquals('http://localhost:3000/profile', 'It access to the profile page')
+            .saveScreenshot('tests/screenshots/rightLoginForm.png')
     }
 }

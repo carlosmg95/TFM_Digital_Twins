@@ -9,17 +9,17 @@
       <ul class="navbar-nav ml-auto">
         <% if (!session.user) { %>
         <li class="nav-item">
-          <a class="nav-link" href="/join">Registrarse</a>
+          <a id="register-link" class="nav-link" href="/join">Registrarse</a>
         </li>
         <li class="nav-item">
-          <a class="nav-link" href="/login">Iniciar sesión</a>
+          <a id="login-link" class="nav-link" href="/login">Iniciar sesión</a>
         </li>
         <% } else { %>
          <li class="nav-item">
-          <a class="nav-link" href="/profile">Perfil</a>
+          <a id="profile-link" class="nav-link" href="/profile">Perfil</a>
         </li>
         <li class="nav-item">
-          <a class="nav-link" href="/session?_method=DELETE">Cerrar sesión</a>
+          <a id="logout-link" class="nav-link" href="/session?_method=DELETE">Cerrar sesión</a>
         </li>
         <% } %>
       </ul>
