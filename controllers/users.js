@@ -135,5 +135,5 @@ module.exports.usernameExist = function (req, res, next) {
 // ====================================================================================================================
 
 const getUser = function(username, callback) {
-    controllers.mongodb.read('users', {"username": username}, callback)
+    controllers.mongodb.read('users', {"username": username}, callback, { "project": { "password": 0 } })
 }

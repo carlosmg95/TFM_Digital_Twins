@@ -49,5 +49,10 @@ module.exports.requireUser = function(req, res, next) {
 // ====================================================================================================================
 
 const auth = function(username, password, callback) {
-    controllers.mongodb.read('users', {"username": username, "password": password}, callback)
+    controllers.mongodb.read(
+        'users',
+        { "username": username, "password": password },
+        callback,
+        { "project": { "password": 0 } }
+    )
 }
