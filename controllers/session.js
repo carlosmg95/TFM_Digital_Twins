@@ -34,7 +34,14 @@ module.exports.create = function(req, res, next) {
 module.exports.destroy = function(req, res, next) {
     delete req.user
     delete req.session.user
-    res.redirect('/login')
+    res.redirect('/')
+}
+
+module.exports.requireUser = function(req, res, next) {
+    if (req.session && req.session.user) {
+        return next()
+    }
+    return res.redirect('/login')
 }
 
 // ====================================================================================================================

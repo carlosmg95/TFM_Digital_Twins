@@ -12,7 +12,7 @@ const controllers = require('../controllers')
 
 module.exports = function(app) {
     // Index
-    // TODO: require user for /profile
+    app.get('/profile*', controllers.session.requireUser)
     app.get('/profile', controllers.users.show, controllers.render('users/profile/data'))
     app.get('/profile/:username', controllers.users.show, controllers.render('users/profile/data'))
 }
