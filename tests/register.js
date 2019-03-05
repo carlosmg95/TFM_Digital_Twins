@@ -47,6 +47,8 @@ module.exports = {
                         .clearValue('form#login-form input[name=login-password]')
                         .setValue('form#login-form input[name=login-username]', username)
                         .setValue('form#login-form input[name=login-password]', '1234')
+                } else {
+                    
                 }
             })
     },
@@ -206,6 +208,8 @@ module.exports = {
     'Try to login without username': function(browser) {
         browser
             .click('a#logout-link')
+            .waitForElementVisible('body')
+            .click('a#login-link')
             .waitForElementVisible('body')
             .assert.urlEquals('http://localhost:3000/login', 'Succed logout')
             .setValue('form#login-form input[name=login-password]', '5678')

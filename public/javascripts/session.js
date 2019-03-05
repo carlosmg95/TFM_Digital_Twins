@@ -6,6 +6,7 @@ const createUser = async function() {
 
     strButton = $('#signup-btn')[0].innerText  // Save the text of the button
     $('#signup-btn')[0].innerHTML = '<i class="fas fa-spinner fa-spin"></i>'  // Show a wait icon
+    $('#signup-btn').attr('disabled', 'disabled')  // Disable the button
 
     let rightUsername = !emptyUsername() && await checkUsername(username)
     let rightEmail = await checkEmail(email)
@@ -42,9 +43,11 @@ const createUser = async function() {
         })
         .always(function() {
             $('#signup-btn')[0].innerText = strButton  // Recover the last text
+            $('#signup-btn').removeAttr('disabled')  // Enable again the button
         })
     } else {
         $('#signup-btn')[0].innerText = strButton  // Recover the last text
+        $('#signup-btn').removeAttr('disabled')  // Enable again the button
     }
 }
 
@@ -54,7 +57,8 @@ const login = async function() {
 
     strButton = $('#login-btn')[0].innerText  // Save the text of the button
     $('#login-btn')[0].innerHTML = '<i class="fas fa-spinner fa-spin"></i>'  // Show a wait icon
-    
+    $('#login-btn').attr('disabled', 'disabled')  // Disable the button
+
     if (username && $('#login-password').val()) {
         await $.post('/api/login', {
             username: username,
@@ -73,6 +77,7 @@ const login = async function() {
         })
         .always(function() {
             $('#login-btn')[0].innerText = strButton  // Recover the last text
+            $('#login-btn').removeAttr('disabled')  // Enable again the button
         })
     } else {
         if (!username) {
@@ -86,6 +91,7 @@ const login = async function() {
             hideErrorMsg($('#login-password'))
         }
         $('#login-btn')[0].innerText = strButton  // Recover the last text
+        $('#login-btn').removeAttr('disabled')  // Enable again the button
     }
 }
 
