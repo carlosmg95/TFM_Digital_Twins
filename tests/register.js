@@ -47,8 +47,6 @@ module.exports = {
                         .clearValue('form#login-form input[name=login-password]')
                         .setValue('form#login-form input[name=login-username]', username)
                         .setValue('form#login-form input[name=login-password]', '1234')
-                } else {
-                    
                 }
             })
     },
@@ -201,18 +199,20 @@ module.exports = {
             .click('button#signup-btn')
             .waitForElementVisible('body')
             .assert.urlEquals('http://localhost:3000/profile', 'It access to the profile page')
+            .assert.containsText('h1.page-header', `Bienvenido, ${username}`, 'Correct user')
             .saveScreenshot('tests/screenshots/rightForm.png')
-    },
-
-    // Try to login without username - Should FAIL -> Show /login url and error username input
-    'Try to login without username': function(browser) {
-        browser
+            .click('a.dropdown-toggle#setting-profile-btn')
             .click('a#logout-link')
             .waitForElementVisible('body')
             .click('a#login-link')
             .waitForElementVisible('body')
             .assert.urlEquals('http://localhost:3000/login', 'Succed logout')
-            .setValue('form#login-form input[name=login-password]', '5678')
+    },
+
+    // Try to login without username - Should FAIL -> Show /login url and error username input
+    'Try to login without username': function(browser) {
+        browser
+            .clearValue('form#login-form input[name=login-username]')
             .click('button#login-btn')
             .waitForElementVisible('form#login-form input[name=login-username] + div.form-group-error', 'Error appears')
             .assert.containsText('form#login-form input[name=login-username] + div.form-group-error', 'Introduzca el usuario', 'Error because empty username')
@@ -264,6 +264,7 @@ module.exports = {
             .click('button#login-btn')
             .waitForElementVisible('body')
             .assert.urlEquals('http://localhost:3000/profile', 'It access to the profile page')
+            .assert.containsText('h1.page-header', `Bienvenido, ${username}`, 'Correct user')
             .saveScreenshot('tests/screenshots/rightLoginForm.png')
     }
 }

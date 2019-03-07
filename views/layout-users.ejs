@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<!--  
+                                ██████╗  ██████╗ ██╗ ██████╗ ████████╗██╗    ██╗██╗███╗   ██╗███████╗
+                                ██╔══██╗██╔════╝ ██║██╔═══██╗╚══██╔══╝██║    ██║██║████╗  ██║██╔════╝
+                                ██║  ██║██║  ███╗██║██║   ██║   ██║   ██║ █╗ ██║██║██╔██╗ ██║███████╗
+                                ██║  ██║██║   ██║██║██║   ██║   ██║   ██║███╗██║██║██║╚██╗██║╚════██║
+                                ██████╔╝╚██████╔╝██║╚██████╔╝   ██║   ╚███╔███╔╝██║██║ ╚████║███████║
+                                ╚═════╝  ╚═════╝ ╚═╝ ╚═════╝    ╚═╝    ╚══╝╚══╝ ╚═╝╚═╝  ╚═══╝╚══════╝
+-->
+<html>
+<head>
+  <title>DgIoTwins</title>
+  <!-- Metas -->
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <!-- Bootstrap -->
+  <link href="/components/sb-admin-2/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+  <!-- Own CSS -->
+  <link rel="stylesheet" type="text/css" href="/stylesheets/style.css">
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
+  <!-- MetisMenu CSS -->
+  <link href="/components/sb-admin-2/vendor/metisMenu/metisMenu.min.css" rel="stylesheet">
+
+  <!-- Custom CSS -->
+  <link href="/components/sb-admin-2/dist/css/sb-admin-2.css" rel="stylesheet">
+
+  <!-- Morris Charts CSS -->
+  <link href="/components/sb-admin-2/vendor/morrisjs/morris.css" rel="stylesheet">
+  <!-- Custom fonts for the template -->
+  <link href="https://fonts.googleapis.com/css?family=Catamaran:100,200,300,400,500,600,700,800,900" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css?family=Lato:100,100i,300,300i,400,400i,700,700i,900,900i" rel="stylesheet">
+  <!-- Favicon -->
+  <link rel="apple-touch-icon" sizes="57x57" href="/favicon/apple-icon-57x57.png">
+  <link rel="apple-touch-icon" sizes="60x60" href="/favicon/apple-icon-60x60.png">
+  <link rel="apple-touch-icon" sizes="72x72" href="/favicon/apple-icon-72x72.png">
+  <link rel="apple-touch-icon" sizes="76x76" href="/favicon/apple-icon-76x76.png">
+  <link rel="apple-touch-icon" sizes="114x114" href="/favicon/apple-icon-114x114.png">
+  <link rel="apple-touch-icon" sizes="120x120" href="/favicon/apple-icon-120x120.png">
+  <link rel="apple-touch-icon" sizes="144x144" href="/favicon/apple-icon-144x144.png">
+  <link rel="apple-touch-icon" sizes="152x152" href="/favicon/apple-icon-152x152.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="/favicon/apple-icon-180x180.png">
+  <link rel="icon" type="image/png" sizes="192x192"  href="/favicon/android-icon-192x192.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="96x96" href="/favicon/favicon-96x96.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicon/favicon-16x16.png">
+  <link rel="manifest" href="/favicon/manifest.json">
+  <meta name="msapplication-TileColor" content="#ffffff">
+  <meta name="msapplication-TileImage" content="/favicon/ms-icon-144x144.png">
+  <meta name="theme-color" content="#ffffff">
+  <meta name="description" content="">
+  <meta name="author" content="Carlos Moro García">
+</head>
+<body>
+  <!-- jQuery -->
+  <script type="text/javascript" src="/components/jquery/dist/jquery.min.js"></script>
+  <!-- Bootstrap -->
+  <script type="text/javascript" src="/components/sb-admin-2/vendor/bootstrap/js/bootstrap.min.js"></script>
+  <!-- Metis Menu Plugin JavaScript -->
+  <script src="/components/sb-admin-2/vendor/metisMenu/metisMenu.min.js"></script>
+  <!-- Morris Charts JavaScript -->
+  <script src="/components/sb-admin-2/vendor/raphael/raphael.min.js"></script>
+  <script src="/components/sb-admin-2/vendor/morrisjs/morris.min.js"></script>
+  <script src="/components/sb-admin-2/data/morris-data.js"></script>
+  <!-- Custom Theme JavaScript -->
+  <script src="/components/sb-admin-2/dist/js/sb-admin-2.js"></script>
+  <!-- Main JS -->
+  <script type="text/javascript">
+      let baseUrl = '<%= baseUrl %>'
+  </script>
+
+  <div id="wrapper">
+    <!-- Navigation -->
+    <nav class="navbar navbar-default navbar-static-top" role="navigation" style="margin-bottom: 0">
+      <% include users/menu %>
+      <% include users/main-sidebar %>
+    </nav>  <!-- .Navigation -->
+
+    <%- body %>
+
+    <% include users/footer %>
+  </div>
+</body>
+</html>
