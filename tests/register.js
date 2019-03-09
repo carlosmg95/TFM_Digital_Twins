@@ -199,9 +199,9 @@ module.exports = {
             .click('button#signup-btn')
             .waitForElementVisible('body')
             .assert.urlEquals('http://localhost:3000/profile', 'It access to the profile page')
-            .assert.containsText('h1.page-header', `Bienvenido, ${username}`, 'Correct user')
+            .assert.containsText('span.mr-2.d-none.d-lg-inline.text-gray-600.small', `${username}`, 'Correct user')
             .saveScreenshot('tests/screenshots/rightForm.png')
-            .click('a.dropdown-toggle#setting-profile-btn')
+            .click('li#setting-profile-btn')
             .click('a#logout-link')
             .waitForElementVisible('body')
             .click('a#login-link')
@@ -264,7 +264,7 @@ module.exports = {
             .click('button#login-btn')
             .waitForElementVisible('body')
             .assert.urlEquals('http://localhost:3000/profile', 'It access to the profile page')
-            .assert.containsText('h1.page-header', `Bienvenido, ${username}`, 'Correct user')
+            .assert.containsText('span.mr-2.d-none.d-lg-inline.text-gray-600.small', `${username}`, 'Correct user')
             .saveScreenshot('tests/screenshots/rightLoginForm.png')
     }
 }
