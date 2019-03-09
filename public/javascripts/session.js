@@ -72,7 +72,7 @@ const login = async function() {
                 showError('login-err', errorMsg)
             } else {
                 hideError('login-err')
-                window.location.href = /*getUrlParam(window.location.href, 'redir') ||*/ `/profile`
+                window.location.href = getUrlParam(window.location.href, 'redir') || `/profile`
             }
         })
         .always(function() {
@@ -196,6 +196,32 @@ const emptyUsername = function() {
         hideErrorMsg($('#signup-username'))
     }
     return emptyUsername
+}
+
+// Return URL param
+const getUrlParam = function(url, param) {
+    var params = getUrlParams(url)
+    for(var i in params) {
+        if(params[i].key === param) {
+            return params[i].value
+        }
+    }
+    return null
+}
+
+// Return query params
+const getUrlParams = function(url) {
+    var parts = url.split('?')
+    if(parts.length <2) {
+        return []
+    }
+    return parts[1].split('&').map(function(queryStr) {
+        var param = queryStr.split('=')
+        return {
+            key: param[0],
+            value: param[1] || null
+        }
+    })
 }
 
 const hash = function(pass) {
