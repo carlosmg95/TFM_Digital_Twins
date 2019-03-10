@@ -103,6 +103,18 @@ module.exports.getRequestBodyErrors = function(options) {
     return null
 }
 
+// Returns true if the path is like the string provided
+module.exports.pathLike = function(path, string, regExp) {
+    var noParamsPath = path.split('?')[0]
+    var relativeUrl = noParamsPath.replace(`${config.baseUrl}/`, '')
+    if(regExp) {
+        var regExp = new RegExp(regExp)
+        const match = relativeUrl.match(regExp)
+        return match && match[0] ? true : false
+    }
+    return relativeUrl === string
+}
+
 // Remove a string slice in every element from an array
 module.exports.removeFromArrayElements = function(arr, contentToRemove) {
     if(typeof(contentToRemove) !== 'object') {

@@ -14,9 +14,9 @@ const createUser = async function() {
     
     if (rightUsername && rightEmail && rightPasswords) {
         await $.post('/api/join', {
-            username: username,
-            email: email,
-            password: password1
+            "username": username,
+            "email": email,
+            "password": password1
         })
         .done(function(data) {
             if(data.error) {
@@ -25,8 +25,8 @@ const createUser = async function() {
             } else {
                 hideError('signup-err')
                 $.post('/api/login', {
-                    username: username,
-                    password: password1
+                    "username": username,
+                    "password": password1
                 })
                 .done(function(data) {
                     let code = data.code
@@ -61,8 +61,8 @@ const login = async function() {
 
     if (username && $('#login-password').val()) {
         await $.post('/api/login', {
-            username: username,
-            password: password
+            "username": username,
+            "password": password
         })
         .done(function(data) {
             let code = data.code

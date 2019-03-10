@@ -8,6 +8,7 @@ const path = require('path')
 
 // Own modules
 const controllers = require('../controllers')
+const fns = require('../tools/functions')
 
 // ====================================================================================================================
 // Module exports
@@ -95,6 +96,26 @@ module.exports.emailExist = function (req, res, next) {
     })
 }
 
+module.exports.rightPassword = function(req, res, next) {
+    let password = crypt(req.params.password)
+    let username = req.session.user.username
+    controllers.mongodb.read('users', {"username": username, "password": password}, function(error, docs) {
+        if (error) {
+            req.error = error
+            return res.renderError(500)
+        }
+
+        if (docs && docs.length) {  // If the email exists:
+            log.debug('Right password')
+        } else {
+            req.error = fns.formatError(errors.WRONG_PASSWORD)
+            log.error(req.error.message)
+            return next()
+        }
+        return next()
+    })
+}
+
 // Show a given user
 module.exports.show = function(req, res, next) {
     const username = req.params.username || req.session.user.username
@@ -107,6 +128,86 @@ module.exports.show = function(req, res, next) {
     })
 }
 
+// Update an user
+module.exports.updateUser = function(req, res, next) {
+    let oldUsername = req.session.user.username
+    let {username, email, password} = req.body
+    password = password && crypt(password)
+    let set = password ? {password} : {}
+    async.series([
+        // Check if the email exists
+        function emailExist(cb) {
+            if (email) {
+                controllers.mongodb.read('users', {"email": email}, function(error, docs) {
+                    if (error) {
+                        req.error = error
+                        return res.renderError(500)
+                    }
+
+                    if (docs && docs.length) {  // If the email exists:
+                        req.error = error = fns.formatError(errors.EXISTING_EMAIL, email)
+                        return cb(error)
+                    } else {
+                        log.debug('Email free')
+                        set = fns.concatObjects(set, {email})
+                    }
+                    cb()
+                })
+            } else {
+                cb()
+            }
+        },
+        // Check if the username exists
+        function usernameExist(cb) {
+            if (username) {
+                controllers.mongodb.read('users', {"username": username}, function(error, docs) {
+                    if (error) {
+                        req.error = error
+                        return res.renderError(500)
+                    }
+
+                    // If the username exists or it is a reserved word:
+                    if ((docs && docs.length) || fns.arrayContains(config.reservedWords, username)) {
+                        req.error = error = fns.formatError(errors.EXISTING_USERNAME, username)
+                        return cb(error)
+                    } else {
+                        log.debug('Username free')
+                        set = fns.concatObjects(set, {username})
+                    }
+                    cb()
+                })
+            } else {
+                cb()
+            }
+        },
+        // Update the user
+        function updateUser(cb) {
+            controllers.mongodb.update('users', {"username": oldUsername}, set, function(error, result) {
+                if (error) {
+                    req.error = error
+                    return res.renderError(500)
+                }
+                log.info('Success udpate')
+                cb()
+            })
+        }
+    ], function(error) {
+        if (error) {
+            log.error(error.message)
+            req.error = error
+            return res.renderError(500)
+        }
+        username = username || oldUsername
+        delete req.user
+        delete req.session.user
+        getUser(username, function(error, docs) {
+            let user = docs[0]
+            req.user = user
+            req.session.user = { "id": user._id, "username": user.username }
+            next()
+        })
+    })
+}
 
 // Check if an username exist
 module.exports.usernameExist = function (req, res, next) {
