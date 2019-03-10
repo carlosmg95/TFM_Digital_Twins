@@ -14,7 +14,7 @@ const fns = require('../tools/functions')
 // Module exports
 // ====================================================================================================================
 
-module.exports.create = function (req, res, next) {
+module.exports.create = function(req, res, next) {
     let { username, email, password } = req.body
     let article = { username, email, "password": crypt(password) }
 
@@ -75,8 +75,26 @@ module.exports.create = function (req, res, next) {
     })
 }
 
+// Delete an user
+module.exports.deleteUser = function(req, res, next) {
+    let {username, password} = req.body
+    let where = { username, "password": crypt(password) }
+
+    delete req.user
+    delete req.session.user
+
+    controllers.mongodb.delete('users', where, function(error, result) {
+        if (error) {
+            req.error = error
+            return res.renderError(500)
+        }
+        log.debug(`User ${username} deleted`)
+        return next()
+    })
+}
+
 // Check if an email exist
-module.exports.emailExist = function (req, res, next) {
+module.exports.emailExist = function(req, res, next) {
     let email = req.params.email
 
     controllers.mongodb.read('users', {"email": email}, function(error, docs) {
@@ -210,7 +228,7 @@ module.exports.updateUser = function(req, res, next) {
 }
 
 // Check if an username exist
-module.exports.usernameExist = function (req, res, next) {
+module.exports.usernameExist = function(req, res, next) {
     let username = req.params.username
 
     controllers.mongodb.read('users', {"username": username}, function(error, docs) {

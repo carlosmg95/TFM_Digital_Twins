@@ -2,6 +2,37 @@ let newUsername = false
 let newEmail = false
 let newPassword = false
 
+const deleteUser = async function() {
+    let username = $('#delete-username').val()
+    let password = hash($('#delete-password').val())
+
+    strButton = $('#delete-btn')[0].innerText  // Save the text of the button
+    $('#delete-btn')[0].innerHTML = '<i class="fas fa-spinner fa-spin"></i>'  // Show a wait icon
+    $('#delete-btn').attr('disabled', 'disabled')  // Disable the button
+
+    let rightPassword = await checkPassword(password, 'delete-password')
+
+    if (rightPassword) {
+        await $.post('/api/deleteuser?_method=DELETE', {
+            username,
+            password
+        })
+        .done(function(data) {
+            if(data.error) {
+                showError('delete-alert', data.error)
+            } else {
+                window.location.href = '/'
+            }
+        })
+        .always(function() {
+            $('#delete-btn')[0].innerText = strButton  // Recover the last text
+            $('#delete-btn').removeAttr('disabled')  // Enable again the button
+        })
+    }
+    $('#delete-btn')[0].innerText = strButton  // Recover the last text
+    $('#delete-btn').removeAttr('disabled')  // Enable again the button
+}
+
 const editUser = async function() {
     let username = $('#edit-username').val()
     let email = $('#edit-email').val()
@@ -92,6 +123,7 @@ const checkEmail = async function(email) {
     }
 }
 
+// Check if every password is ok
 const checkPasswords = async function(passOld, pass1, pass2) {
     passOld = passOld || hash($('#edit-old-password').val())
     pass1 = pass1 || hash($('#edit-new-password').val())
@@ -109,25 +141,31 @@ const checkPasswords = async function(passOld, pass1, pass2) {
             return false
         }
 
-        await $.get(`/api/users/rightpassword/${passOld}`, function(result) {
-            let code = result.code
-            let errorMsg = result.error
-
-            if (wrongPassErrorCode === code) {
-                showErrorMsg($('#edit-old-password'), errorMsg)
-                rightPassword = false
-            } else {
-                hideErrorMsg($('#edit-old-password'))
-                exists = false
-                newPassword = true
-                rightPassword = true
-            }
-        })
+        rightpassword = await checkPassword(passOld, 'edit-old-password')
         return rightPassword
     } else {
         newPassword = false
         return true
     }
+}
+
+// Check if the password is right
+const checkPassword = async function(pass, idDiv) {
+    await $.get(`/api/users/rightpassword/${pass}`, function(result) {
+        let code = result.code
+        let errorMsg = result.error
+
+        if (wrongPassErrorCode === code) {
+            showErrorMsg($(`#${idDiv}`), errorMsg)
+            rightPassword = false
+        } else {
+            hideErrorMsg($(`#${idDiv}`))
+            exists = false
+            newPassword = true
+            rightPassword = true
+        }
+    })
+    return rightPassword
 }
 
 // Check if the username exists

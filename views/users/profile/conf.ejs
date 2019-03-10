@@ -84,7 +84,7 @@
     </div>  <!-- .Edit user -->
 
     <!-- Delete user -->
-    <div class="col-12 col-lg-6">
+    <div class="col-12 col-md-6">
       <div class="card shadow mb-4">
         <!-- Card Header -->
         <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
@@ -93,7 +93,16 @@
 
         <!-- Card Body -->
         <div class="card-body text-danger">
-
+          <div class="row">
+            <div class="col-12 col-md-auto">
+              <button type="submit" class="btn btn-block btn-danger mb-2" data-toggle="modal" data-target="#deleteModal">
+                <span class="icon text-white-50">
+                  <i class="fas fa-trash"></i>
+                </span>
+                &nbsp;Borrar usuario
+              </button>
+            </div>
+          </div>
         </div>  <!-- .Card Body -->
       </div>
     </div>  <!-- .Delete user -->
@@ -102,3 +111,40 @@
 
 <script type="text/javascript" src="/components/crypto-js/crypto-js.js"></script>
 <script type="text/javascript" src="/javascripts/conf.js"></script>
+
+<!-- Delete modal -->
+<div class="modal fade col-12" id="deleteModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <!-- Modal content -->
+    <div class="modal-content">
+      <!-- Modal header -->
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalLabel">Modal title</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>  <!-- .Modal header -->
+
+      <!-- Modal body -->
+      <div class="modal-body">
+        <!-- Alert -->
+        <div id="delete-alert" class="alert text-center fade show" role="alert" hidden></div>   <!-- .Alert -->
+        Esta acción no se puede deshacer. ¿Borrar de todas formas?
+        <form class="mt-3">
+          <div class="form-group mx-sm-3 mb-2">
+            <input type="text" id="delete-username" name="delete-username" value="<%= user.username %>" hidden>
+            <label for="delete-password" class="sr-only">Contraseña</label>
+            <input type="password" class="form-control" id="delete-password" name="delete-password" placeholder="Contraseña">
+            <div class="form-group-error"><small class="form-text text-danger"></small></div>
+          </div>
+        </form>
+      </div>  <!-- .Modal body -->
+
+      <!-- Modal footer -->
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+        <button id="delete-btn" type="button" class="btn btn-danger" onclick="deleteUser()">Borrar usuario</button>
+      </div>  <!-- .Modal footer -->
+    </div>  <!-- .Modal content -->
+  </div>
+</div>  <!-- .Delete modal -->

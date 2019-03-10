@@ -17,4 +17,5 @@ module.exports = function(app) {
     app.get('/api/users/existemail/:email', controllers.users.emailExist, api.common.data)
     app.get('/api/users/rightpassword/:password', controllers.users.rightPassword, api.common.data)
     app.put('/api/edituser', controllers.users.updateUser, api.common.data)
+    app.delete('/api/deleteuser', controllers.users.deleteUser, api.common.data)
 }
