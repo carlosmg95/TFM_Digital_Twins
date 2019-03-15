@@ -16,71 +16,74 @@
   <div class="row">
     <!-- Edit user -->
     <div class="col-12 col-md-6">
-      <div class="card shadow mb-4">
-        <!-- Card Header -->
-        <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
-          <h6 class="m-0 font-weight-bold text-primary">Editar usuario</h6>
-        </div>  <!-- .Card Header -->
+      <!-- Form -->
+      <form id="edit-form" class="user" action="javascript:void(0);">
+        <div class="card shadow mb-4">
+          <!-- Card Header -->
+          <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+            <h6 class="m-0 font-weight-bold text-primary">Editar usuario</h6>
+          </div>  <!-- .Card Header -->
 
-        <!-- Card Body -->
-        <div class="card-body text-primary">
-          <!-- Alert -->
-          <div id="edit-alert" class="alert text-center fade show" role="alert" hidden></div>   <!-- .Alert -->
+          <!-- Card Body -->
+          <div class="card-body text-primary">
+            <!-- Alert -->
+            <div id="edit-alert" class="alert text-center fade show" role="alert" hidden></div>   <!-- .Alert -->
 
-          <!-- Username -->
-          <div class="form-group has-feedback">
-            <label for="edit-username"><i class="fas fa-user"></i> Username</label>
-            <input type="text" id="edit-username" name="edit-username" class="form-control" value="<%= user.username %>">
-            <input id="edit-username-old" value="<%= user.username %>" hidden>
-            <div class="form-group-error" data-err="El nombre de usuario no puede contener espacios ni caracteres especiales"><small class="form-text text-danger"></small></div>
-          </div>  <!-- .Username -->
-
-          <!-- email -->
-          <div class="form-group has-feedback">
-            <label for="edit-email"><i class="fas fa-at"></i> Email</label>
-            <input type="email" id="edit-email" name="edit-email" class="form-control" value="<%= user.email %>">
-            <input id="edit-email-old" value="<%= user.email %>" hidden>
-            <div class="form-group-error" data-err="Formato incorrecto"><small class="form-text text-danger"></small></div>
-          </div>  <!-- .email -->
-
-          <div id="passwords" hidden>
-            <!-- Old password -->
+            <!-- Username -->
             <div class="form-group has-feedback">
-              <label for="edit-old-password"><i class="fas fa-lock"></i> Contraseña antigua</label>
-              <input type="password" id="edit-old-password" name="edit-old-password" class="form-control" placeholder="Contraseña antigua" value="">
-              <div class="form-group-error" data-err=""><small class="form-text text-danger"></small></div>
-            </div>  <!-- .Old password -->
+              <label for="edit-username"><i class="fas fa-user"></i> Username</label>
+              <input type="text" id="edit-username" name="edit-username" class="form-control" value="<%= user.username %>">
+              <div class="form-group-error" data-err="El nombre de usuario no puede contener espacios ni caracteres especiales"><small class="form-text text-danger"></small></div>
+              <input id="edit-username-old" value="<%= user.username %>" hidden>
+            </div>  <!-- .Username -->
 
-            <!-- New password -->
+            <!-- email -->
             <div class="form-group has-feedback">
-              <label for="edit-new-password"><i class="fas fa-lock"></i> Contraseña nueva</label>
-              <input type="password" id="edit-new-password" name="edit-new-password" class="form-control" placeholder="Contraseña nueva" value="">
-              <div class="form-group-error" data-err="Las contraseñas deben ser igual"><small class="form-text text-danger"></small></div>
-            </div>  <!-- .New password -->
+              <label for="edit-email"><i class="fas fa-at"></i> Email</label>
+              <input type="email" id="edit-email" name="edit-email" class="form-control" value="<%= user.email %>">
+              <div class="form-group-error" data-err="Formato incorrecto"><small class="form-text text-danger"></small></div>
+              <input id="edit-email-old" value="<%= user.email %>" hidden>
+            </div>  <!-- .email -->
 
-            <!-- Repeat new password -->
-            <div class="form-group has-feedback">
-              <label for="edit-new-password-repeat"><i class="fas fa-lock"></i> Repetir contraseña nueva</label>
-              <input type="password" id="edit-new-password-repeat" name="edit-new-password-repeat" class="form-control" placeholder="Repetir contraseña nueva" value="">
-              <div class="form-group-error" data-err="Las contraseñas deben ser igual"><small class="form-text text-danger"></small></div>
-            </div>  <!-- .Repeat new password -->
-          </div>
+            <div id="passwords" hidden>
+              <!-- Old password -->
+              <div class="form-group has-feedback">
+                <label for="edit-old-password"><i class="fas fa-lock"></i> Contraseña antigua</label>
+                <input type="password" id="edit-old-password" name="edit-old-password" class="form-control" placeholder="Contraseña antigua" value="">
+                <div class="form-group-error" data-err=""><small class="form-text text-danger"></small></div>
+              </div>  <!-- .Old password -->
 
-          <!-- Button passwords -->
-          <div class="row mb-1 float-md-right">
-            <div class="col-12 col-md-auto">
-              <button id="show-passwords-btn" class="btn btn-success btn-block btn-flat" onclick="showPasswords()">Cambiar contraseña</button>
+              <!-- New password -->
+              <div class="form-group has-feedback">
+                <label for="edit-new-password"><i class="fas fa-lock"></i> Contraseña nueva</label>
+                <input type="password" id="edit-new-password" name="edit-new-password" class="form-control" placeholder="Contraseña nueva" value="">
+                <div class="form-group-error" data-err="Las contraseñas deben ser igual"><small class="form-text text-danger"></small></div>
+              </div>  <!-- .New password -->
+
+              <!-- Repeat new password -->
+              <div class="form-group has-feedback">
+                <label for="edit-new-password-repeat"><i class="fas fa-lock"></i> Repetir contraseña nueva</label>
+                <input type="password" id="edit-new-password-repeat" name="edit-new-password-repeat" class="form-control" placeholder="Repetir contraseña nueva" value="">
+                <div class="form-group-error" data-err="Las contraseñas deben ser igual"><small class="form-text text-danger"></small></div>
+              </div>  <!-- .Repeat new password -->
             </div>
-          </div>  <!-- .Button passwords -->
 
-          <!-- Button edit -->
-          <div class="row mb-1 float-md-left">
-            <div class="col-12 col-md-auto">
-              <button type="submit" id="edit-btn" class="btn btn-primary btn-block btn-flat" onclick="editUser()">Enviar nuevos valores</button>
-            </div>
-          </div>  <!-- .Button edit -->
-        </div>  <!-- .Card Body -->
-      </div>
+            <!-- Button passwords -->
+            <div class="row mb-1 float-md-right">
+              <div class="col-12 col-md-auto">
+                <button id="show-passwords-btn" class="btn btn-success btn-block btn-flat" onclick="showPasswords()">Cambiar contraseña</button>
+              </div>
+            </div>  <!-- .Button passwords -->
+
+            <!-- Button edit -->
+            <div class="row mb-1 float-md-left">
+              <div class="col-12 col-md-auto">
+                <button type="submit" id="edit-btn" class="btn btn-primary btn-block btn-flat" onclick="editUser()">Enviar nuevos valores</button>
+              </div>
+            </div>  <!-- .Button edit -->
+          </div>  <!-- .Card Body -->
+        </div>
+      </form>  <!-- .Form -->
     </div>  <!-- .Edit user -->
 
     <!-- Delete user -->
@@ -95,7 +98,7 @@
         <div class="card-body text-danger">
           <div class="row">
             <div class="col-12 col-md-auto">
-              <button type="submit" class="btn btn-block btn-danger mb-2" data-toggle="modal" data-target="#deleteModal">
+              <button id="show-delete-modal" class="btn btn-block btn-danger mb-2" data-toggle="modal" data-target="#delete-modal">
                 <span class="icon text-white-50">
                   <i class="fas fa-trash"></i>
                 </span>
@@ -113,7 +116,7 @@
 <script type="text/javascript" src="/javascripts/conf.js"></script>
 
 <!-- Delete modal -->
-<div class="modal fade col-12" id="deleteModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+<div class="modal fade col-12" id="delete-modal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
   <div class="modal-dialog" role="document">
     <!-- Modal content -->
     <div class="modal-content">
@@ -129,8 +132,8 @@
       <div class="modal-body">
         <!-- Alert -->
         <div id="delete-alert" class="alert text-center fade show" role="alert" hidden></div>   <!-- .Alert -->
-        Esta acción no se puede deshacer. ¿Borrar de todas formas?
-        <form class="mt-3">
+        Esta acción no se puede deshacer. ¿Borrar de todas formas?  
+        <form id="delete-form" class="mt-3">     
           <div class="form-group mx-sm-3 mb-2">
             <input type="text" id="delete-username" name="delete-username" value="<%= user.username %>" hidden>
             <label for="delete-password" class="sr-only">Contraseña</label>

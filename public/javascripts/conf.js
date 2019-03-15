@@ -129,19 +129,33 @@ const checkPasswords = async function(passOld, pass1, pass2) {
     pass1 = pass1 || hash($('#edit-new-password').val())
     pass2 = pass2 || hash($('#edit-new-password-repeat').val())
     let changePassword = !$('div#passwords')[0].hidden
-    let rightPassword = false
+    let rightPassword = true
 
     if (changePassword) {
         let equals = pass1 === pass2
 
         if (equals) {
             hideErrorMsg($('#edit-new-password-repeat'))
+            
+            if (!$('#edit-new-password').val()) {
+                showErrorMsg($('#edit-new-password'), 'Este campo se debe rellenar')
+                rightPassword &= false
+            } else {
+                hideErrorMsg($('#edit-new-password'))
+            }
+
+            if (!$('#edit-new-password-repeat').val()) {
+                showErrorMsg($('#edit-new-password-repeat'), 'Este campo se debe rellenar')
+                rightPassword &= false
+            } else {
+                hideErrorMsg($('#edit-new-password-repeat'))
+            }   
         } else {
             showErrorMsg($('#edit-new-password-repeat'))
-            return false
+            rightPassword &= false
         }
 
-        rightpassword = await checkPassword(passOld, 'edit-old-password')
+        rightPassword &= await checkPassword(passOld, 'edit-old-password')
         return rightPassword
     } else {
         newPassword = false
