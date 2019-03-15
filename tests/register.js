@@ -506,5 +506,40 @@ module.exports = {
             .assert.containsText('button#edit-btn', 'Enviar nuevos valores', 'We are not waiting for data')
             .assert.urlEquals('http://localhost:3000/profile/settings', 'Correct page')
             .saveScreenshot('tests/screenshots/successPasswordEdit.png')
+    },
+
+    // Try to delete with empty password - Should FAIL -> Show /profile/settings and wrong password error
+    'Try to delete with empty password': function(browser) {
+        browser
+            .click('button#show-delete-modal')
+            .waitForElementVisible('div#delete-modal', 'Show the modal with the password')
+            .click('button#delete-btn')
+            .waitForElementVisible('form#delete-form input[name=delete-password] + div.form-group-error', 'Error appears')
+            .assert.containsText('form#delete-form input[name=delete-password] + div.form-group-error', 'Contraseña incorrecta', 'Error because wrong password')
+            .assert.containsText('button#delete-btn', 'Borrar usuario', 'We are not waiting for data')
+            .assert.urlEquals('http://localhost:3000/profile/settings', 'It cannot send wrong data')
+            .saveScreenshot('tests/screenshots/emptyPasswordDelete.png')
+    },
+
+    // Try to delete with wrong password - Should FAIL -> Show /profile/settings and wrong password error
+    'Try to delete with wrong password': function(browser) {
+        browser
+            .setValue('form#delete-form input[name=delete-password]', '0000')
+            .click('button#delete-btn')
+            .waitForElementVisible('form#delete-form input[name=delete-password] + div.form-group-error', 'Error appears')
+            .assert.containsText('form#delete-form input[name=delete-password] + div.form-group-error', 'Contraseña incorrecta', 'Error because wrong password')
+            .assert.containsText('button#delete-btn', 'Borrar usuario', 'We are not waiting for data')
+            .assert.urlEquals('http://localhost:3000/profile/settings', 'It cannot send wrong data')
+            .saveScreenshot('tests/screenshots/wrongPasswordDelete.png')
+    },
+
+    // Try to delete correctly - Should SUCCESS -> Show /
+    'Try to delete correctly': function(browser) {
+        browser
+            .clearValue('form#delete-form input[name=delete-password]')
+            .setValue('form#delete-form input[name=delete-password]', '5678')
+            .click('button#delete-btn')
+            .assert.urlEquals('http://localhost:3000/', 'Show the main page')
+            .saveScreenshot('tests/screenshots/succeedDelete.png')
     }
 }
