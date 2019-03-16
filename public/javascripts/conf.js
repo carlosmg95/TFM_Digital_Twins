@@ -34,11 +34,12 @@ const deleteUser = async function() {
 }
 
 const editUser = async function() {
-    let username = $('#edit-username').val()
     let email = $('#edit-email').val()
+    let id = $('#user-id').val()
     let passwordOld = hash($('#edit-old-password').val())
     let passwordNew = hash($('#edit-new-password').val())
     let passwordNew2 = hash($('#edit-new-password-repeat').val())
+    let username = $('#edit-username').val()
 
     strButton = $('#edit-btn')[0].innerText  // Save the text of the button
     $('#edit-btn')[0].innerHTML = '<i class="fas fa-spinner fa-spin"></i>'  // Show a wait icon
@@ -49,7 +50,7 @@ const editUser = async function() {
     let rightPassword = await checkPasswords(passwordOld, passwordNew, passwordNew2)
 
     if (rightUsername && rightEmail && rightPassword ) {
-        let post = {}
+        let post = { "id": id }
         if (newUsername)
             post = { ...post, username }
         if (newEmail)

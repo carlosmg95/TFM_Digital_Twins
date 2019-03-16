@@ -115,9 +115,11 @@ module.exports.emailExist = function(req, res, next) {
 }
 
 module.exports.rightPassword = function(req, res, next) {
+    let id = req.session.user.id
     let password = crypt(req.params.password)
-    let username = req.session.user.username
-    controllers.mongodb.read('users', {"username": username, "password": password}, function(error, docs) {
+    let where = {"_id": controllers.mongodb.stringToObjectId(id), "password": password}
+    
+    controllers.mongodb.read('users', where, function(error, docs) {
         if (error) {
             req.error = error
             return res.renderError(500)
@@ -136,8 +138,8 @@ module.exports.rightPassword = function(req, res, next) {
 
 // Show a given user
 module.exports.show = function(req, res, next) {
-    const username = req.params.username || req.session.user.username
-    getUser(username, function(error, docs) {
+    const id = req.session.user.id
+    getUser(id, function(error, docs) {
         if (!docs || docs.length === 0) {
             return res.renderError(404)
         }
@@ -148,8 +150,7 @@ module.exports.show = function(req, res, next) {
 
 // Update an user
 module.exports.updateUser = function(req, res, next) {
-    let oldUsername = req.session.user.username
-    let {username, email, password} = req.body
+    let {username, email, password, id} = req.body
     password = password && crypt(password)
     let set = password ? {password} : {}
     async.series([
@@ -200,7 +201,7 @@ module.exports.updateUser = function(req, res, next) {
         },
         // Update the user
         function updateUser(cb) {
-            controllers.mongodb.update('users', {"username": oldUsername}, set, function(error, result) {
+            controllers.mongodb.update('users', {"_id": controllers.mongodb.stringToObjectId(id)}, set, function(error, result) {
                 if (error) {
                     req.error = error
                     return res.renderError(500)
@@ -215,15 +216,7 @@ module.exports.updateUser = function(req, res, next) {
             req.error = error
             return res.renderError(500)
         }
-        username = username || oldUsername
-        delete req.user
-        delete req.session.user
-        getUser(username, function(error, docs) {
-            let user = docs[0]
-            req.user = user
-            req.session.user = { "id": user._id, "username": user.username }
-            next()
-        })
+        next()
     })
 }
 
@@ -253,6 +246,11 @@ module.exports.usernameExist = function(req, res, next) {
 // Private functions
 // ====================================================================================================================
 
-const getUser = function(username, callback) {
-    controllers.mongodb.read('users', {"username": username}, callback, { "project": { "password": 0 } })
+const getUser = function(id, callback) {
+    controllers.mongodb.read(
+        'users',
+        {"_id": controllers.mongodb.stringToObjectId(id)},
+        callback,
+        { "project": { "password": 0 } }
+    )
 }

@@ -3,7 +3,7 @@
 // ====================================================================================================================
 
 // Node modules
-const MongoClient = require('mongodb').MongoClient
+const {MongoClient, ObjectID} = require('mongodb')
 const path = require('path')
 
 // Own modules
@@ -68,6 +68,31 @@ const allowedOptions = {
         return cursor.hint(hint)
     }
 }
+
+/***********************************************************
+ * 
+ * Get the allowed options that can be used with cursors
+ * Return: The allowed options that can be used with cursors
+ *
+ */
+module.exports.getAllowedOptions = getAllowedOptions = function() {
+    return Object.keys(allowedOptions)
+}
+
+
+/***********************************************
+ *
+ * Convert a string into a ObjectId
+ * Parameters:
+ *   str: [string] String that will be converted
+ * Return: The ObjectId
+ * 
+ */
+module.exports.stringToObjectId = function(str) {
+    return ObjectID(str)
+}
+
+// CRUD Functions
 
 /***********************************************
  *
@@ -176,16 +201,6 @@ module.exports.delete = function(collection, where={}, callback, options={}) {
             callback(err, r)
         })
     })
-}
-
-/***********************************************************
- * 
- * Get the allowed options that can be used with cursors
- * Return: The allowed options that can be used with cursors
- *
- */
-module.exports.getAllowedOptions = getAllowedOptions = function() {
-    return Object.keys(allowedOptions)
 }
 
 // ====================================================================================================================

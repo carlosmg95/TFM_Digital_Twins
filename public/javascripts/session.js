@@ -20,7 +20,6 @@ const createUser = async function() {
         })
         .done(function(data) {
             if(data.error) {
-                console.log(data.error)
                 showError('signup-err', data.error)
             } else {
                 hideError('signup-err')

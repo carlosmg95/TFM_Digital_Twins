@@ -26,7 +26,7 @@ module.exports.create = function(req, res, next) {
         }
         let user = docs[0]
         req.user = user
-        req.session.user = { "id": user._id, "username": user.username }
+        req.session.user = { "id": user._id }
         next()
     })
 }
