@@ -18,7 +18,9 @@
 
   <!-- Content Row -->
   <div class="row">
-
+    <% for (let i in user.models) { %>
+    <p><%= user.models[i].name %></p>
+    <% } %>
   </div>  <!-- .Content Row -->
 </div>  <!-- .container-fluid -->
 

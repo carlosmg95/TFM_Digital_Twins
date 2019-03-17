@@ -137,11 +137,8 @@ module.exports.rightPassword = function(req, res, next) {
 // Show a given user
 module.exports.show = function(req, res, next) {
     const id = req.session.user.id
-    getUser(id, function(error, docs) {
-        if (!docs || docs.length === 0) {
-            return res.renderError(404)
-        }
-        req.user = docs[0]
+    getUser(id, function(error, result) {
+        req.user = result
         next()
     })
 }
@@ -241,10 +238,31 @@ module.exports.usernameExist = function(req, res, next) {
 // ====================================================================================================================
 
 const getUser = function(id, callback) {
-    controllers.mongodb.read(
-        'users',
-        {"_id": controllers.mongodb.stringToObjectId(id)},
-        callback,
-        { "project": { "password": 0 } }
-    )
+    async.waterfall([
+        // Read the user
+        function getUser(cb) {
+            controllers.mongodb.read(
+                'users',
+                {"_id": controllers.mongodb.stringToObjectId(id)},
+                function(error, docs) {
+                    if (!docs || docs.length === 0) {
+                        return res.renderError(404)
+                    }
+                    let user = docs[0]
+                    cb(null, user)
+                },
+                { "project": { "password": 0 } }
+            )
+        },
+        // Get its models
+        function getModels(user, cb) {
+            controllers.mongodb.read('models', {"userId": id}, function(error, docs) {
+                if (!docs || docs.length === 0) {
+                    return res.renderError(404)
+                }
+                user.models = docs
+                cb(null, user)
+            })
+        }
+    ], callback)
 }
