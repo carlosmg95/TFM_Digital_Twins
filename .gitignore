@@ -1,6 +1,7 @@
+*.log
+data/
 node_modules/
 package-lock.json
-data
+public/models/
 tests/reports/
 tests/screenshots/
-*.log

@@ -1,0 +1,55 @@
+<!-- Page Content -->
+<div class="container-fluid">
+
+  <!-- Page Heading -->
+  <div class="d-sm-flex align-items-center justify-content-between mb-4">
+    <h1 class="h3 mb-0 text-gray-800">Modelos 3D</h1>
+    <a href="" class="d-none d-sm-inline-block btn btn-sm btn-success shadow-sm" data-toggle="modal" data-target="#upload-modal">
+      <i class="fas fa-upload"></i> Subir modelo
+    </a>
+  </div>  <!-- .Page Heading -->
+
+  <!-- Content Row -->
+  <div class="row">
+
+  </div>  <!-- .Content Row -->
+</div>  <!-- .container-fluid -->
+
+<!-- Upload modal -->
+<div class="modal fade" id="upload-modal" tabindex="-1" role="dialog" aria-labelledby="upload-modal-label" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <!-- Modal header -->
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalLabel">Subir fichero</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>  <!-- .Modal header -->
+
+      <!-- Modal body -->
+      <div class="modal-body">
+        <form id="upload-form">
+          <div class="form-group">
+            <label for="model-name">Nombre</label>
+            <input type="text" class="form-control" id="model-name" name="model-name">
+            <div class="form-group-error" data-err="Se debe rellenar el nombre del fichero"><small class="form-text text-danger"></small></div>
+          </div>
+          <div class="form-group">
+            <label for="model-file">Fichero glb</label>
+            <input type="file" class="form-control-file" id="model-file" name="model-file" accept=".glb">
+            <div class="form-group-error" data-err="Se debe proporcionar un fichero"><small class="form-text text-danger"></small></div>
+          </div>
+        </form>
+      </div>   <!-- .Modal body -->
+
+      <!-- Modal footer -->
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
+        <button id="upload-btn" type="submit" class="btn btn-primary" onclick="uploadFile()">Subir</button>
+      </div>  <!-- .Modal footer -->
+    </div>
+  </div>
+</div>  <!-- .Upload modal -->
+
+<script type="text/javascript" src="/javascripts/models.js"></script>

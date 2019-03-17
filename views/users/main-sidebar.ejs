@@ -7,17 +7,7 @@
       <i class="fas fa-code-branch"></i>
     </div>
     <div class="sidebar-brand-text mx-3">Dg<strong>IoT</strong>wins</div>
-  </a>
-
-  <!-- Divider -->
-  <hr class="sidebar-divider my-0">
-
-  <!-- Nav Item - Dashboard -->
-  <li class="nav-item <%= fns.pathLike(path, '/profile') ? 'active' : '' %>">
-    <a class="nav-link" href="/profile">
-      <i class="fas fa-fw fa-tachometer-alt"></i>
-      <span>Dashboard</span></a>
-  </li>
+  </a>  
 
   <!-- Divider -->
   <hr class="sidebar-divider">
@@ -26,6 +16,23 @@
   <div class="sidebar-heading">
     Interface
   </div>
+
+  <!-- Nav Item - Dashboard -->
+  <li class="nav-item <%= fns.pathLike(path, '/profile') ? 'active' : '' %>">
+    <a class="nav-link" href="/profile">
+      <i class="fas fa-fw fa-tachometer-alt"></i>
+      <span>Dashboard</span>
+    </a>
+  </li>  <!-- .Nav Item - Dashboard -->
+
+  <!-- Nav Item - Obejcts -->
+  <li class="nav-item <%= fns.pathLike(path, '/profile/models') ? 'active' : '' %>">
+    <a class="nav-link" href="/profile/models">
+      <i class="fas fa-dice-d20"></i>
+      <span>Modelos 3D</span>
+    </a>
+  </li>  <!-- .Nav Item - Obejcts -->
+
 
   <!-- Nav Item - Pages Collapse Menu -->
   <li class="nav-item">

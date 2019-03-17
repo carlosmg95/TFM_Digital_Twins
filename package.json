@@ -35,6 +35,7 @@
     "debug": "^4.1.1",
     "ejs": "^2.6.1",
     "express": "^4.16.4",
+    "express-fileupload": "^1.1.3-alpha.1",
     "express-partials": "^0.3.0",
     "express-session": "^1.15.6",
     "fs": "0.0.1-security",

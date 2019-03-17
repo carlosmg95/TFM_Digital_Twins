@@ -5,6 +5,7 @@
 // Node modules
 const cookieParser = require('cookie-parser')
 const express = require('express')
+const fileUpload = require('express-fileupload')
 const http = require('http')
 const methodOverride = require('method-override')
 const morgan = require('morgan')
@@ -117,6 +118,9 @@ app.use(function(req, res, next) {
 
 // Declare public files URL
 app.use(express.static(path.join(__dirname, 'public')))
+
+// Upload files
+app.use(fileUpload())
 
 // Initialize router
 router.mount(app)

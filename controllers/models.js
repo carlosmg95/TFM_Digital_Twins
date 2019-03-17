@@ -2,18 +2,27 @@
 // Dependencies
 // ====================================================================================================================
 
+// Node modules
+const async = require('async')
+const path = require('path')
+
 // Own modules
-const fns = require('../tools/functions')
 const controllers = require('../controllers')
+const fns = require('../tools/functions')
 
 // ====================================================================================================================
-// Route definition
+// Module exports
 // ====================================================================================================================
 
-module.exports = function(app) {
-    // Index
-    app.get('/profile*', controllers.session.requireUser, controllers.users.show)
-    app.get('/profile', controllers.render('users/profile/data', 'layout-users'))
-    app.get('/profile/settings', controllers.render('users/profile/conf', 'layout-users'))
-    app.get('/profile/models', controllers.render('users/profile/models', 'layout-users'))
+module.exports.uploadModel = function(req, res, next) {
+    let file = req.files['model-file']
+    let filePath = path.join(__dirname, '../public/models')
+    let name = req.body['model-name']
+
+    file.mv(`${filePath}/${file.name}`, function(error) {
+        if (!error)
+            next()
+        else
+            console.log(error)
+    })
 }
