@@ -13,7 +13,7 @@ const createUser = async function() {
     let rightPasswords = !emptyPassword() && checkPasswords(password1, password2)
     
     if (rightUsername && rightEmail && rightPasswords) {
-        await $.post('/api/join', {
+        $.post('/api/join', {
             "username": username,
             "email": email,
             "password": password1

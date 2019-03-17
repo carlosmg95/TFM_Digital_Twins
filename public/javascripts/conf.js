@@ -13,7 +13,7 @@ const deleteUser = async function() {
     let rightPassword = await checkPassword(password, 'delete-password')
 
     if (rightPassword) {
-        await $.post('/api/deleteuser?_method=DELETE', {
+        $.post('/api/deleteuser?_method=DELETE', {
             username,
             password
         })

@@ -4,7 +4,7 @@ $('#upload-form').on('submit', function(e){
     let f = $(this)
 })
 
-const uploadFile = function() {
+const uploadFile = async function() {
     let formData = new FormData(document.getElementById('upload-form'))
 
     strButton = $('#upload-btn')[0].innerText  // Save the text of the button
@@ -12,7 +12,7 @@ const uploadFile = function() {
     $('#upload-btn').attr('disabled', 'disabled')  // Disable the button
 
     let rightFile = checkFile()
-    let rightName = checkName()
+    let rightName = await checkName()
 
     if (rightName && rightFile) {
         $.ajax({
@@ -24,7 +24,9 @@ const uploadFile = function() {
             contentType: false,
             processData: false,
             success: function(data) {
-                console.log(data)
+                let code = JSON.parse(data).code
+                if (code === 0)
+                    $('#upload-modal').modal('hide')
             }
         })
     }
@@ -48,16 +50,38 @@ const checkFile = function(file) {
     }
 }
 
-const checkName = function(name) {
+const checkName = async function(name) {
     name = name || $('#model-name').val()
+    let existe = false
+    let wrongName = name.search(/\s|\?|=|\+|\$|\&|%|~|\*|\//) !== -1
 
     if (!name) {
         showErrorMsg($('#model-name'))
-        return false
-    } else {
+    }
+
+    if (wrongName) {
+        showErrorMsg($('#model-name'), 'El nombre del fichero no puede contener espacios ni caracteres especiales')
+    }
+
+    await $.get(`/api/model/existname/${name}`, function(result) {
+        let code = result.code
+        let errorMsg = result.error
+
+        if (existingNameErrorCode === code) {
+            showErrorMsg($('#model-name'), errorMsg)
+            exists = true
+        } else {
+            hideErrorMsg($('#model-name'))
+            exists = false
+        }
+    })
+
+    if (name && !wrongName && !exists) {
         hideErrorMsg($('#model-name'))
         return true
     }
+
+    return false
 }
 
 // Function to hide error message under an input

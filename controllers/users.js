@@ -21,7 +21,7 @@ module.exports.create = function(req, res, next) {
     async.series([
         // Check if the email exists
         function emailExist(cb) {
-            controllers.mongodb.read('users', {"email": email}, function(error, docs) {
+            controllers.mongodb.read('users', {email}, function(error, docs) {
                 if (error) {
                     req.error = error
                     return res.renderError(500)
@@ -29,7 +29,7 @@ module.exports.create = function(req, res, next) {
 
                 if (docs && docs.length) {  // If the email exists:
                     req.error = error = fns.formatError(errors.EXISTING_EMAIL, email)
-                    return cb(error)
+                    return res.renderError(500)
                 } else {
                     log.debug('Email free')
                 }
@@ -38,7 +38,7 @@ module.exports.create = function(req, res, next) {
         },
         // Check if the username exists
         function usernameExist(cb) {
-            controllers.mongodb.read('users', {"username": username}, function(error, docs) {
+            controllers.mongodb.read('users', {username}, function(error, docs) {
                 if (error) {
                     req.error = error
                     return res.renderError(500)
@@ -47,7 +47,7 @@ module.exports.create = function(req, res, next) {
                 // If the username exists or it is a reserved word:
                 if ((docs && docs.length) || fns.arrayContains(config.reservedWords, username)) {
                     req.error = error = fns.formatError(errors.EXISTING_USERNAME, username)
-                    return cb(error)
+                    return res.renderError(500)
                 } else {
                     log.debug('Username free')
                 }
@@ -97,7 +97,7 @@ module.exports.deleteUser = function(req, res, next) {
 module.exports.emailExist = function(req, res, next) {
     let email = req.params.email
 
-    controllers.mongodb.read('users', {"email": email}, function(error, docs) {
+    controllers.mongodb.read('users', {email}, function(error, docs) {
         if (error) {
             req.error = error
             return res.renderError(500)
@@ -107,8 +107,6 @@ module.exports.emailExist = function(req, res, next) {
             req.error = fns.formatError(errors.EXISTING_EMAIL, email)
             log.error(req.error.message)
             return next()
-        } else {
-            log.debug('Email free')
         }
         return next()
     })
@@ -117,7 +115,7 @@ module.exports.emailExist = function(req, res, next) {
 module.exports.rightPassword = function(req, res, next) {
     let id = req.session.user.id
     let password = crypt(req.params.password)
-    let where = {"_id": controllers.mongodb.stringToObjectId(id), "password": password}
+    let where = {"_id": controllers.mongodb.stringToObjectId(id), password}
     
     controllers.mongodb.read('users', where, function(error, docs) {
         if (error) {
@@ -157,7 +155,7 @@ module.exports.updateUser = function(req, res, next) {
         // Check if the email exists
         function emailExist(cb) {
             if (email) {
-                controllers.mongodb.read('users', {"email": email}, function(error, docs) {
+                controllers.mongodb.read('users', {email}, function(error, docs) {
                     if (error) {
                         req.error = error
                         return res.renderError(500)
@@ -165,9 +163,8 @@ module.exports.updateUser = function(req, res, next) {
 
                     if (docs && docs.length) {  // If the email exists:
                         req.error = error = fns.formatError(errors.EXISTING_EMAIL, email)
-                        return cb(error)
+                        return res.renderError(500)
                     } else {
-                        log.debug('Email free')
                         set = fns.concatObjects(set, {email})
                     }
                     cb()
@@ -179,7 +176,7 @@ module.exports.updateUser = function(req, res, next) {
         // Check if the username exists
         function usernameExist(cb) {
             if (username) {
-                controllers.mongodb.read('users', {"username": username}, function(error, docs) {
+                controllers.mongodb.read('users', {username}, function(error, docs) {
                     if (error) {
                         req.error = error
                         return res.renderError(500)
@@ -188,9 +185,8 @@ module.exports.updateUser = function(req, res, next) {
                     // If the username exists or it is a reserved word:
                     if ((docs && docs.length) || fns.arrayContains(config.reservedWords, username)) {
                         req.error = error = fns.formatError(errors.EXISTING_USERNAME, username)
-                        return cb(error)
+                        return res.renderError(500)
                     } else {
-                        log.debug('Username free')
                         set = fns.concatObjects(set, {username})
                     }
                     cb()
@@ -224,7 +220,7 @@ module.exports.updateUser = function(req, res, next) {
 module.exports.usernameExist = function(req, res, next) {
     let username = req.params.username
 
-    controllers.mongodb.read('users', {"username": username}, function(error, docs) {
+    controllers.mongodb.read('users', {username}, function(error, docs) {
         if (error) {
             req.error = error
             return res.renderError(500)
@@ -235,8 +231,6 @@ module.exports.usernameExist = function(req, res, next) {
             req.error = fns.formatError(errors.EXISTING_USERNAME, username)
             log.error(req.error.message)
             return next()
-        } else {
-            log.debug('Username free')
         }
         return next()
     })

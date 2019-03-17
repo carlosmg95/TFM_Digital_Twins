@@ -19,10 +19,13 @@ const apiErrors = {
     NO_RESULTS_FOUND:           {code: 104, message: 'Sin resultados'},
     NO_PARAMS:                  {code: 105, message: 'Faltan parámetros'},
     // Validation errors
+        // Users
     EXISTING_USERNAME:          {code: 600, message: 'El usuario "%p" ya existe'},
     EXISTING_EMAIL:             {code: 601, message: 'El email "%p" ya existe'},
     WRONG_USER:                 {code: 602, message: 'Usuario o contraseña incorrecta'},
-    WRONG_PASSWORD:             {code: 603, message: 'Contraseña incorrecta'}
+    WRONG_PASSWORD:             {code: 603, message: 'Contraseña incorrecta'},
+        // Models
+    EXISTING_MODEL_NAME:        {code: 700, message: 'El nombre "%p" ya existe'}
 }
 
 // Client-side errors

@@ -21,4 +21,5 @@ module.exports = function(app) {
     app.delete('/api/deleteuser', controllers.users.deleteUser, api.common.data)
     // Models
     app.post('/api/uploadmodel', controllers.models.uploadModel, api.common.data)
+    app.get('/api/model/existname/:name', controllers.models.nameExist, api.common.data)
 }
