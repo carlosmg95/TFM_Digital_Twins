@@ -4,7 +4,7 @@
 
 // Own modules
 const fns = require('../tools/functions')
-const controllers = require('../controllers')
+const {render, session} = require('../controllers')
 
 // ====================================================================================================================
 // Route definition
@@ -12,8 +12,8 @@ const controllers = require('../controllers')
 
 module.exports = function(app) {
     // Index
-    app.get('/', controllers.render('index'))
-    app.get('/login', controllers.render('login'))
-    app.get('/join', controllers.render('join'))
-    app.delete('/session', controllers.session.destroy)
+    app.get('/', render('index'))
+    app.get('/login', render('login'))
+    app.get('/join', render('join'))
+    app.delete('/session', session.destroy)
 }

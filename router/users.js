@@ -4,7 +4,7 @@
 
 // Own modules
 const fns = require('../tools/functions')
-const controllers = require('../controllers')
+const {users, render, session} = require('../controllers')
 
 // ====================================================================================================================
 // Route definition
@@ -12,8 +12,8 @@ const controllers = require('../controllers')
 
 module.exports = function(app) {
     // Index
-    app.get('/profile*', controllers.session.requireUser, controllers.users.show)
-    app.get('/profile', controllers.render('users/profile/data', 'layout-users'))
-    app.get('/profile/settings', controllers.render('users/profile/conf', 'layout-users'))
-    app.get('/profile/models', controllers.render('users/profile/models', 'layout-users'))
+    app.get('/profile*', session.requireUser, users.show)
+    app.get('/profile', render('users/profile', 'layout-users'))
+    app.get('/profile/settings', render('users/profile/conf', 'layout-users'))
+    app.get('/profile/models', render('users/profile/models', 'layout-users'))
 }

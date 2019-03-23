@@ -12,7 +12,7 @@
   <title>DgIoTwins</title>
   <!-- Metas -->
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
   <!-- Bootstrap -->
   <link rel="stylesheet" type="text/css" href="/components/bootstrap/dist/css/bootstrap.min.css">
   <!-- Own CSS -->
@@ -47,15 +47,12 @@
   <meta name="author" content="Carlos Moro García">
 </head>
 <body id="page-top">
-  <!-- jQuery -->
+   <!-- jQuery -->
   <script type="text/javascript" src="/components/jquery/dist/jquery.min.js"></script>
   <!-- Bootstrap -->
-  <script type="text/javascript" src="/components/bootstrap/dist/js/bootstrap.min.js"></script>
+  <script type="text/javascript" src="/components/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
   <!-- Core plugin JavaScript-->
   <script src="/components/startbootstrap-sb-admin-2/vendor/jquery-easing/jquery.easing.min.js"></script>
-
-  <!-- Custom scripts for all pages-->
-  <script src="/components/startbootstrap-sb-admin-2/js/sb-admin-2.min.js"></script>
   
   <!-- Page Wrapper -->
   <div id="wrapper">
@@ -64,9 +61,11 @@
 
     <!-- Content Wrapper -->
     <div id="content-wrapper" class="d-flex flex-column">
-
+      <canvas id="c"></canvas>
+      
       <!-- Main Content -->
       <div id="content">
+
         <% include users/menu %>
 
         <%- body %>
@@ -80,12 +79,12 @@
     <i class="fas fa-angle-up"></i>
   </a>
 
+  <!-- Custom scripts for all pages-->
+  <script src="/components/startbootstrap-sb-admin-2/js/sb-admin-2.min.js"></script>
+
   <!-- Page level plugins -->
   <script src="/components/startbootstrap-sb-admin-2/vendor/chart.js/Chart.min.js"></script>
 
-  <!-- Page level custom scripts -->
-  <script src="/components/startbootstrap-sb-admin-2/js/demo/chart-area-demo.js"></script>
-  <script src="/components/startbootstrap-sb-admin-2/js/demo/chart-pie-demo.js"></script>
   <!-- Main JS -->
   <script type="text/javascript">
       let baseUrl = '<%= baseUrl %>'

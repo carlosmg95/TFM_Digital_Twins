@@ -13,7 +13,7 @@ const deleteUser = async function() {
     let rightPassword = await checkPassword(password, 'delete-password')
 
     if (rightPassword) {
-        $.post('/api/deleteuser?_method=DELETE', {
+        $.post('/api/users/deleteuser?_method=DELETE', {
             username,
             password
         })
@@ -59,7 +59,7 @@ const editUser = async function() {
             post = { ...post, "password": passwordNew }
 
         if (newUsername || newEmail || newPassword) {
-            await $.post('/api/edituser?_method=PUT', post)
+            await $.post('/api/users/edituser?_method=PUT', post)
             .done(function(data) {
                 if(data.error) {
                     showError('edit-alert', data.error)

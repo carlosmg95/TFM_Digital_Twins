@@ -4,7 +4,7 @@
 
 // Own modules
 const api = require('../api')
-const controllers = require('../controllers')
+const {models, users, render, session} = require('../controllers')
 
 // ====================================================================================================================
 // Route definition
@@ -12,14 +12,16 @@ const controllers = require('../controllers')
 
 module.exports = function(app) {
 	// Users
-    app.post('/api/join', controllers.users.create, controllers.render('index'))
-    app.post('/api/login', controllers.session.create)
-    app.get('/api/users/existusername/:username', controllers.users.usernameExist, api.common.data)
-    app.get('/api/users/existemail/:email', controllers.users.emailExist, api.common.data)
-    app.get('/api/users/rightpassword/:password', controllers.users.rightPassword, api.common.data)
-    app.put('/api/edituser', controllers.users.updateUser, api.common.data)
-    app.delete('/api/deleteuser', controllers.users.deleteUser, api.common.data)
+    app.post('/api/users/join', users.create, render('index'))
+    app.post('/api/users/login', session.create)
+    app.get('/api/users/existusername/:username', users.usernameExist, api.common.data)
+    app.get('/api/users/existemail/:email', users.emailExist, api.common.data)
+    app.get('/api/users/rightpassword/:password', users.rightPassword, api.common.data)
+    app.put('/api/users/edituser', users.updateUser, api.common.data)
+    app.delete('/api/users/deleteuser', users.deleteUser, api.common.data)
     // Models
-    app.post('/api/uploadmodel', controllers.models.uploadModel, api.common.data)
-    app.get('/api/model/existname/:name', controllers.models.nameExist, api.common.data)
+    app.post('/api/models/uploadmodel', models.uploadModel, api.common.data)
+    app.get('/api/models/existname/:name', models.nameExist, api.common.data)
+    app.get('/api/models/getmodels', models.getModels, api.common.data)
+    app.get('/api/models/getModel/:name', models.getModel, api.common.file)
 }

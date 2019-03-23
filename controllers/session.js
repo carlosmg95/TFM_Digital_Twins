@@ -4,10 +4,6 @@
 
 // Node modules
 const async = require('async')
-const path = require('path')
-
-// Own modules
-const controllers = require('../controllers')
 
 // ====================================================================================================================
 // Module exports
@@ -49,7 +45,7 @@ module.exports.requireUser = function(req, res, next) {
 // ====================================================================================================================
 
 const auth = function(username, password, callback) {
-    controllers.mongodb.read(
+    mongodb.read(
         'users',
         { "username": username, "password": password },
         callback,

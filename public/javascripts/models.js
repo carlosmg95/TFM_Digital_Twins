@@ -16,7 +16,7 @@ const uploadFile = async function() {
 
     if (rightName && rightFile) {
         $.ajax({
-            url: '/api/uploadmodel',
+            url: '/api/models/uploadmodel',
             type: 'post',
             dataType: 'html',
             data: formData,
@@ -25,8 +25,10 @@ const uploadFile = async function() {
             processData: false,
             success: function(data) {
                 let code = JSON.parse(data).code
-                if (code === 0)
+                if (code === 0) {
                     $('#upload-modal').modal('hide')
+                    showModels()
+                }
             }
         })
     }
@@ -63,7 +65,7 @@ const checkName = async function(name) {
         showErrorMsg($('#model-name'), 'El nombre del fichero no puede contener espacios ni caracteres especiales')
     }
 
-    await $.get(`/api/model/existname/${name}`, function(result) {
+    await $.get(`/api/models/existname/${name}`, function(result) {
         let code = result.code
         let errorMsg = result.error
 

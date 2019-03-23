@@ -1,7 +1,7 @@
 *.log
 data/
+files/
 node_modules/
 package-lock.json
-public/models/
 tests/reports/
 tests/screenshots/

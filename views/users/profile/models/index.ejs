@@ -16,12 +16,9 @@
     </a>
   </div>  <!-- .Page Heading -->
 
-  <!-- Content Row -->
-  <div class="row">
-    <% for (let i in user.models) { %>
-    <p><%= user.models[i].name %></p>
-    <% } %>
-  </div>  <!-- .Content Row -->
+  <!-- Models -->
+  <div id="models-list" class="row">
+  </div>  <!-- .Models -->
 </div>  <!-- .container-fluid -->
 
 <!-- Upload modal -->
@@ -61,4 +58,28 @@
   </div>
 </div>  <!-- .Upload modal -->
 
+<!-- Three JS -->
+<script type="text/javascript" src="/components/three/build/three.min.js"></script>
+<script type="text/javascript" src="/components/three/examples/js/controls/OrbitControls.js"></script>
+<script type="text/javascript" src="/components/three/examples/js/WebGL.js"></script>
+<script type="text/javascript" src="/components/three/examples/js/loaders/GLTFLoader.js"></script>
+
+<script id="template" type="notjs">
+    <div class="model-title clearfix">
+      <a class="float-left" href="/profile/models/$name">$name</a>
+      <div class="dropdown no-arrow float-right">
+        <a class="dropdown-toggle" href="#" role="button" id="dropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+          <i class="fas fa-ellipsis-v fa-sm fa-fw text-gray-400"></i>
+        </a>
+        <div class="dropdown-menu dropdown-menu-right shadow animated--fade-in" aria-labelledby="dropdownMenuLink">
+          <div class="dropdown-header">Acciones:</div>
+          <a class="dropdown-item" href="#">Borrar modelo</a>
+        </div>
+      </div>
+    </div>
+    <div class="model-body"></div>
+</script>
+
+<!-- Custom JS -->
 <script type="text/javascript" src="/javascripts/models.js"></script>
+<script type="text/javascript" src="/javascripts/showModels.js"></script>

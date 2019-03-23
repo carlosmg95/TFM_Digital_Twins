@@ -13,7 +13,7 @@ const createUser = async function() {
     let rightPasswords = !emptyPassword() && checkPasswords(password1, password2)
     
     if (rightUsername && rightEmail && rightPasswords) {
-        $.post('/api/join', {
+        $.post('/api/users/join', {
             "username": username,
             "email": email,
             "password": password1
@@ -23,7 +23,7 @@ const createUser = async function() {
                 showError('signup-err', data.error)
             } else {
                 hideError('signup-err')
-                $.post('/api/login', {
+                $.post('/api/users/login', {
                     "username": username,
                     "password": password1
                 })
@@ -59,7 +59,7 @@ const login = async function() {
     $('#login-btn').attr('disabled', 'disabled')  // Disable the button
 
     if (username && $('#login-password').val()) {
-        await $.post('/api/login', {
+        await $.post('/api/users/login', {
             "username": username,
             "password": password
         })

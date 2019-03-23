@@ -43,3 +43,31 @@ div.error-container h1 {
 div.error-container h2 {
     margin-top: -20px;
 }
+/* Models */
+#c {
+    height: auto;
+    left: 0;
+    position: absolute;
+    width: 100%;
+}
+#models-list {
+    padding: 3em 0 0 0;
+    position: relative;
+    top: 0;
+    z-index: 1;    
+}
+.model-item {
+    box-shadow: 1px 2px 4px 0px rgba(0,0,0,0.25);
+    display: inline-block;
+    padding: 1em;
+}
+.model-item .model-body {
+    height: 400px;
+    width: 100%;
+}
+.list-item .model-title {
+    color: #888;
+    display: inline-block;
+    font-size: large;
+    margin-top: 0.5em;
+}

@@ -76,6 +76,7 @@ files.forEach(function(file) {
     name = path.basename(file, '.js')
     if(name != 'index') {
         module.exports[name] = require(file)
+        global[name] = require(file)
     }
 })
 
