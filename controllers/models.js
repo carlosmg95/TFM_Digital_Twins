@@ -4,11 +4,47 @@
 
 // Node modules
 const async = require('async')
+const fs = require('fs')
 const path = require('path')
 
 // ====================================================================================================================
 // Module exports
 // ====================================================================================================================
+
+// Delete a model
+module.exports.deleteModel = function(req, res, next) {
+    let {name} = req.body
+    let owenerId = req.session.user.id
+
+    async.parallel([
+        // Delete the model from the database
+        function deleteModel(cb) {
+            mongodb.delete('models', {name, owenerId}, function(error, results) {
+                //If error in query
+                if(error) {
+                    req.error = error
+                    log.error(req.error)
+                    return next()
+                }
+                cb()
+            })
+        },
+        // Remove the model file
+        function removeFile(cb) {
+            let filePath = path.join(__dirname, '../files/models')
+            filePath = `${filePath}/${owenerId}_${name}.glb`
+            fs.unlinkSync(filePath)
+            cb()
+        }
+    ], function(error) {
+        if (error) {
+            log.error(error.message)
+            req.error = error
+            return res.renderError(500)
+        }
+        next()
+    })
+}
 
 // Get an object of an user
 module.exports.getModel = function(req, res, next) {

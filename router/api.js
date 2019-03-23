@@ -18,10 +18,11 @@ module.exports = function(app) {
     app.get('/api/users/existemail/:email', users.emailExist, api.common.data)
     app.get('/api/users/rightpassword/:password', users.rightPassword, api.common.data)
     app.put('/api/users/edituser', users.updateUser, api.common.data)
-    app.delete('/api/users/deleteuser', users.deleteUser, api.common.data)
+    app.delete('/api/users/deleteuser', users.deleteUser, api.common.ok)
     // Models
     app.post('/api/models/uploadmodel', models.uploadModel, api.common.data)
     app.get('/api/models/existname/:name', models.nameExist, api.common.data)
     app.get('/api/models/getmodels', models.getModels, api.common.data)
-    app.get('/api/models/getModel/:name', models.getModel, api.common.file)
+    app.get('/api/models/getmodel/:name', models.getModel, api.common.file)
+    app.delete('/api/models/deletemodel', models.deleteModel, api.common.ok)
 }

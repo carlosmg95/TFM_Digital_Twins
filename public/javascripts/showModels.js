@@ -1,4 +1,5 @@
 let canvas
+let content = document.getElementById('models-list')
 let scenes = [], renderer
 
 const animate = function() {
@@ -7,8 +8,6 @@ const animate = function() {
 }
 
 const createAlert = function() {
-    let content = document.getElementById('models-list')
-
     let element = document.createElement('div')
     element.className = 'col-12 alert alert-warning'
     element.role = 'alert'
@@ -20,9 +19,6 @@ const createAlert = function() {
 const init = function(models) {
     canvas = document.getElementById('c')
     canvas.style.height = `${window.innerHeight}px`
-
-    let content = document.getElementById('models-list')
-    content.innerHTML = ''
 
     for (let i in models) {
         let model = models[i]
@@ -136,6 +132,7 @@ const showModels = async function() {
     await $.get('/api/models/getmodels')
     .done(function(data) {
         models = data.data
+        content.innerHTML = ''
     })
 
     if (models.length === 0) {

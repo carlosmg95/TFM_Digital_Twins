@@ -1,8 +1,45 @@
 // It remove the default submit function
+$('#delete-form').on('submit', function(e){
+    e.preventDefault()
+    let f = $(this)
+})
 $('#upload-form').on('submit', function(e){
     e.preventDefault()
     let f = $(this)
 })
+
+const deleteModel = async function() {
+    let name = $('#delete-name').val()
+    let password = hash($('#delete-password').val())
+
+    strButton = $('#delete-btn')[0].innerText  // Save the text of the button
+    $('#delete-btn')[0].innerHTML = '<i class="fas fa-spinner fa-spin"></i>'  // Show a wait icon
+    $('#delete-btn').attr('disabled', 'disabled')  // Disable the button
+
+    let rightPassword = await checkPassword(password, 'delete-password')
+
+    if (rightPassword) {
+        $.post('/api/models/deletemodel?_method=DELETE', {
+            name,
+            password
+        })
+        .done(function(data) {
+            if(data.error) {
+                showError('delete-alert', data.error)
+            } else {
+                $('#delete-password').val('')
+                $('#delete-modal').modal('hide')
+                showModels()
+            }
+        })
+        .always(function() {
+            $('#delete-btn')[0].innerText = strButton  // Recover the last text
+            $('#delete-btn').removeAttr('disabled')  // Enable again the button
+        })
+    }
+    $('#delete-btn')[0].innerText = strButton  // Recover the last text
+    $('#delete-btn').removeAttr('disabled')  // Enable again the button
+}
 
 const uploadFile = async function() {
     let formData = new FormData(document.getElementById('upload-form'))
@@ -84,6 +121,29 @@ const checkName = async function(name) {
     }
 
     return false
+}
+
+// Check if the password is right
+const checkPassword = async function(pass, idDiv) {
+    await $.get(`/api/users/rightpassword/${pass}`, function(result) {
+        let code = result.code
+        let errorMsg = result.error
+
+        if (wrongPassErrorCode === code) {
+            showErrorMsg($(`#${idDiv}`), errorMsg)
+            rightPassword = false
+        } else {
+            hideErrorMsg($(`#${idDiv}`))
+            exists = false
+            newPassword = true
+            rightPassword = true
+        }
+    })
+    return rightPassword
+}
+
+const hash = function(pass) {
+    return CryptoJS.SHA256(pass).toString(CryptoJS.enc.Hex)
 }
 
 // Function to hide error message under an input
