@@ -57,7 +57,7 @@ module.exports.deleteModelAux = deleteModelAux = function({name, ext}, owenerId,
     ], callback)
 }
 
-// Get an object of an user
+// Get file of a model
 module.exports.getModel = function(req, res, next) {
     let {name} = req.params
     let owenerId = req.session.user.id
@@ -80,16 +80,20 @@ module.exports.getModel = function(req, res, next) {
     })
 }
 
-// Get the objects of an user
+// Get the models of an user
 module.exports.getModels = function(req, res, next) {
+    let {name} = req.params
     let owenerId = req.session.user.id
+    let where = name ? {name, owenerId} : {owenerId}  // If there isn't a name, it get all models
 
-    mongodb.read('models', {owenerId}, function(error, docs) {
+    mongodb.read('models', where, function(error, docs) {
         if (error) {
             req.error = error
             return res.renderError(500)
         }
-        req.data = docs
+        if (docs && docs.length !== 0)
+            req.model = docs[0]  // Show the model in its page
+        req.data = docs  // Get all the models in the index page
         next()
     }, { "project": { "path": 0 } })
 }

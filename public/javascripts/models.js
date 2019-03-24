@@ -8,9 +8,9 @@ $('#upload-form').on('submit', function(e){
     let f = $(this)
 })
 
-const deleteModel = async function() {
+const deleteModel = async function(modelName) {
     let ext = $('#delete-extension').val()
-    let name = $('#delete-name').val()
+    let name = modelName || $('#delete-name').val()
     let password = hash($('#delete-password').val())
 
     strButton = $('#delete-btn')[0].innerText  // Save the text of the button
@@ -32,7 +32,10 @@ const deleteModel = async function() {
                 $('#delete-password').val('')
                 $('#delete-modal').modal('hide')
                 hideError('delete-alert')
-                showModels()
+                if (modelName)
+                    window.location.href = '/profile/models'
+                else
+                    showModels()
             }
         })
         .always(function() {
