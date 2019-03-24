@@ -11,11 +11,23 @@ const path = require('path')
 // Module exports
 // ====================================================================================================================
 
-// Delete a model
+// Delete a model from the server
 module.exports.deleteModel = function(req, res, next) {
-    let {name, ext} = req.body
+    let model = req.body
     let owenerId = req.session.user.id
 
+    deleteModelAux(model, owenerId, function(error) {
+        if (error) {
+            log.error(error.message)
+            req.error = error
+            return res.renderError(500)
+        }
+        next()
+    })
+}
+
+// Auxialir function to delete a model
+module.exports.deleteModelAux = deleteModelAux = function({name, ext}, owenerId, callback) {
     async.parallel([
         // Delete the model from the database
         function deleteModel(cb) {
@@ -42,14 +54,7 @@ module.exports.deleteModel = function(req, res, next) {
                 cb()
             })
         }
-    ], function(error) {
-        if (error) {
-            log.error(error.message)
-            req.error = error
-            return res.renderError(500)
-        }
-        next()
-    })
+    ], callback)
 }
 
 // Get an object of an user

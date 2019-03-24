@@ -73,12 +73,51 @@ module.exports.create = function(req, res, next) {
 // Delete an user
 module.exports.deleteUser = function(req, res, next) {
     let {username, password} = req.body
+    let functions
+    let userId = req.session.user.id
     let where = { username, "password": crypt(password) }
 
     delete req.user
     delete req.session.user
 
-    mongodb.delete('users', where, function(error, result) {
+    async.series([
+        // Delete the user
+        function(cb) {
+            mongodb.delete('users', where, function(error, result) {
+                if (error) {
+                    req.error = error
+                    return res.renderError(500)
+                }
+                return cb()
+            })
+        },
+        // Get the user's models
+        function(cb) {
+            mongodb.read('models', { "owenerId": userId }, function(error, docs) {
+                if (error) {
+                    req.error = error
+                    return res.renderError(500)
+                }
+                let userModels = docs
+                functions = userModels.map(function(model) {
+                    return function(cb) {
+                        models.deleteModelAux(model, userId, cb)  // Prepare the delete functions
+                    }
+                })
+                cb()
+            })
+        },
+        // Delete the models
+        function(cb) {
+            async.parallel(functions, function(error, result) {
+                if (error) {
+                    req.error = error
+                    return res.renderError(500)
+                }
+                cb()
+            })
+        }
+    ], function(error, result) {
         if (error) {
             req.error = error
             return res.renderError(500)
