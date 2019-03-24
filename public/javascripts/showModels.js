@@ -30,7 +30,8 @@ const init = function(models) {
         // make a list item
         let element = document.createElement('div')
         element.className = 'col-12 col-md-6 col-lg-4 col-xl-3 model-item'
-        element.innerHTML = template.replace(/\$name/g, model.name)
+        element.innerHTML = template.replace('$ext', model.ext)
+        element.innerHTML = element.innerHTML.replace(/\$name/g, model.name)
 
         // Look up the element that represents the area
         // we want to render the scene

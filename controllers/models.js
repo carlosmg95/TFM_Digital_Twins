@@ -13,7 +13,7 @@ const path = require('path')
 
 // Delete a model
 module.exports.deleteModel = function(req, res, next) {
-    let {name} = req.body
+    let {name, ext} = req.body
     let owenerId = req.session.user.id
 
     async.parallel([
@@ -32,9 +32,15 @@ module.exports.deleteModel = function(req, res, next) {
         // Remove the model file
         function removeFile(cb) {
             let filePath = path.join(__dirname, '../files/models')
-            filePath = `${filePath}/${owenerId}_${name}.glb`
-            fs.unlinkSync(filePath)
-            cb()
+            filePath = `${filePath}/${owenerId}_${name}.${ext}`
+            fs.unlink(filePath, function(error) {
+                if(error) {
+                    req.error = error.code === 'ENOENT' ? error.message.split(', unlink')[0] : error  // Don't show the file path
+                    log.error(req.error)
+                    return next()
+                }
+                cb()
+            })
         }
     ], function(error) {
         if (error) {
@@ -80,7 +86,7 @@ module.exports.getModels = function(req, res, next) {
         }
         req.data = docs
         next()
-    })
+    }, { "project": { "path": 0 } })
 }
 
 // Check if an name exist

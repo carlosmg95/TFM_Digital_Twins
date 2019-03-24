@@ -9,6 +9,7 @@ $('#upload-form').on('submit', function(e){
 })
 
 const deleteModel = async function() {
+    let ext = $('#delete-extension').val()
     let name = $('#delete-name').val()
     let password = hash($('#delete-password').val())
 
@@ -20,6 +21,7 @@ const deleteModel = async function() {
 
     if (rightPassword) {
         $.post('/api/models/deletemodel?_method=DELETE', {
+            ext,
             name,
             password
         })
@@ -29,6 +31,7 @@ const deleteModel = async function() {
             } else {
                 $('#delete-password').val('')
                 $('#delete-modal').modal('hide')
+                hideError('delete-alert')
                 showModels()
             }
         })
@@ -146,12 +149,29 @@ const hash = function(pass) {
     return CryptoJS.SHA256(pass).toString(CryptoJS.enc.Hex)
 }
 
+// Function to hide error message under a form
+const hideError = function(id) {
+    let div = $(`#${id}`)[0]
+
+    div.hidden = true
+    div.innerText = ''
+}
+
 // Function to hide error message under an input
 const hideErrorMsg = function(inputElement) {
     let div = $(inputElement).parent().find('.form-group-error')[0]
     let small = div.children[0]
     inputElement.get(0).setCustomValidity('')
     small.innerText = ''
+}
+
+// Function to show error message under a form
+const showError = function(id, errorMsg) {
+    let div = $(`#${id}`)[0]
+    let msg = errorMsg ||  $(div).attr('data-err')
+
+    div.hidden = false
+    div.innerText = msg
 }
 
 // Function to show error message under an input
