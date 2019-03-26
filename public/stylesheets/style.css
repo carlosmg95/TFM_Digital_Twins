@@ -28,6 +28,9 @@ html {
     height: 1px;
     width: 100%;
 }
+.scroll-to-top.rounded {
+    z-index: 999;
+}
 /* Error page */
 div.error-container {
     margin-top: 100px;
@@ -56,11 +59,7 @@ div.error-container h2 {
     top: 0;
     z-index: 1;    
 }
-.model {
-    display: inline-block;
-    padding: 1em;
-}
-.model .model-body {
+#model {
     height: 100%;
     width: 100%;
 }
@@ -78,4 +77,10 @@ div.error-container h2 {
     display: inline-block;
     font-size: large;
     margin-top: 0.5em;
+}
+#vr-btn {
+    text-align: center;
+}
+#vr-btn a {
+    position: static !important;
 }

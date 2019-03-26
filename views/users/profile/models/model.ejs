@@ -16,16 +16,31 @@
       <span class="text">Borrar <%= model.name %></span>
     </a>
   </div>  <!-- .Page Heading -->
-  <nav aria-label="breadcrumb">
-    <ol class="breadcrumb">
-      <li class="breadcrumb-item"><a href="/profile/models">Modelos 3D</a></li>
-      <li class="breadcrumb-item active" aria-current="page"><%= model.name %></li>
-    </ol>
-  </nav>
 
-  <!-- Models -->
-  <div id="models-list" class="row">
-  </div>  <!-- .Models -->
+  <!-- Breadcrumb -->
+  <div class="row">
+    <div class="col-12">
+      <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+          <li class="breadcrumb-item"><a href="/profile/models">Modelos 3D</a></li>
+          <li class="breadcrumb-item active" aria-current="page"><%= model.name %></li>
+        </ol>
+      </nav>
+    </div>
+  </div>  <!-- .Breadcrumb -->
+
+  <!-- Model -->
+  <div class="row"><div id="model-content" class="col-12">
+  </div></div>
+  <!-- .Model -->
+
+  <!-- Buttons -->
+  <div class="row">
+    <div class="col-6 col-lg-4 col-xl-auto">
+      <button id="vr-btn" type="button" class="btn btn-info btn-block btn-flat" hidden><i class="fas fa-vr-cardboard"></i></button>
+    </div>
+  </div>
+  <!-- .Buttons -->
 </div>  <!-- .container-fluid -->
 
 <!-- Delete modal -->
@@ -70,10 +85,8 @@
 <script type="text/javascript" src="/components/three/examples/js/controls/OrbitControls.js"></script>
 <script type="text/javascript" src="/components/three/examples/js/WebGL.js"></script>
 <script type="text/javascript" src="/components/three/examples/js/loaders/GLTFLoader.js"></script>
-
-<script id="template" type="notjs">
-    <div class="model-body"></div>
-</script>
+<script type="text/javascript" src="/components/three/examples/js/vr/WebVR.js"></script>
+<script type="text/javascript" src="/components/three/examples/js/geometries/BoxLineGeometry.js"></script>
 
 <!-- Crypto -->
 <script type="text/javascript" src="/components/crypto-js/crypto-js.js"></script>
@@ -83,6 +96,12 @@
 <script type="text/javascript" src="/javascripts/showModel.js"></script>
 <script type="text/javascript">
     $(function() {
-        showModel('<%= JSON.stringify(model) %>')
+        if (navigator.getVRDisplays) {
+            $('button#vr-btn')[0].hidden = false
+            showModel('<%= JSON.stringify(model) %>', true)
+        } else {
+           $('button#vr-btn')[0].hidden = true
+            showModel('<%= JSON.stringify(model) %>', false)
+        }
     })
 </script>
