@@ -123,6 +123,9 @@ module.exports.nameExist = function(req, res, next) {
 module.exports.updateModel = function(req, res, next) {
     let name = req.body.name,
         owenerId = req.session.user.id,
+        rotationX = req.body['rotation[x]'],
+        rotationY = req.body['rotation[y]'],
+        rotationZ = req.body['rotation[z]'],
         scaleX = req.body['scale[x]'],
         scaleY = req.body['scale[y]'],
         scaleZ = req.body['scale[z]']
@@ -131,6 +134,11 @@ module.exports.updateModel = function(req, res, next) {
             "x": scaleX,
             "y": scaleY,
             "z": scaleZ
+        },
+        "rotation": {
+            "x": rotationX,
+            "y": rotationY,
+            "z": rotationZ
         }
     }
 
@@ -193,9 +201,9 @@ module.exports.uploadModel = function(req, res, next) {
                     "z": 1
                 },
                 "rotation": {
-                    "x": 1,
-                    "y": 1,
-                    "z": 1
+                    "x": 0,
+                    "y": 0,
+                    "z": 0
                 },
                 owenerId
             }

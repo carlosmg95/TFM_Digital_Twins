@@ -103,6 +103,21 @@ module.exports.getRequestBodyErrors = function(options) {
     return null
 }
 
+// Get parameters from an Url
+module.exports.getUrlParams = function(url) {
+    var parts = url.split('?')
+    if(parts.length <2) {
+        return []
+    }
+    return parts[1].split('&').map(function(queryStr) {
+        var param = queryStr.split('=')
+        return {
+            key: param[0],
+            value: param[1] || null
+        }
+    })
+}
+
 // Returns true if the path is like the string provided
 module.exports.pathLike = function(path, string, regExp) {
     var noParamsPath = path.split('?')[0]

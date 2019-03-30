@@ -4,9 +4,8 @@ const animate = function(vr) {
     if (vr) {
         renderer.setAnimationLoop(renderVr)
     } else {
+        renderNormal()
         requestAnimationFrame(animate)
-        onWindowResize()
-        renderer.render(scene, camera)
     }
 }
 const init = function(model, vr) {
@@ -20,6 +19,7 @@ const initNormal = function(model) {
     container = document.createElement('div')
     container.className = 'model'
     let content = document.getElementById('model-content')
+    content.innerHTML = ''
     content.appendChild(container)
 
     camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.25, 100)
@@ -57,9 +57,14 @@ const initNormal = function(model) {
 
     let loader = new THREE.GLTFLoader()
     loader.load(`/api/models/getModel/${model.name}`, function(gltf) {
+        // Scale
         gltf.scene.scale.x = model.scale.x
-        gltf.scene.scale.y = model.scale.x
-        gltf.scene.scale.z = model.scale.x
+        gltf.scene.scale.y = model.scale.y
+        gltf.scene.scale.z = model.scale.z
+        // Rotation
+        gltf.scene.rotation.x = model.rotation.x
+        gltf.scene.rotation.y = model.rotation.y
+        gltf.scene.rotation.z = model.rotation.z
         scene.add(gltf.scene)
     }, undefined, function(e) {
         console.error(e)
@@ -85,6 +90,7 @@ const initVr = function(model) {
     container = document.createElement('div')
     container.className = 'model'
     let content = document.getElementById('model-content')
+    content.innerHTML = ''
     content.appendChild(container)
 
     scene = new THREE.Scene()
@@ -105,7 +111,7 @@ const initVr = function(model) {
     camera.add(crosshair)
 
     room = new THREE.LineSegments(
-        new THREE.BoxLineGeometry(6, 6, 6, 10, 10, 10),
+        new THREE.BoxLineGeometry(6, 6, 10, 10, 10, 10),
         new THREE.LineBasicMaterial({ color: 0x808080 })
     )
     room.position.y = 3
@@ -122,15 +128,17 @@ const initVr = function(model) {
     let loader = new THREE.GLTFLoader()
     loader.load(`/api/models/getModel/${model.name}`, function(gltf) {
         let object = gltf.scene
-        console.log(object)
+        // Scale
+        object.scale.x = model.scale.x * 0.4
+        object.scale.y = model.scale.y * 0.4
+        object.scale.z = model.scale.z * 0.4
+        // Rotation
+        object.rotation.x = model.rotation.x
+        object.rotation.y = model.rotation.y
+        object.rotation.z = model.rotation.z
 
-        object.scale.x = 0.4
-        object.scale.y = 0.4
-        object.scale.z = 0.4
         object.position.y = 1.5
-        object.position.z = -2
-        object.rotation.x = 90
-        console.log(object)
+        object.position.z = -3
         scene.add(object)
     }, undefined, function(e) {
         console.error(e)
@@ -178,35 +186,50 @@ const onWindowResize = function() {
     renderer.setSize(width, height)
 }
 
-function renderVr() {
-
-    // Keep cubes inside room
-
+const renderNormal = function() {
+    onWindowResize()
     renderer.render(scene, camera)
-
 }
 
-const sendScale = function(name) {
-    $.post('/api/models/setscale', {
+const renderVr = function() {
+    onWindowResize()
+    renderer.render(scene, camera)
+}
+
+const rotate = function(op, axis) {
+    if (op === '+') {
+        scene.children[3].rotation[axis] = +scene.children[3].rotation[axis] + 0.1
+    } else if (op === '-') {
+        scene.children[3].rotation[axis] = +scene.children[3].rotation[axis] - 0.1
+    }
+}
+
+const sendNewData = function(name) {
+    $.post('/api/models/setdata', {
         "name": name,
         "scale": {
             "x": scene.children[3].scale.x,
             "y": scene.children[3].scale.y,
             "z": scene.children[3].scale.z
+        },
+        "rotation": {
+            "x": scene.children[3].rotation.x,
+            "y": scene.children[3].rotation.y,
+            "z": scene.children[3].rotation.z
         }
     })
 }
 
 const scale = function(op) {
-    let scale = scene.children[3].scale.x
+    let scale = +scene.children[3].scale.x
     if (op === '+') {
-        scene.children[3].scale.x += 0.1 * scale
-        scene.children[3].scale.y += 0.1 * scale
-        scene.children[3].scale.z += 0.1 * scale
+        scene.children[3].scale.x = 1.1 * scale
+        scene.children[3].scale.y = 1.1 * scale
+        scene.children[3].scale.z = 1.1 * scale
     } else if (op === '-') {
-        scene.children[3].scale.x -= 0.1 * scale
-        scene.children[3].scale.y -= 0.1 * scale
-        scene.children[3].scale.z -= 0.1 * scale
+        scene.children[3].scale.x = 0.9 * scale
+        scene.children[3].scale.y = 0.9 * scale
+        scene.children[3].scale.z = 0.9 * scale
     }
 }
 

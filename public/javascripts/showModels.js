@@ -50,9 +50,15 @@ const init = function(models) {
 
         let loader = new THREE.GLTFLoader()
         loader.load(`/api/models/getModel/${model.name}`, function(gltf) {
+            // Scale
             gltf.scene.scale.x = model.scale.x
-            gltf.scene.scale.y = model.scale.x
-            gltf.scene.scale.z = model.scale.x
+            gltf.scene.scale.y = model.scale.y
+            gltf.scene.scale.z = model.scale.z
+            // Rotation
+            gltf.scene.rotation.x = model.rotation.x
+            gltf.scene.rotation.y = model.rotation.y
+            gltf.scene.rotation.z = model.rotation.z
+
             scene.add(gltf.scene)
             scene.add(new THREE.HemisphereLight(0xaaaaaa, 0x444444))
 

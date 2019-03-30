@@ -17,7 +17,7 @@
       </span>
       <span class="text">Borrar <%= model.name %></span>
     </a>
-    <a href="" class="d-none d-sm-inline-block btn btn-sm float-right btn-success shadow-sm btn-icon-split ml-2" data-toggle="modal" data-target="#delete-modal">
+    <a href="/profile/models/<%= model.name %>?edit=true" class="d-none d-sm-inline-block btn btn-sm float-right btn-success shadow-sm btn-icon-split ml-2">
       <span class="icon text-white-50">
         <i class="fas fa-edit"></i>
       </span>
@@ -39,17 +39,80 @@
 
   <!-- Model -->
   <div class="row">
-    <div id="edit-model" class="col-12 col-md-6 col-lg-4 col-xl-2">
-      <a class="btn btn-sm btn-info shadow-sm btn-icon-split">
-        <span class="text text-white">Escalar</span>
-        <span id="plus-scale" class="icon text-white-50">
-          <i class="fas fa-plus"></i>
-        </span>
-        <span id="minus-scale" class="icon text-white-50">
-          <i class="fas fa-minus"></i>
-        </span>
-      </a>
-    </div>
+    <!-- Edit -->
+    <div id="edit-model" class="col-12 col-md-6 col-lg-4 col-xl-2" hidden>
+      <!-- Card -->
+      <div class="card mb-4" style="background-color: rgba(0, 0, 0, 0);">
+        <!-- Header -->
+        <div class="card-header py-3 clearfix">
+          <h6 class="m-0 font-weight-bold text-primary float-left">Editar</h6>
+          <a class="float-right" href="/profile/models/<%= model.name %>"><i class="fas fa-times"></i></a>
+        </div>  <!-- .Header -->
+
+        <!-- Body -->
+        <div class="card-body">
+          <!-- Scale -->
+          <div class="row mb-1">
+            <div class="col-12">
+              <a class="btn btn-sm btn-info shadow-sm btn-icon-split">
+                <span class="text text-white">Escalar</span>
+                <span id="plus-scale" class="icon text-white-50">
+                  <i class="fas fa-plus"></i>
+                </span>
+                <span id="minus-scale" class="icon text-white-50">
+                  <i class="fas fa-minus"></i>
+                </span>
+              </a>
+            </div>
+          </div>  <!-- Scale -->
+
+          <!-- RotateX -->
+          <div class="row mb-1">
+            <div class="col-12">
+              <a class="btn btn-sm btn-info shadow-sm btn-icon-split">
+                <span class="text text-white">Rotar X</span>
+                <span id="plus-rotate-x" class="icon text-white-50">
+                  <i class="fas fa-arrow-left"></i>
+                </span>
+                <span id="minus-rotate-x" class="icon text-white-50">
+                  <i class="fas fa-arrow-right"></i>
+                </span>
+              </a>
+            </div>
+          </div>  <!-- .RotateX -->
+
+          <!-- RotateY -->
+          <div class="row mb-1">
+            <div class="col-12">
+              <a class="btn btn-sm btn-info shadow-sm btn-icon-split">
+                <span class="text text-white">Rotar Y</span>
+                <span id="plus-rotate-y" class="icon text-white-50">
+                  <i class="fas fa-arrow-left"></i>
+                </span>
+                <span id="minus-rotate-y" class="icon text-white-50">
+                  <i class="fas fa-arrow-right"></i>
+                </span>
+              </a>
+            </div>
+          </div>  <!-- .RotateY -->
+
+          <!-- RotateZ -->
+          <div class="row mb-1">
+            <div class="col-12">
+              <a class="btn btn-sm btn-info shadow-sm btn-icon-split">
+                <span class="text text-white">Rotar Z</span>
+                <span id="plus-rotate-z" class="icon text-white-50">
+                  <i class="fas fa-arrow-left"></i>
+                </span>
+                <span id="minus-rotate-z" class="icon text-white-50">
+                  <i class="fas fa-arrow-right"></i>
+                </span>
+              </a>
+            </div>
+          </div>  <!-- .RotateZ -->
+        </div>  <!-- .Body -->
+      </div>  <!-- .Card -->
+    </div>  <!-- .Edit -->
     <div id="model-content" class="col-12"></div>
   </div>
   <!-- .Model -->
@@ -57,7 +120,14 @@
   <!-- Buttons -->
   <div class="row">
     <div class="col-6 col-lg-4 col-xl-auto">
-      <button id="vr-btn" type="button" class="btn btn-info btn-block btn-flat" hidden><i class="fas fa-vr-cardboard"></i></button>
+      <button id="vr-btn" type="button" class="btn btn-info btn-block btn-flat" onclick="showVR()" hidden>
+        Modo VR
+        <i class="fas fa-vr-cardboard"></i>
+      </button>
+      <button id="normal-btn" type="button" class="btn btn-info btn-block btn-flat" onclick="showNormal()" hidden>
+        Modo normal
+        <i class="fas fa-chalkboard"></i>
+      </button>
     </div>
   </div>
   <!-- .Buttons -->
@@ -115,41 +185,167 @@
 <script type="text/javascript" src="/javascripts/models.js"></script>
 <script type="text/javascript" src="/javascripts/showModel.js"></script>
 <script type="text/javascript">
+    // Get parameters from an Url
+    const getUrlParams = function() {
+        let url = window.location.href
+        let parts = url.split('?')
+        if(parts.length < 2) {
+            return []
+        }
+        return parts[1].split('&').reduce(function(previous, current) {
+            let param = current.split('=')
+            previous[param[0]] = param[1]
+            return previous
+        }, {})
+    }
+
+    // Show normal mode
+    const showNormal = function() {
+        showModel('<%= JSON.stringify(model) %>', false)
+        $('button#normal-btn')[0].hidden = true
+        $('button#vr-btn')[0].hidden = false
+    }
+
+    // Show VR mode
+    const showVR = function() {
+        showModel('<%= JSON.stringify(model) %>', true)
+        $('button#normal-btn')[0].hidden = false
+        $('button#vr-btn')[0].hidden = true
+    }
+
     $(function() {
-        let btnMinus = $('#minus-scale')
-        let btnPlus = $('#plus-scale')
+        // Rotate X
+        let btnRotateXMinus = $('#minus-rotate-x')
+        let btnRotateXPlus = $('#plus-rotate-x')
+        // Rotate Y
+        let btnRotateYMinus = $('#minus-rotate-y')
+        let btnRotateYPlus = $('#plus-rotate-y')
+        // Rotate Z
+        let btnRotateZMinus = $('#minus-rotate-z')
+        let btnRotateZPlus = $('#plus-rotate-z')
+        // Scale
+        let btnScaleMinus = $('#minus-scale')
+        let btnScalePlus = $('#plus-scale')
+
         let timer = null
 
-        btnMinus.on('mousedown', function() {
+        // Rotate X
+
+        btnRotateXMinus.on('mousedown', function() {
+            rotate('-', 'x')
+            timer = setInterval(function() {
+                rotate('-', 'x')
+            }, 100)
+        })
+
+        btnRotateXMinus.on('mouseup', function() {
+            clearInterval(timer)
+            sendNewData('<%= model.name %>')
+        })
+
+        btnRotateXPlus.on('mousedown', function() {
+            rotate('+', 'x')
+            timer = setInterval(function() {
+                rotate('+', 'x')
+            }, 100)
+        })
+
+        btnRotateXPlus.on('mouseup', function() {
+            clearInterval(timer)
+            sendNewData('<%= model.name %>')
+        })
+
+        // Rotate Y
+
+        btnRotateYMinus.on('mousedown', function() {
+            rotate('-', 'y')
+            timer = setInterval(function() {
+                rotate('-', 'y')
+            }, 100)
+        })
+
+        btnRotateYMinus.on('mouseup', function() {
+            clearInterval(timer)
+            sendNewData('<%= model.name %>')
+        })
+
+        btnRotateYPlus.on('mousedown', function() {
+            rotate('+', 'y')
+            timer = setInterval(function() {
+                rotate('+', 'y')
+            }, 100)
+        })
+
+        btnRotateYPlus.on('mouseup', function() {
+            clearInterval(timer)
+            sendNewData('<%= model.name %>')
+        })
+
+        // Rotate Z
+
+        btnRotateZMinus.on('mousedown', function() {
+            rotate('-', 'z')
+            timer = setInterval(function() {
+                rotate('-', 'z')
+            }, 100)
+        })
+
+        btnRotateZMinus.on('mouseup', function() {
+            clearInterval(timer)
+            sendNewData('<%= model.name %>')
+        })
+
+        btnRotateZPlus.on('mousedown', function() {
+            rotate('+', 'z')
+            timer = setInterval(function() {
+                rotate('+', 'z')
+            }, 100)
+        })
+
+        btnRotateZPlus.on('mouseup', function() {
+            clearInterval(timer)
+            sendNewData('<%= model.name %>')
+        })
+
+        // Scale
+
+        btnScaleMinus.on('mousedown', function() {
             scale('-')
             timer = setInterval(function() {
                 scale('-')
             }, 100)
         })
 
-        btnMinus.on('mouseup', function() {
+        btnScaleMinus.on('mouseup', function() {
             clearInterval(timer)
-            sendScale('<%= model.name %>')
+            sendNewData('<%= model.name %>')
         })
 
-        btnPlus.on('mousedown', function() {
+        btnScalePlus.on('mousedown', function() {
             scale('+')
             timer = setInterval(function() {
                 scale('+')
             }, 100)
         })
 
-        btnPlus.on('mouseup', function() {
+        btnScalePlus.on('mouseup', function() {
             clearInterval(timer)
-            sendScale('<%= model.name %>')
+            sendNewData('<%= model.name %>')
         })
 
-        if (navigator.getVRDisplays) {
+        // Show model
+
+        if (navigator.getVRDisplays)
             $('button#vr-btn')[0].hidden = false
-            showModel('<%= JSON.stringify(model) %>', true)
-        } else {
-           $('button#vr-btn')[0].hidden = true
-            showModel('<%= JSON.stringify(model) %>', false)
-        }
+        else
+            $('button#vr-btn')[0].hidden = true
+
+        showModel('<%= JSON.stringify(model) %>', false)
+
+        // Show edit buttons
+        if (getUrlParams().edit)
+            $('#edit-model')[0].hidden = false
+        else
+            $('#edit-model')[0].hidden = true
     })
 </script>
