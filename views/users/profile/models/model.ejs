@@ -5,17 +5,25 @@
 
 <!-- Page Content -->
 <div class="container-fluid">
+  <div class="clearfix">
+    <!-- Page Heading -->
+    <div class="d-sm-flex align-items-center justify-content-between mb-4 float-left">
+      <h1 class="h3 mb-0 text-gray-800"><%= model.name %></h1>    
+    </div>  <!-- .Page Heading -->
 
-  <!-- Page Heading -->
-  <div class="d-sm-flex align-items-center justify-content-between mb-4">
-    <h1 class="h3 mb-0 text-gray-800"><%= model.name %></h1>
-    <a href="" class="d-none d-sm-inline-block btn btn-sm btn-danger shadow-sm btn-icon-split" data-toggle="modal" data-target="#delete-modal">
+    <a href="" class="d-none d-sm-inline-block btn btn-sm float-right btn-danger shadow-sm btn-icon-split ml-2" data-toggle="modal" data-target="#delete-modal">
       <span class="icon text-white-50">
         <i class="fas fa-trash"></i>
       </span>
       <span class="text">Borrar <%= model.name %></span>
     </a>
-  </div>  <!-- .Page Heading -->
+    <a href="" class="d-none d-sm-inline-block btn btn-sm float-right btn-success shadow-sm btn-icon-split ml-2" data-toggle="modal" data-target="#delete-modal">
+      <span class="icon text-white-50">
+        <i class="fas fa-edit"></i>
+      </span>
+      <span class="text">Editar <%= model.name %></span>
+    </a>
+  </div>
 
   <!-- Breadcrumb -->
   <div class="row">
@@ -30,8 +38,20 @@
   </div>  <!-- .Breadcrumb -->
 
   <!-- Model -->
-  <div class="row"><div id="model-content" class="col-12">
-  </div></div>
+  <div class="row">
+    <div id="edit-model" class="col-12 col-md-6 col-lg-4 col-xl-2">
+      <a class="btn btn-sm btn-info shadow-sm btn-icon-split">
+        <span class="text text-white">Escalar</span>
+        <span id="plus-scale" class="icon text-white-50">
+          <i class="fas fa-plus"></i>
+        </span>
+        <span id="minus-scale" class="icon text-white-50">
+          <i class="fas fa-minus"></i>
+        </span>
+      </a>
+    </div>
+    <div id="model-content" class="col-12"></div>
+  </div>
   <!-- .Model -->
 
   <!-- Buttons -->
@@ -96,12 +116,40 @@
 <script type="text/javascript" src="/javascripts/showModel.js"></script>
 <script type="text/javascript">
     $(function() {
+        let btnMinus = $('#minus-scale')
+        let btnPlus = $('#plus-scale')
+        let timer = null
+
+        btnMinus.on('mousedown', function() {
+            scale('-')
+            timer = setInterval(function() {
+                scale('-')
+            }, 100)
+        })
+
+        btnMinus.on('mouseup', function() {
+            clearInterval(timer)
+            sendScale('<%= model.name %>')
+        })
+
+        btnPlus.on('mousedown', function() {
+            scale('+')
+            timer = setInterval(function() {
+                scale('+')
+            }, 100)
+        })
+
+        btnPlus.on('mouseup', function() {
+            clearInterval(timer)
+            sendScale('<%= model.name %>')
+        })
+
         if (navigator.getVRDisplays) {
             $('button#vr-btn')[0].hidden = false
             showModel('<%= JSON.stringify(model) %>', true)
         } else {
            $('button#vr-btn')[0].hidden = true
-            showModel('<%= JSON.stringify(model) %>', true)
+            showModel('<%= JSON.stringify(model) %>', false)
         }
     })
 </script>

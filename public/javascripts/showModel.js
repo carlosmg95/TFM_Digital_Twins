@@ -57,6 +57,9 @@ const initNormal = function(model) {
 
     let loader = new THREE.GLTFLoader()
     loader.load(`/api/models/getModel/${model.name}`, function(gltf) {
+        gltf.scene.scale.x = model.scale.x
+        gltf.scene.scale.y = model.scale.x
+        gltf.scene.scale.z = model.scale.x
         scene.add(gltf.scene)
     }, undefined, function(e) {
         console.error(e)
@@ -84,35 +87,35 @@ const initVr = function(model) {
     let content = document.getElementById('model-content')
     content.appendChild(container)
 
-    scene = new THREE.Scene();
-    scene.background = new THREE.Color( 0x505050 );
+    scene = new THREE.Scene()
+    scene.background = new THREE.Color(0x505050)
 
-    camera = new THREE.PerspectiveCamera( 70, window.innerWidth / window.innerHeight, 0.1, 10 );
-    scene.add( camera );
+    camera = new THREE.PerspectiveCamera(70, window.innerWidth / window.innerHeight, 0.1, 10)
+    scene.add(camera)
 
     crosshair = new THREE.Mesh(
-        new THREE.RingBufferGeometry( 0.02, 0.04, 32 ),
-        new THREE.MeshBasicMaterial( {
+        new THREE.RingBufferGeometry(0.02, 0.04, 32),
+        new THREE.MeshBasicMaterial({
             color: 0xffffff,
             opacity: 0.5,
             transparent: true
-        } )
-    );
-    crosshair.position.z = -2;
-    camera.add( crosshair );
+        })
+    )
+    crosshair.position.z = -2
+    camera.add(crosshair)
 
     room = new THREE.LineSegments(
-        new THREE.BoxLineGeometry( 6, 6, 6, 10, 10, 10 ),
-        new THREE.LineBasicMaterial( { color: 0x808080 } )
-    );
-    room.position.y = 3;
-    scene.add( room );
+        new THREE.BoxLineGeometry(6, 6, 6, 10, 10, 10),
+        new THREE.LineBasicMaterial({ color: 0x808080 })
+    )
+    room.position.y = 3
+    scene.add(room)
 
-    scene.add( new THREE.HemisphereLight( 0x606060, 0x404040 ) );
+    scene.add(new THREE.HemisphereLight(0x606060, 0x404040))
 
-    var light = new THREE.DirectionalLight( 0xffffff );
-    light.position.set( 1, 1, 1 ).normalize();
-    scene.add( light );
+    let light = new THREE.DirectionalLight(0xffffff)
+    light.position.set(1, 1, 1).normalize()
+    scene.add(light)
 
     // model
 
@@ -133,20 +136,33 @@ const initVr = function(model) {
         console.error(e)
     })
 
-    renderer = new THREE.WebGLRenderer( { antialias: true } );
-    renderer.setPixelRatio( window.devicePixelRatio );
-    renderer.setSize( window.innerWidth, window.innerHeight );
-    renderer.vr.enabled = true;
-    container.appendChild( renderer.domElement );
+    renderer = new THREE.WebGLRenderer({ antialias: true })
+    renderer.setPixelRatio(window.devicePixelRatio)
+    renderer.setSize(window.innerWidth, window.innerHeight)
+    renderer.vr.enabled = true
+    container.appendChild(renderer.domElement)
 
-    window.addEventListener( 'resize', onWindowResize, false );
+    window.addEventListener('resize', onWindowResize, false)
 
-    //
+    window.addEventListener('vrdisplaypointerrestricted', onPointerRestricted, false)
+    window.addEventListener('vrdisplaypointerunrestricted', onPointerUnrestricted, false)
 
-    window.addEventListener( 'vrdisplaypointerrestricted', onPointerRestricted, false );
-    window.addEventListener( 'vrdisplaypointerunrestricted', onPointerUnrestricted, false );
+    content.appendChild(WEBVR.createButton(renderer))
+}
 
-    content.appendChild( WEBVR.createButton( renderer ) );
+const onPointerRestricted = function() {
+    let pointerLockElement = renderer.domElement
+    if (pointerLockElement && typeof (pointerLockElement.requestPointerLock) === 'function') {
+        pointerLockElement.requestPointerLock()
+    }
+}
+
+const onPointerUnrestricted = function() {
+    let currentPointerLockElement = document.pointerLockElement
+    let expectedPointerLockElement = renderer.domElement
+    if (currentPointerLockElement && currentPointerLockElement === expectedPointerLockElement && typeof (document.exitPointerLock) === 'function') {
+        document.exitPointerLock()
+    }
 }
 
 const onWindowResize = function() {
@@ -166,8 +182,32 @@ function renderVr() {
 
     // Keep cubes inside room
 
-    renderer.render( scene, camera );
+    renderer.render(scene, camera)
 
+}
+
+const sendScale = function(name) {
+    $.post('/api/models/setscale', {
+        "name": name,
+        "scale": {
+            "x": scene.children[3].scale.x,
+            "y": scene.children[3].scale.y,
+            "z": scene.children[3].scale.z
+        }
+    })
+}
+
+const scale = function(op) {
+    let scale = scene.children[3].scale.x
+    if (op === '+') {
+        scene.children[3].scale.x += 0.1 * scale
+        scene.children[3].scale.y += 0.1 * scale
+        scene.children[3].scale.z += 0.1 * scale
+    } else if (op === '-') {
+        scene.children[3].scale.x -= 0.1 * scale
+        scene.children[3].scale.y -= 0.1 * scale
+        scene.children[3].scale.z -= 0.1 * scale
+    }
 }
 
 const showModel = async function(model, vr) {
@@ -181,26 +221,3 @@ const showModel = async function(model, vr) {
     init(model, vr)
     animate(vr)
 }
-
-function onPointerRestricted() {
-
-                var pointerLockElement = renderer.domElement;
-                if ( pointerLockElement && typeof ( pointerLockElement.requestPointerLock ) === 'function' ) {
-
-                    pointerLockElement.requestPointerLock();
-
-                }
-
-            }
-
-            function onPointerUnrestricted() {
-
-                var currentPointerLockElement = document.pointerLockElement;
-                var expectedPointerLockElement = renderer.domElement;
-                if ( currentPointerLockElement && currentPointerLockElement === expectedPointerLockElement && typeof ( document.exitPointerLock ) === 'function' ) {
-
-                    document.exitPointerLock();
-
-                }
-
-            }

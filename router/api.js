@@ -25,4 +25,5 @@ module.exports = function(app) {
     app.get('/api/models/getmodels', models.getModels, api.common.data)
     app.get('/api/models/getmodel/:name', models.getModel, api.common.file)
     app.delete('/api/models/deletemodel', models.deleteModel, api.common.ok)
+    app.post('/api/models/setscale', models.updateModel, api.common.ok)
 }

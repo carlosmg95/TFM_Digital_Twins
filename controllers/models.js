@@ -120,6 +120,30 @@ module.exports.nameExist = function(req, res, next) {
     })
 }
 
+module.exports.updateModel = function(req, res, next) {
+    let name = req.body.name,
+        owenerId = req.session.user.id,
+        scaleX = req.body['scale[x]'],
+        scaleY = req.body['scale[y]'],
+        scaleZ = req.body['scale[z]']
+    let set = {
+        "scale": {
+            "x": scaleX,
+            "y": scaleY,
+            "z": scaleZ
+        }
+    }
+
+    mongodb.update('models', {name}, set, function(error, result) {
+        if (error) {
+            req.error = error
+            return res.renderError(500)
+        }
+        log.info('Success udpate')
+        next()
+    })
+}
+
 module.exports.uploadModel = function(req, res, next) {
     let file = req.files['model-file']
     let fileExt = file.name.split('.').pop()
@@ -163,6 +187,16 @@ module.exports.uploadModel = function(req, res, next) {
                 "ext": fileExt,
                 "name": fileName,
                 "path": filePath,
+                "scale": {
+                    "x": 1,
+                    "y": 1,
+                    "z": 1
+                },
+                "rotation": {
+                    "x": 1,
+                    "y": 1,
+                    "z": 1
+                },
                 owenerId
             }
             mongodb.create('models', article, function(error, result) {

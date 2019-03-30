@@ -78,6 +78,12 @@ div.error-container h2 {
     font-size: large;
     margin-top: 0.5em;
 }
+#edit-model {
+    left: 0;
+    position: absolute;
+    top: 0;
+    z-index: 999;
+}
 #vr-btn {
     text-align: center;
 }
