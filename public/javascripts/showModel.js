@@ -1,12 +1,22 @@
-let camera, container, scene, renderer, model
+let camera, container, scene, renderer
 
-const animate = function() {
-    requestAnimationFrame(animate)
-    onWindowResize()
-    renderer.render(scene, camera)
+const animate = function(vr) {
+    if (vr) {
+        renderer.setAnimationLoop(renderVr)
+    } else {
+        requestAnimationFrame(animate)
+        onWindowResize()
+        renderer.render(scene, camera)
+    }
+}
+const init = function(model, vr) {
+    if (vr)
+        initVr(model)
+    else
+        initNormal(model)
 }
 
-const init = function(model, vr) {
+const initNormal = function(model) {
     container = document.createElement('div')
     container.className = 'model'
     let content = document.getElementById('model-content')
@@ -32,14 +42,12 @@ const init = function(model, vr) {
 
     // ground
 
-    let mesh = new THREE.Mesh(new THREE.PlaneBufferGeometry(2000, 2000), new THREE.MeshPhongMaterial({ color: 0x999999, depthWrite: false }))
-    mesh.rotation.x = -Math.PI / 2
-    scene.add(mesh)
-
     let grid = new THREE.GridHelper(200, 40, 0x000000, 0x000000)
     grid.material.opacity = 0.2
     grid.material.transparent = true
     scene.add(grid)
+
+    // controls
 
     let controls = new THREE.OrbitControls(camera)
     controls.target.set(0, -0.2, -0.2)
@@ -52,11 +60,9 @@ const init = function(model, vr) {
         scene.add(gltf.scene)
     }, undefined, function(e) {
         console.error(e)
-    } )
+    })
 
     let rect = container.getBoundingClientRect()
-
-    console.log(document.getElementById('vr-btn').clientHeight)
 
     // set the viewport
     let width = rect.width
@@ -72,6 +78,77 @@ const init = function(model, vr) {
     window.addEventListener('resize', onWindowResize, false)
 }
 
+const initVr = function(model) {
+    container = document.createElement('div')
+    container.className = 'model'
+    let content = document.getElementById('model-content')
+    content.appendChild(container)
+
+    scene = new THREE.Scene();
+    scene.background = new THREE.Color( 0x505050 );
+
+    camera = new THREE.PerspectiveCamera( 70, window.innerWidth / window.innerHeight, 0.1, 10 );
+    scene.add( camera );
+
+    crosshair = new THREE.Mesh(
+        new THREE.RingBufferGeometry( 0.02, 0.04, 32 ),
+        new THREE.MeshBasicMaterial( {
+            color: 0xffffff,
+            opacity: 0.5,
+            transparent: true
+        } )
+    );
+    crosshair.position.z = -2;
+    camera.add( crosshair );
+
+    room = new THREE.LineSegments(
+        new THREE.BoxLineGeometry( 6, 6, 6, 10, 10, 10 ),
+        new THREE.LineBasicMaterial( { color: 0x808080 } )
+    );
+    room.position.y = 3;
+    scene.add( room );
+
+    scene.add( new THREE.HemisphereLight( 0x606060, 0x404040 ) );
+
+    var light = new THREE.DirectionalLight( 0xffffff );
+    light.position.set( 1, 1, 1 ).normalize();
+    scene.add( light );
+
+    // model
+
+    let loader = new THREE.GLTFLoader()
+    loader.load(`/api/models/getModel/${model.name}`, function(gltf) {
+        let object = gltf.scene
+        console.log(object)
+
+        object.scale.x = 0.4
+        object.scale.y = 0.4
+        object.scale.z = 0.4
+        object.position.y = 1.5
+        object.position.z = -2
+        object.rotation.x = 90
+        console.log(object)
+        scene.add(object)
+    }, undefined, function(e) {
+        console.error(e)
+    })
+
+    renderer = new THREE.WebGLRenderer( { antialias: true } );
+    renderer.setPixelRatio( window.devicePixelRatio );
+    renderer.setSize( window.innerWidth, window.innerHeight );
+    renderer.vr.enabled = true;
+    container.appendChild( renderer.domElement );
+
+    window.addEventListener( 'resize', onWindowResize, false );
+
+    //
+
+    window.addEventListener( 'vrdisplaypointerrestricted', onPointerRestricted, false );
+    window.addEventListener( 'vrdisplaypointerunrestricted', onPointerUnrestricted, false );
+
+    content.appendChild( WEBVR.createButton( renderer ) );
+}
+
 const onWindowResize = function() {
     let rect = container.getBoundingClientRect()
 
@@ -85,6 +162,14 @@ const onWindowResize = function() {
     renderer.setSize(width, height)
 }
 
+function renderVr() {
+
+    // Keep cubes inside room
+
+    renderer.render( scene, camera );
+
+}
+
 const showModel = async function(model, vr) {
     model = model.replace(/&#34;/gi, '"')
     model = JSON.parse(model)
@@ -96,3 +181,26 @@ const showModel = async function(model, vr) {
     init(model, vr)
     animate(vr)
 }
+
+function onPointerRestricted() {
+
+                var pointerLockElement = renderer.domElement;
+                if ( pointerLockElement && typeof ( pointerLockElement.requestPointerLock ) === 'function' ) {
+
+                    pointerLockElement.requestPointerLock();
+
+                }
+
+            }
+
+            function onPointerUnrestricted() {
+
+                var currentPointerLockElement = document.pointerLockElement;
+                var expectedPointerLockElement = renderer.domElement;
+                if ( currentPointerLockElement && currentPointerLockElement === expectedPointerLockElement && typeof ( document.exitPointerLock ) === 'function' ) {
+
+                    document.exitPointerLock();
+
+                }
+
+            }
