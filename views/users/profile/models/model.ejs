@@ -170,6 +170,12 @@
   </div>
 </div>  <!-- .Delete modal -->
 
+<script type="text/javascript">
+  $('#delete-modal').on('shown.bs.modal', function(event) {
+    $('input#delete-password').focus()
+  })
+</script>
+
 <!-- Three JS -->
 <script type="text/javascript" src="/components/three/build/three.min.js"></script>
 <script type="text/javascript" src="/components/three/examples/js/controls/OrbitControls.js"></script>

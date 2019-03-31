@@ -106,6 +106,9 @@
     modal.find('.modal-body input#delete-extension').val(ext)
     modal.find('.modal-body input#delete-name').val(name)
   })
+  $('#delete-modal').on('shown.bs.modal', function(event) {
+    $('input#delete-password').focus()
+  })
 </script>
 
 <!-- Three JS -->

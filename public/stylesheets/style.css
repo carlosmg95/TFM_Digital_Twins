@@ -57,7 +57,7 @@ div.error-container h2 {
     padding: 3em 0 0 0;
     position: relative;
     top: 0;
-    z-index: 1;    
+    z-index: 1;
 }
 #model {
     height: 100%;
@@ -83,10 +83,4 @@ div.error-container h2 {
     position: absolute;
     top: 0;
     z-index: 999;
-}
-#vr-btn {
-    text-align: center;
-}
-#vr-btn a {
-    position: static !important;
 }
