@@ -18,7 +18,7 @@
   </div>
 
   <!-- Nav Item - Dashboard -->
-  <li class="nav-item <%= fns.pathLike(path, '/profile') ? 'active' : '' %>">
+  <li id="dashboard-page" class="nav-item <%= fns.pathLike(path, '/profile') ? 'active' : '' %>">
     <a class="nav-link" href="/profile">
       <i class="fas fa-fw fa-tachometer-alt"></i>
       <span>Dashboard</span>
@@ -26,7 +26,7 @@
   </li>  <!-- .Nav Item - Dashboard -->
 
   <!-- Nav Item - Obejcts -->
-  <li class="nav-item <%= fns.pathLike(path, null, '\/profile\/models') ? 'active' : '' %>">
+  <li id="models-page" class="nav-item <%= fns.pathLike(path, null, '\/profile\/models') ? 'active' : '' %>">
     <a class="nav-link" href="/profile/models">
       <i class="fas fa-dice-d20"></i>
       <span>Modelos 3D</span>

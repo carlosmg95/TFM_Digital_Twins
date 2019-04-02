@@ -9,6 +9,7 @@ const glob = require('glob')
 const path = require('path')
 
 // Own modules
+const config = require('../conf/config')
 const entities = require('../tools/entities')
 const errors = require('../tools/errors')
 
@@ -19,6 +20,12 @@ const errors = require('../tools/errors')
 // Return true if an array contains an element
 module.exports.arrayContains = function(arr, element) {
     return arr.indexOf(element) !== -1
+}
+
+// Check if the format is wrong
+module.exports.checkWrongName = function(name) {
+    let regexp = new RegExp(config.wrongPatterns)
+    return name.match(regexp)
 }
 
 // Concatenates two objects
@@ -103,6 +110,11 @@ module.exports.getRequestBodyErrors = function(options) {
     return null
 }
 
+// Get the reserved words
+module.exports.getReservedWords = function() {
+    return config.reservedWords
+}
+
 // Get parameters from an Url
 module.exports.getUrlParams = function(url) {
     var parts = url.split('?')
@@ -116,6 +128,11 @@ module.exports.getUrlParams = function(url) {
             value: param[1] || null
         }
     })
+}
+
+// Get the wrongPatterns var
+module.exports.getWrongPatterns = function() {
+    return config.wrongPatterns.replace(/\\/g, '\\\\')
 }
 
 // Returns true if the path is like the string provided

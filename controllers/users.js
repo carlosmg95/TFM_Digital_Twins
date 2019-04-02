@@ -31,7 +31,7 @@ module.exports.create = function(req, res, next) {
                 cb()
             })
         },
-        // Check if the username exists
+        // Check if the username exists or it is correct
         function usernameExist(cb) {
             mongodb.read('users', {username}, function(error, docs) {
                 if (error) {
@@ -42,6 +42,9 @@ module.exports.create = function(req, res, next) {
                 // If the username exists or it is a reserved word:
                 if ((docs && docs.length) || fns.arrayContains(config.reservedWords, username)) {
                     req.error = error = fns.formatError(errors.EXISTING_USERNAME, username)
+                    return res.renderError(500)
+                } else if (fns.checkWrongName(username)) {
+                    req.error = error = fns.formatError(errors.WRONG_FORMAT_USER, username)
                     return res.renderError(500)
                 } else {
                     log.debug('Username free')
@@ -219,6 +222,9 @@ module.exports.updateUser = function(req, res, next) {
                     // If the username exists or it is a reserved word:
                     if ((docs && docs.length) || fns.arrayContains(config.reservedWords, username)) {
                         req.error = error = fns.formatError(errors.EXISTING_USERNAME, username)
+                        return res.renderError(500)
+                    } else if (fns.checkWrongName(username)) {
+                        req.error = error = fns.formatError(errors.WRONG_FORMAT_USER, username)
                         return res.renderError(500)
                     } else {
                         set = fns.concatObjects(set, {username})
