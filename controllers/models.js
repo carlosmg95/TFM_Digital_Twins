@@ -121,7 +121,16 @@ module.exports.nameExist = function(req, res, next) {
     })
 }
 
-module.exports.updateModel = function(req, res, next) {
+// Read the data sent by MQTT
+module.exports.readData = function(topic, payload, message) {
+    let {stageid, username} = message.params
+    let data = fns.bufferToAscii(payload)
+    console.log(data)
+    console.log(stageid)
+    console.log(username)
+}
+
+module.exports.updatePosition = function(req, res, next) {
     let name = req.body.name,
         owenerId = req.session.user.id,
         rotationX = req.body['rotation[x]'],

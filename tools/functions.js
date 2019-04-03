@@ -22,6 +22,15 @@ module.exports.arrayContains = function(arr, element) {
     return arr.indexOf(element) !== -1
 }
 
+// Convert a buffer to ascii
+module.exports.bufferToAscii = function(buffer) {
+    let arrayAscii = []
+    buffer.forEach(function(char, i) {
+        this[i] = String.fromCharCode(char)
+    }, arrayAscii)
+    return arrayAscii
+}
+
 // Check if the format is wrong
 module.exports.checkWrongName = function(name) {
     let regexp = new RegExp(config.wrongPatterns)
@@ -118,7 +127,7 @@ module.exports.getReservedWords = function() {
 // Get parameters from an Url
 module.exports.getUrlParams = function(url) {
     var parts = url.split('?')
-    if(parts.length <2) {
+    if(parts.length < 2) {
         return []
     }
     return parts[1].split('&').map(function(queryStr) {

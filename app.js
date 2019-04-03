@@ -133,7 +133,7 @@ app.set('port', config.port)
 // Create MQTT subscription
 // ====================================================================================================================
 
-let client  = mqttr.connect('mqtt://test.mosquitto.org')
+let client  = mqttr.connect('mqtt://localhost')
 router.mountMQTT(client)
 
 // ====================================================================================================================
