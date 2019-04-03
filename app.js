@@ -9,6 +9,7 @@ const fileUpload = require('express-fileupload')
 const http = require('http')
 const methodOverride = require('method-override')
 const morgan = require('morgan')
+const mqttr = require('mqttr');
 const parser = require('body-parser')
 const partials = require('express-partials')
 const path = require('path')
@@ -127,6 +128,13 @@ router.mount(app)
 
 // Set app port
 app.set('port', config.port)
+
+// ====================================================================================================================
+// Create MQTT subscription
+// ====================================================================================================================
+
+let client  = mqttr.connect('mqtt://test.mosquitto.org')
+router.mountMQTT(client)
 
 // ====================================================================================================================
 // Create server
