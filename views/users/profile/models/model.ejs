@@ -11,13 +11,13 @@
       <h1 class="h3 mb-0 text-gray-800"><%= model.name %></h1>    
     </div>  <!-- .Page Heading -->
 
-    <a href="" class="d-none d-sm-inline-block btn btn-sm float-right btn-danger shadow-sm btn-icon-split ml-2" data-toggle="modal" data-target="#delete-modal">
+    <a href="" class="d-none d-sm-inline-block btn btn-sm float-right btn-danger shadow-sm btn-icon-split ml-2 delete" data-toggle="modal" data-target="#delete-modal">
       <span class="icon text-white-50">
         <i class="fas fa-trash"></i>
       </span>
       <span class="text">Borrar <%= model.name %></span>
     </a>
-    <a href="/profile/models/<%= model.name %>?edit=true" class="d-none d-sm-inline-block btn btn-sm float-right btn-success shadow-sm btn-icon-split ml-2">
+    <a href="/profile/models/<%= model.name %>?edit" class="d-none d-sm-inline-block btn btn-sm float-right btn-success shadow-sm btn-icon-split ml-2 edit">
       <span class="icon text-white-50">
         <i class="fas fa-edit"></i>
       </span>
@@ -349,7 +349,7 @@
         showModel('<%= JSON.stringify(model) %>', false)
 
         // Show edit buttons
-        if (getUrlParams().edit)
+        if (Object.keys(getUrlParams()).indexOf('edit') !== -1)
             $('#edit-model')[0].hidden = false
         else
             $('#edit-model')[0].hidden = true

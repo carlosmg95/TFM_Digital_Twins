@@ -1,6 +1,7 @@
 <script type="text/javascript">
   const existingUsernameErrorCode = +"<%= fns.getErrorCode('EXISTING_USERNAME') %>"
   const existingEmailErrorCode = +"<%= fns.getErrorCode('EXISTING_EMAIL') %>"
+  const wrongRegexp = new RegExp('<%- fns.getWrongPatterns() %>')
   const wrongPassErrorCode = +"<%= fns.getErrorCode('WRONG_PASSWORD') %>"
 </script>
 

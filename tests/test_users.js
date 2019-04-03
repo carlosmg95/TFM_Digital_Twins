@@ -109,7 +109,7 @@ module.exports = {
             // Check the server response
             .assert.containsText('button#signup-btn', 'Registrarse', 'We are not waiting for data')
             .assert.urlEquals('http://localhost:3000/join', 'It cannot send no data')
-            .saveScreenshot('tests/screenshots/registerEmptyForm.png')
+            .saveScreenshot('tests/screenshots/users/registerEmptyForm.png')
     },
 
     // Try to send form with empty username - Should FAIL -> Error because of username input
@@ -125,30 +125,32 @@ module.exports = {
             // Check the server response
             .assert.containsText('button#signup-btn', 'Registrarse', 'We are not waiting for data')
             .assert.urlEquals('http://localhost:3000/join', 'It cannot send no data')
-            .saveScreenshot('tests/screenshots/registerEmptyUsername.png')
+            .saveScreenshot('tests/screenshots/users/registerEmptyUsername.png')
     },
 
     // Try to send form with existing username - Should FAIL -> Error because of username input
     'Try to send form with existing username': function(browser) {
-        let localUsername = 'carlosmg95'
-        browser
-            // Clear the username and set an existing username
-            .clearValue('form#signup-form input[name=signup-username]')
-            .setValue('form#signup-form input[name=signup-username]', localUsername)
-            // Send data
-            .click('button#signup-btn')
-            // Show errors
-            .waitForElementVisible('form#signup-form input[name=signup-username] + div.form-group-error', 'Error appears')
-            .assert.containsText('form#signup-form input[name=signup-username] + div.form-group-error', fns.formatError(errors.EXISTING_USERNAME, localUsername).message, 'Error because the username exists')
-            // Check the server response
-            .assert.containsText('button#signup-btn', 'Registrarse', 'We are not waiting for data')
-            .assert.urlEquals('http://localhost:3000/join', 'It cannot send existing data')
-            .saveScreenshot('tests/screenshots/registerExistingUsername.png')
+        let usernames = ['carlosmg95', ...fns.getReservedWords()]
+        for (let i in usernames) {
+            browser
+                // Clear the username and set an existing username
+                .clearValue('form#signup-form input[name=signup-username]')
+                .setValue('form#signup-form input[name=signup-username]', usernames[i])
+                // Send data
+                .click('button#signup-btn')
+                // Show errors
+                .waitForElementVisible('form#signup-form input[name=signup-username] + div.form-group-error', 'Error appears')
+                .assert.containsText('form#signup-form input[name=signup-username] + div.form-group-error', fns.formatError(errors.EXISTING_USERNAME, usernames[i]).message, 'Error because the username exists')
+                // Check the server response
+                .assert.containsText('button#signup-btn', 'Registrarse', 'We are not waiting for data')
+                .assert.urlEquals('http://localhost:3000/join', 'It cannot send existing data')
+                .saveScreenshot(`tests/screenshots/users/registerExistingUsername${i}.png`)
+        }
     },
 
     // Try to send form with wrong username - Should FAIL -> Error because of username input
     'Try to send form with wrong username': function(browser) {
-        let usernames = ['espa cio', 'car?los', 'car=', '+carlos', '$echo', 'm&t', '100%', '~user', '**', '/home']
+        let usernames = ['espa cio', 'car?los', 'car=', '+carlos', '$echo', 'm&t', '100%', '~user', '**', '/home', '.carlos', 'carlos.']
         // Try some wrong usernames
         for (let i in usernames) {
             browser
@@ -163,7 +165,7 @@ module.exports = {
                 // Check the server response
                 .assert.containsText('button#signup-btn', 'Registrarse', 'We are not waiting for data')
                 .assert.urlEquals('http://localhost:3000/join', 'It cannot send wrong data')
-                .saveScreenshot(`tests/screenshots/registerWrongUsername${i}.png`)
+                .saveScreenshot(`tests/screenshots/users/registerWrongUsername${i}.png`)
         }
     },
 
@@ -180,7 +182,7 @@ module.exports = {
             // Check the server response
             .assert.containsText('button#signup-btn', 'Registrarse', 'We are not waiting for data')
             .assert.urlEquals('http://localhost:3000/join', 'It cannot send no data')
-            .saveScreenshot('tests/screenshots/registerEmptyEmail.png')
+            .saveScreenshot('tests/screenshots/users/registerEmptyEmail.png')
     },
 
     // Try to send form with existing email - Should FAIL -> Error because of email input
@@ -198,7 +200,7 @@ module.exports = {
             // Check the server response
             .assert.containsText('button#signup-btn', 'Registrarse', 'We are not waiting for data')
             .assert.urlEquals('http://localhost:3000/join', 'It cannot send existing data')
-            .saveScreenshot('tests/screenshots/registerExistingEmail.png')
+            .saveScreenshot('tests/screenshots/users/registerExistingEmail.png')
     },
 
     // Try to send form with wrong email - Should FAIL -> Error because of email input
@@ -218,11 +220,11 @@ module.exports = {
                 // Check the server response
                 .assert.containsText('button#signup-btn', 'Registrarse', 'We are not waiting for data')
                 .assert.urlEquals('http://localhost:3000/join', 'It cannot send wrong data')
-                .saveScreenshot(`tests/screenshots/registerWrongEmail${i}.png`)
+                .saveScreenshot(`tests/screenshots/users/registerWrongEmail${i}.png`)
         }
     },
 
-    // Try to send form with empty password1 - Should FAIL -> Error because of passwprd1 input
+    // Try to send form with empty password1 - Should FAIL -> Error because of password1 input
     'Try to send form with empty password1': function(browser) {
         browser
             // Clear password value
@@ -235,10 +237,10 @@ module.exports = {
             // Check the server response
             .assert.containsText('button#signup-btn', 'Registrarse', 'We are not waiting for data')
             .assert.urlEquals('http://localhost:3000/join', 'It cannot send no data')
-            .saveScreenshot('tests/screenshots/registerEmptyPassword1.png')
+            .saveScreenshot('tests/screenshots/users/registerEmptyPassword1.png')
     },
 
-    // Try to send form with empty password2 - Should FAIL -> Error because of passwprd1 input
+    // Try to send form with empty password2 - Should FAIL -> Error because of password2 input
     'Try to send form with empty password2': function(browser) {
         browser
             // Clear repeat password value
@@ -251,10 +253,10 @@ module.exports = {
             // Check the server response
             .assert.containsText('button#signup-btn', 'Registrarse', 'We are not waiting for data')
             .assert.urlEquals('http://localhost:3000/join', 'It cannot send no data')
-            .saveScreenshot('tests/screenshots/registerEmptyPassword2.png')
+            .saveScreenshot('tests/screenshots/users/registerEmptyPassword2.png')
     },
 
-    // Try to send form with different passwords - Should FAIL -> Error because of passwprd2 input
+    // Try to send form with different passwords - Should FAIL -> Error because of password2 input
     'Try to send form with different passwords': function(browser) {
         browser
             // Clear repeat password value and set a different password
@@ -268,7 +270,7 @@ module.exports = {
             // Check the server response
             .assert.containsText('button#signup-btn', 'Registrarse', 'We are not waiting for data')
             .assert.urlEquals('http://localhost:3000/join', 'It cannot send wrong data')
-            .saveScreenshot('tests/screenshots/registerDifferentPasswords.png')
+            .saveScreenshot('tests/screenshots/users/registerDifferentPasswords.png')
     },
 
     // Try to send good form - Should SUCCESS -> Show /profile url
@@ -281,7 +283,7 @@ module.exports = {
             .assert.urlEquals('http://localhost:3000/profile', 'It access to the profile page')
             // Check the username is correct
             .assert.containsText('span.mr-2.d-none.d-lg-inline.text-gray-600.small', `${username}`, 'Correct user')
-            .saveScreenshot('tests/screenshots/registerRightForm.png')
+            .saveScreenshot('tests/screenshots/users/registerRightForm.png')
             // Logout
             .click('li#setting-profile-btn')
             .click('a#logout-link')
@@ -305,7 +307,7 @@ module.exports = {
             // Check the server response
             .assert.containsText('button#login-btn', 'Iniciar sesión', 'We are not waiting for data')
             .assert.urlEquals('http://localhost:3000/login', 'It cannot send no data')
-            .saveScreenshot('tests/screenshots/loginEmptyUsername.png')
+            .saveScreenshot('tests/screenshots/users/loginEmptyUsername.png')
     },
 
     // Try to login without password - Should FAIL -> Show /login url and error email input
@@ -321,7 +323,7 @@ module.exports = {
             // Check the server response
             .assert.containsText('button#login-btn', 'Iniciar sesión', 'We are not waiting for data')
             .assert.urlEquals('http://localhost:3000/login', 'It cannot send no data')
-            .saveScreenshot('tests/screenshots/loginEmptyPassword.png')
+            .saveScreenshot('tests/screenshots/users/loginEmptyPassword.png')
     },
 
     // Try to login with wrong username - Should FAIL -> Show /login url and error wrong user
@@ -337,7 +339,7 @@ module.exports = {
             // Check the server response
             .assert.containsText('button#login-btn', 'Iniciar sesión', 'We are not waiting for data')
             .assert.urlEquals('http://localhost:3000/login', 'It cannot send wrong data')
-            .saveScreenshot('tests/screenshots/loginWrongUsername.png')
+            .saveScreenshot('tests/screenshots/users/loginWrongUsername.png')
     },
 
     // Try to login with wrong password - Should FAIL -> Show /login url and error wrong user
@@ -353,7 +355,7 @@ module.exports = {
             // Check the server response
             .assert.containsText('button#login-btn', 'Iniciar sesión', 'We are not waiting for data')
             .assert.urlEquals('http://localhost:3000/login', 'It cannot send wrong data')
-            .saveScreenshot('tests/screenshots/loginWrongPassword.png')
+            .saveScreenshot('tests/screenshots/users/loginWrongPassword.png')
     },
 
     // Try to login with good form - Should SUCCESS -> Show /profile url
@@ -366,7 +368,7 @@ module.exports = {
             .assert.urlEquals('http://localhost:3000/profile', 'It access to the profile page')
             // Check the username is correct
             .assert.containsText('span.mr-2.d-none.d-lg-inline.text-gray-600.small', `${username}`, 'Correct user')
-            .saveScreenshot('tests/screenshots/loginRightForm.png')
+            .saveScreenshot('tests/screenshots/users/loginRightForm.png')
             // Go to setting page
             .click('li#setting-profile-btn')
             .click('a#settings-link')
@@ -384,12 +386,12 @@ module.exports = {
             // Check the server response
             .assert.urlEquals('http://localhost:3000/profile/settings', 'It is in the same url')
             .assert.value('form#edit-form input[name=edit-username]', username, 'The username has not been changed')
-            .saveScreenshot('tests/screenshots/editWithoutUsername.png')
+            .saveScreenshot('tests/screenshots/users/editWithoutUsername.png')
     },
 
     // Try to edit user with wrong username - Should FAIL -> Show /profile/settings and the username has an error
     'Try to edit user with wrong username': function(browser) {
-        let usernames = ['espa cio', 'car?los', 'car=', '+carlos', '$echo', 'm&t', '100%', '~user', '**', '/home']
+        let usernames = ['espa cio', 'car?los', 'car=', '+carlos', '$echo', 'm&t', '100%', '~user', '**', '/home', '.carlos', 'carlos.']
         // Try some wrong usernames
         for (let i in usernames) {
             browser
@@ -404,7 +406,7 @@ module.exports = {
                 // Check the server response
                 .assert.containsText('button#edit-btn', 'Enviar nuevos valores', 'We are not waiting for data')
                 .assert.urlEquals('http://localhost:3000/profile/settings', 'It cannot send wrong data')
-                .saveScreenshot(`tests/screenshots/editWrongUsername${i}.png`)
+                .saveScreenshot(`tests/screenshots/users/editWrongUsername${i}.png`)
         }
     },
 
@@ -416,25 +418,27 @@ module.exports = {
             // Check username value
             .assert.urlEquals('http://localhost:3000/profile/settings', 'It is in the same url')
             .assert.value('form#edit-form input[name=edit-username]', username, 'The username has not been changed')
-            .saveScreenshot('tests/screenshots/editWithTheSameUsername.png')
+            .saveScreenshot('tests/screenshots/users/editWithTheSameUsername.png')
     },
 
     // Try to edit user with existing username - Should FAIL -> Error because of username input
     'Try to edit user with existing username': function(browser) {
-        let localUsername = 'carlosmg95'
-        browser
-            // Clear username value and set an existing username
-            .clearValue('form#edit-form input[name=edit-username]')
-            .setValue('form#edit-form input[name=edit-username]', localUsername)
-            // Send data
-            .click('button#edit-btn')
-            // Show errors
-            .waitForElementVisible('form#edit-form input[name=edit-username] + div.form-group-error', 'Error appears')
-            .assert.containsText('form#edit-form input[name=edit-username] + div.form-group-error', fns.formatError(errors.EXISTING_USERNAME, localUsername).message, 'Error because the username exists')
-            // Check the server response
-            .assert.containsText('button#edit-btn', 'Enviar nuevos valores', 'We are not waiting for data')
-            .assert.urlEquals('http://localhost:3000/profile/settings', 'It cannot send existing data')
-            .saveScreenshot('tests/screenshots/editExistingEmail.png')
+        let usernames = ['carlosmg95', ...fns.getReservedWords()]
+        for (let i in usernames) {
+            browser
+                // Clear username value and set an existing username
+                .clearValue('form#edit-form input[name=edit-username]')
+                .setValue('form#edit-form input[name=edit-username]', usernames[i])
+                // Send data
+                .click('button#edit-btn')
+                // Show errors
+                .waitForElementVisible('form#edit-form input[name=edit-username] + div.form-group-error', 'Error appears')
+                .assert.containsText('form#edit-form input[name=edit-username] + div.form-group-error', fns.formatError(errors.EXISTING_USERNAME, usernames[i]).message, 'Error because the username exists')
+                // Check the server response
+                .assert.containsText('button#edit-btn', 'Enviar nuevos valores', 'We are not waiting for data')
+                .assert.urlEquals('http://localhost:3000/profile/settings', 'It cannot send existing data')
+                .saveScreenshot(`tests/screenshots/users/editExistingEmail${i}.png`)
+        }
     },
 
     // Try to edit user with empty email - Should SUCCESS -> Show /profile/settings and the email is the same
@@ -447,7 +451,7 @@ module.exports = {
             // Check the server response
             .assert.urlEquals('http://localhost:3000/profile/settings', 'It is in the same url')
             .assert.value('form#edit-form input[name=edit-email]', email, 'The  has not been changed')
-            .saveScreenshot('tests/screenshots/editWithoutEmail.png')
+            .saveScreenshot('tests/screenshots/users/editWithoutEmail.png')
     },
 
     // Try to edit user with wrong email - Should FAIL -> Show /profile/settings and the email has an error
@@ -467,7 +471,7 @@ module.exports = {
                 // Check the server response
                 .assert.containsText('button#edit-btn', 'Enviar nuevos valores', 'We are not waiting for data')
                 .assert.urlEquals('http://localhost:3000/profile/settings', 'It cannot send wrong data')
-                .saveScreenshot(`tests/screenshots/editWrongEmail${i}.png`)
+                .saveScreenshot(`tests/screenshots/users/editWrongEmail${i}.png`)
         }
     },
 
@@ -479,7 +483,7 @@ module.exports = {
             // Check the server response
             .assert.urlEquals('http://localhost:3000/profile/settings', 'It is in the same url')
             .assert.value('form#edit-form input[name=edit-email]', email, 'The email has not been changed')
-            .saveScreenshot('tests/screenshots/editWithTheSameEmail.png')
+            .saveScreenshot('tests/screenshots/users/editWithTheSameEmail.png')
     },
 
     // Try to edit user with existing email - Should FAIL -> Error because of email input
@@ -497,7 +501,7 @@ module.exports = {
             // Check the server response
             .assert.containsText('button#edit-btn', 'Enviar nuevos valores', 'We are not waiting for data')
             .assert.urlEquals('http://localhost:3000/profile/settings', 'It cannot send existing data')
-            .saveScreenshot('tests/screenshots/editExistingEmail.png')
+            .saveScreenshot('tests/screenshots/users/editExistingEmail.png')
     },
 
     // Try to edit user username - Should SUCCESS -> Show /profile/settings and new username
@@ -515,7 +519,7 @@ module.exports = {
             // Check the server response
             .assert.containsText('button#edit-btn', 'Enviar nuevos valores', 'We are not waiting for data')
             .assert.urlEquals('http://localhost:3000/profile/settings', 'Correct page')
-            .saveScreenshot('tests/screenshots/editSuccessUsername.png')
+            .saveScreenshot('tests/screenshots/users/editSuccessUsername.png')
     },
 
     // Try to edit user email - Should SUCCESS -> Show /profile/settings and new email
@@ -532,7 +536,7 @@ module.exports = {
             // Check the server response
             .assert.containsText('button#edit-btn', 'Enviar nuevos valores', 'We are not waiting for data')
             .assert.urlEquals('http://localhost:3000/profile/settings', 'Correct page')
-            .saveScreenshot('tests/screenshots/editSuccessEmail.png')
+            .saveScreenshot('tests/screenshots/users/editSuccessEmail.png')
             // Show passwords inputs
             .click('button#show-passwords-btn')
             .waitForElementVisible('div#passwords', 'Show the password inputs')
@@ -557,7 +561,7 @@ module.exports = {
             // Check the server response
             .assert.containsText('button#edit-btn', 'Enviar nuevos valores', 'We are not waiting for data')
             .assert.urlEquals('http://localhost:3000/profile/settings', 'It cannot send empty data')
-            .saveScreenshot('tests/screenshots/editEmptyPasswords.png')
+            .saveScreenshot('tests/screenshots/users/editEmptyPasswords.png')
     },
 
     // Try to edit user without new password - Should FAIL -> Show /profile/settings and empty error because of new passwords
@@ -577,7 +581,7 @@ module.exports = {
             // Check the server response
             .assert.containsText('button#edit-btn', 'Enviar nuevos valores', 'We are not waiting for data')
             .assert.urlEquals('http://localhost:3000/profile/settings', 'It cannot send empty data')
-            .saveScreenshot('tests/screenshots/editEmptyNewPasswords.png')
+            .saveScreenshot('tests/screenshots/users/editEmptyNewPasswords.png')
     },
 
     // Try to edit user with wrong old password - Should FAIL -> Show /profile/settings and wrong error because of old password
@@ -595,7 +599,7 @@ module.exports = {
             // Check the server response
             .assert.containsText('button#edit-btn', 'Enviar nuevos valores', 'We are not waiting for data')
             .assert.urlEquals('http://localhost:3000/profile/settings', 'It cannot send wrong data')
-            .saveScreenshot('tests/screenshots/editWrongOldPassword.png')
+            .saveScreenshot('tests/screenshots/users/editWrongOldPassword.png')
     },
 
     // Try to edit user with different passwords - Should FAIL -> Show /profile/settings and error because of different new passwords
@@ -613,7 +617,7 @@ module.exports = {
             // Check the server response
             .assert.containsText('button#edit-btn', 'Enviar nuevos valores', 'We are not waiting for data')
             .assert.urlEquals('http://localhost:3000/profile/settings', 'It cannot send wrong data')
-            .saveScreenshot('tests/screenshots/editDifferentPasswords.png')
+            .saveScreenshot('tests/screenshots/users/editDifferentPasswords.png')
     },
 
     // Try to edit user with empty old password - Should FAIL -> Show /profile/settings and empty old password error
@@ -630,7 +634,7 @@ module.exports = {
             .assert.containsText('form#edit-form input[name=edit-old-password] + div.form-group-error', 'Contraseña incorrecta', 'Error because wrong password')
             .assert.containsText('button#edit-btn', 'Enviar nuevos valores', 'We are not waiting for data')
             .assert.urlEquals('http://localhost:3000/profile/settings', 'It cannot send empty data')
-            .saveScreenshot('tests/screenshots/editEmptyOldPassword.png')
+            .saveScreenshot('tests/screenshots/users/editEmptyOldPassword.png')
     },
 
     // Try to edit user password - Should SUCCESS -> Show /profile/settings
@@ -642,7 +646,7 @@ module.exports = {
             // Check the server response
             .assert.containsText('button#edit-btn', 'Enviar nuevos valores', 'We are not waiting for data')
             .assert.urlEquals('http://localhost:3000/profile/settings', 'Correct page')
-            .saveScreenshot('tests/screenshots/editSuccessPassword.png')
+            .saveScreenshot('tests/screenshots/users/editSuccessPassword.png')
     },
 
     // Try to delete with empty password - Should FAIL -> Show /profile/settings and wrong password error
@@ -659,7 +663,7 @@ module.exports = {
             // Check the server response
             .assert.containsText('button#delete-btn', 'Borrar usuario', 'We are not waiting for data')
             .assert.urlEquals('http://localhost:3000/profile/settings', 'It cannot send wrong data')
-            .saveScreenshot('tests/screenshots/deleteEmptyPassword.png')
+            .saveScreenshot('tests/screenshots/users/deleteEmptyPassword.png')
     },
 
     // Try to delete with wrong password - Should FAIL -> Show /profile/settings and wrong password error
@@ -675,7 +679,7 @@ module.exports = {
             // Check the server response
             .assert.containsText('button#delete-btn', 'Borrar usuario', 'We are not waiting for data')
             .assert.urlEquals('http://localhost:3000/profile/settings', 'It cannot send wrong data')
-            .saveScreenshot('tests/screenshots/deleteWrongPassword.png')
+            .saveScreenshot('tests/screenshots/users/deleteWrongPassword.png')
     },
 
     // Try to delete correctly - Should SUCCESS -> Show /
@@ -689,6 +693,6 @@ module.exports = {
             .click('button#delete-btn')
             // Check it goes to the main page
             .assert.urlEquals('http://localhost:3000/', 'Show the main page')
-            .saveScreenshot('tests/screenshots/deleteSuccess.png')
+            .saveScreenshot('tests/screenshots/users/deleteSuccess.png')
     }
 }

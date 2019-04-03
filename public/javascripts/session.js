@@ -143,7 +143,7 @@ const checkPasswords = function(pass1, pass2) {
 const checkUsername = async function(username) {
     username = username || $('#signup-username').val()
     let exists = false
-    let wrongUsername = username.search(/\s|\?|=|\+|\$|\&|%|~|\*|\//) !== -1
+    let wrongUsername = username.search(wrongRegexp) !== -1
 
     if (wrongUsername) {
         showErrorMsg($('#signup-username'))

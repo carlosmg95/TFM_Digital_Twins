@@ -24,8 +24,10 @@ const apiErrors = {
     EXISTING_EMAIL:             {code: 601, message: 'El email "%p" ya existe'},
     WRONG_USER:                 {code: 602, message: 'Usuario o contraseña incorrecta'},
     WRONG_PASSWORD:             {code: 603, message: 'Contraseña incorrecta'},
+    WRONG_FORMAT_USER:          {code: 604, message: 'El formato del username ("%p") es incorrecto'},
         // Models
-    EXISTING_MODEL_NAME:        {code: 700, message: 'El nombre "%p" ya existe'}
+    EXISTING_MODEL_NAME:        {code: 700, message: 'El nombre "%p" ya existe'},
+    WRONG_FORMAT_MODEL:         {code: 701, message: 'El formato del nombre ("%p") es incorrecto'}
 }
 
 // Client-side errors

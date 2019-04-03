@@ -189,7 +189,7 @@ const checkUsername = async function(username) {
     usernameOld = $('#edit-username-old').val()
 
     let exists = false
-    let wrongUsername = username.search(/\s|\?|=|\+|\$|\&|%|~|\*|\//) !== -1
+    let wrongUsername = username.search(wrongRegexp) !== -1
 
     if (wrongUsername) {
         showErrorMsg($('#edit-username'))

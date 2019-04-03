@@ -98,28 +98,26 @@ const checkFile = function(file) {
 const checkName = async function(name) {
     name = name || $('#model-name').val()
     let existe = false
-    let wrongName = name.search(/\s|\?|=|\+|\$|\&|%|~|\*|\//) !== -1
+    let wrongName = name.search(wrongRegexp) !== -1
 
     if (!name) {
         showErrorMsg($('#model-name'))
-    }
-
-    if (wrongName) {
+    } else if (wrongName) {
         showErrorMsg($('#model-name'), 'El nombre del fichero no puede contener espacios ni caracteres especiales')
+    } else {
+        await $.get(`/api/models/existname/${name}`, function(result) {
+            let code = result.code
+            let errorMsg = result.error
+
+            if (existingNameErrorCode === code) {
+                showErrorMsg($('#model-name'), errorMsg)
+                exists = true
+            } else {
+                hideErrorMsg($('#model-name'))
+                exists = false
+            }
+        })
     }
-
-    await $.get(`/api/models/existname/${name}`, function(result) {
-        let code = result.code
-        let errorMsg = result.error
-
-        if (existingNameErrorCode === code) {
-            showErrorMsg($('#model-name'), errorMsg)
-            exists = true
-        } else {
-            hideErrorMsg($('#model-name'))
-            exists = false
-        }
-    })
 
     if (name && !wrongName && !exists) {
         hideErrorMsg($('#model-name'))

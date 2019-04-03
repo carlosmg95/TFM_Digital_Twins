@@ -109,7 +109,8 @@ module.exports.nameExist = function(req, res, next) {
             return res.renderError(500)
         }
 
-        if (docs && docs.length) {  // If the name exists:
+        // If the name exists or it is a reserved word
+        if ((docs && docs.length) || fns.arrayContains(config.reservedWords, name)) {
             req.error = fns.formatError(errors.EXISTING_MODEL_NAME, name)
             log.error(req.error.message)
             return next()
@@ -170,8 +171,11 @@ module.exports.uploadModel = function(req, res, next) {
                     return res.renderError(500)
                 }
 
-                if (docs && docs.length) {  // If the name exists:
+                if ((docs && docs.length) || fns.arrayContains(config.reservedWords, name)) {
                     req.error = fns.formatError(errors.EXISTING_MODEL_NAME, fileName)
+                    return res.renderError(500)
+                } else if (fns.checkWrongName(name)) {
+                    req.error = error = fns.formatError(errors.WRONG_FORMAT_MODEL, name)
                     return res.renderError(500)
                 }
                 cb()

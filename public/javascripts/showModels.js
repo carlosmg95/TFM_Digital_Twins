@@ -30,6 +30,7 @@ const init = function(models) {
         // make a list item
         let element = document.createElement('div')
         element.className = 'col-12 col-md-6 col-lg-4 col-xl-3 model-item'
+        element.id = `model-${model.name}-${model.ext}`
         element.innerHTML = template.replace('$ext', model.ext)
         element.innerHTML = element.innerHTML.replace(/\$name/g, model.name)
 

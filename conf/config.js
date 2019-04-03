@@ -16,5 +16,7 @@ module.exports = {
     // [REQUIRED] Mongo database.
     mongoDatabase: 'digital_twins',
     // [OPTIONAL] Reserved words. A user cannot have theses usernames.
-    reservedWords: ['admin', 'join', 'login']
+    reservedWords: ['admin', 'join', 'login', 'models', 'profile'],
+    // [OPTIONAL] Wrong patterns. Regexp that not allowed names.
+    wrongPatterns: '\\s|\\?|=|\\+|\\$|&|%|~|\\*|\\/|^\\.|\\.$'
 }
