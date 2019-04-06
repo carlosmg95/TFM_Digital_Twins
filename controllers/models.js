@@ -123,11 +123,9 @@ module.exports.nameExist = function(req, res, next) {
 
 // Read the data sent by MQTT
 module.exports.readData = function(topic, payload, message) {
-    let {stageid, username} = message.params
-    let data = fns.bufferToAscii(payload)
-    console.log(data)
-    console.log(stageid)
-    console.log(username)
+    let {dataid, stageid, username} = message.params
+    let {data, len, type} = fns.readMQTT(payload)
+    console.log({dataid, stageid, username, len, type, data})
 }
 
 module.exports.updatePosition = function(req, res, next) {

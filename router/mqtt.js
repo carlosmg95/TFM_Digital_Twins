@@ -6,7 +6,7 @@ const {models} = require('../controllers')
 // ====================================================================================================================
 
 module.exports = function(client) {
-    client.subscribe('dgiotwins/user/:username/stage/:stageid', models.readData)
+    client.subscribe('dgiotwins/user/:username/stage/:stageid/data/:dataid', models.readData)
     /*client.subscribe('/users/:userid/message/:messageid/:method', function(topic, payload, message) {
         console.log('-------------------------------------------------');
         console.log('topic  :', topic);             // /users/taoyuan/message/4321/ping

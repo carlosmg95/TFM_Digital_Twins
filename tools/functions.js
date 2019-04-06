@@ -156,6 +156,18 @@ module.exports.pathLike = function(path, string, regExp) {
     return relativeUrl === string
 }
 
+// Read the MQTT msg
+module.exports.readMQTT = function(buffer) {
+    if ((buffer[0] & 0xd0) !== 0xd0)
+        return
+    if ((buffer[0] & 0x08) !== 0)
+        return
+    let len = buffer[1]
+    let type = buffer[0] & 0x7
+    let data = +buffer.toString('ascii', 2, len + 2).replace(',', '.')
+    return { data, len, type }
+}
+
 // Remove a string slice in every element from an array
 module.exports.removeFromArrayElements = function(arr, contentToRemove) {
     if(typeof(contentToRemove) !== 'object') {
