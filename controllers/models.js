@@ -11,6 +11,17 @@ const path = require('path')
 // Module exports
 // ====================================================================================================================
 
+// Check the size of a model
+module.exports.checkSize = function(req, res, next) {
+    let fileSize = req.params.size
+
+    if (config.maxSize && (fileSize > (config.maxSize * 1000000))) {
+        req.error = fns.formatError(errors.TOO_LARGE, config.maxSize)
+        log.error(req.error.message)
+    }
+    next()
+}
+
 // Delete a model from the server
 module.exports.deleteModel = function(req, res, next) {
     let model = req.body
@@ -33,7 +44,7 @@ module.exports.deleteModelAux = deleteModelAux = function({name, ext}, owenerId,
         function deleteModel(cb) {
             mongodb.delete('models', {name, owenerId}, function(error, results) {
                 //If error in query
-                if(error) {
+                if (error) {
                     req.error = error
                     log.error(req.error)
                     return next()
@@ -46,7 +57,7 @@ module.exports.deleteModelAux = deleteModelAux = function({name, ext}, owenerId,
             let filePath = path.join(__dirname, '../files/models')
             filePath = `${filePath}/${owenerId}_${name}.${ext}`
             fs.unlink(filePath, function(error) {
-                if(error) {
+                if (error) {
                     req.error = error.code === 'ENOENT' ? error.message.split(', unlink')[0] : error  // Don't show the file path
                     log.error(req.error)
                     return next()
@@ -64,13 +75,13 @@ module.exports.getModel = function(req, res, next) {
 
     mongodb.read('models', {name, owenerId}, function(error, docs) {
         //If error in query
-        if(error) {
+        if (error) {
             req.error = error
             log.error(req.error)
             return next()
         }
         // If no results found
-        if(!docs || !docs.length) {
+        if (!docs || !docs.length) {
             req.error = errors.RESOURCE_NOT_FOUND
             log.error(req.error.message)
             return next()
@@ -172,6 +183,14 @@ module.exports.uploadModel = function(req, res, next) {
     filePath = `${filePath}/${owenerId}_${fileName}.${fileExt}`
 
     async.series([
+        // Check the size
+        function checkSize(cb) {
+            if (config.maxSize && (file.size > (config.maxSize * 1000000))) {
+                req.error = fns.formatError(errors.TOO_LARGE)
+                return res.renderError(500)
+            }
+            cb()
+        },
         // Check if the name existes
         function checkName(cb) {
             mongodb.read('models', {"name": fileName, owenerId}, function(error, docs) {

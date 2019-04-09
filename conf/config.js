@@ -18,5 +18,7 @@ module.exports = {
     // [OPTIONAL] Reserved words. A user cannot have theses usernames.
     reservedWords: ['admin', 'join', 'login', 'models', 'profile'],
     // [OPTIONAL] Wrong patterns. Regexp that not allowed names.
-    wrongPatterns: '\\s|\\?|=|\\+|\\$|&|%|~|\\*|\\/|^\\.|\\.$'
+    wrongPatterns: '\\s|\\?|=|\\+|\\$|&|%|~|\\*|\\/|^\\.|\\.$',
+    // [OPTIONAL] Max size of a model in MB
+    maxSize: 10
 }

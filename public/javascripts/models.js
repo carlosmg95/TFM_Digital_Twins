@@ -54,7 +54,7 @@ const uploadFile = async function() {
     $('#upload-btn')[0].innerHTML = '<i class="fas fa-spinner fa-spin"></i>'  // Show a wait icon
     $('#upload-btn').attr('disabled', 'disabled')  // Disable the button
 
-    let rightFile = checkFile()
+    let rightFile = await checkFile()
     let rightName = await checkName()
 
     if (rightName && rightFile) {
@@ -83,16 +83,29 @@ const uploadFile = async function() {
 //  Private functions                                                                                                 //
 // ================================================================================================================== //
 
-const checkFile = function(file) {
+const checkFile = async function(file) {
     file = file || $('#model-file').val()
+    let rightFile = false
+    let size = $('#model-file')[0].files[0].size
 
     if (!file) {
         showErrorMsg($('#model-file'))
-        return false
+        rightFile = false
     } else {
-        hideErrorMsg($('#model-file'))
-        return true
+        await $.get(`/api/models/checksize/${size}`, function(result) {
+            let code = result.code
+            let errorMsg = result.error
+
+            if (tooLargeErrorCode === code) {
+                showErrorMsg($('#model-file'), errorMsg)
+                rightFile = false
+            } else {
+                hideErrorMsg($('#model-file'))
+                rightFile = true
+            }
+        })
     }
+    return rightFile
 }
 
 const checkName = async function(name) {

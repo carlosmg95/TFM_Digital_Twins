@@ -18,6 +18,7 @@ const apiErrors = {
     WRONG_REQ_PARAMS:           {code: 103, message: 'Parámetros erróneos'},
     NO_RESULTS_FOUND:           {code: 104, message: 'Sin resultados'},
     NO_PARAMS:                  {code: 105, message: 'Faltan parámetros'},
+    TOO_LARGE:                  {code: 413, message: 'El archivo supera los %p MB máximos'},
     // Validation errors
         // Users
     EXISTING_USERNAME:          {code: 600, message: 'El usuario "%p" ya existe'},
@@ -48,6 +49,12 @@ const clientSideErrors = {
         code: 404,
         status: 'Not Found',
         message: 'The requested URL doesn\'t exist or is no longer available',
+        image: '/images/sad.ico'
+    },
+    413: {
+        code: 413,
+        status: 'Too Large',
+        message: 'Request Entity Too Large',
         image: '/images/sad.ico'
     },
     500: {

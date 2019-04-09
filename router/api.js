@@ -22,6 +22,7 @@ module.exports = function(app) {
     // Models
     app.post('/api/models/uploadmodel', models.uploadModel, api.common.data)
     app.get('/api/models/existname/:name', models.nameExist, api.common.data)
+    app.get('/api/models/checksize/:size', models.checkSize, api.common.data)
     app.get('/api/models/getmodels', models.getModels, api.common.data)
     app.get('/api/models/getmodel/:name', models.getModel, api.common.file)
     app.delete('/api/models/deletemodel', models.deleteModel, api.common.ok)
