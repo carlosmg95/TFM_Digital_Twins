@@ -93,6 +93,8 @@ module.exports.getModels = function(req, res, next) {
         }
         if (docs && docs.length !== 0)
             req.model = docs[0]  // Show the model in its page
+        else if (name && (!docs || docs.length === 0))
+            return res.renderError(404)
         req.data = docs  // Get all the models in the index page
         next()
     }, { "project": { "path": 0 } })
