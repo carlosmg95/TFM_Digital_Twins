@@ -85,27 +85,33 @@ const uploadFile = async function() {
 
 const checkFile = async function(file) {
     file = file || $('#model-file').val()
-    let rightFile = false
-    let size = $('#model-file')[0].files[0].size
+    let rightFile = true
+    let rightSize = true
 
     if (!file) {
         showErrorMsg($('#model-file'))
         rightFile = false
     } else {
+        let size = $('#model-file')[0].files[0].size
         await $.get(`/api/models/checksize/${size}`, function(result) {
             let code = result.code
             let errorMsg = result.error
 
             if (tooLargeErrorCode === code) {
                 showErrorMsg($('#model-file'), errorMsg)
-                rightFile = false
+                rightSize = false
             } else {
-                hideErrorMsg($('#model-file'))
-                rightFile = true
+                rightSize = true
             }
         })
     }
-    return rightFile
+    
+    if (rightFile && rightSize) {
+        hideErrorMsg($('#model-file'))
+        return true
+    }
+
+    return false
 }
 
 const checkName = async function(name) {
