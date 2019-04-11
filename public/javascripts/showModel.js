@@ -2,9 +2,9 @@ let camera, container, scene, renderer
 
 const animate = function(vr) {
     if (vr) {
-        renderer.setAnimationLoop(renderVr)
+        renderer.setAnimationLoop(render)
     } else {
-        renderNormal()
+        render()
         requestAnimationFrame(animate)
     }
 }
@@ -186,12 +186,7 @@ const onWindowResize = function() {
     renderer.setSize(width, height)
 }
 
-const renderNormal = function() {
-    onWindowResize()
-    renderer.render(scene, camera)
-}
-
-const renderVr = function() {
+const render = function() {
     onWindowResize()
     renderer.render(scene, camera)
 }

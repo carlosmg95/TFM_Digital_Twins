@@ -144,12 +144,12 @@ module.exports.readData = function(topic, payload, message) {
 module.exports.updatePosition = function(req, res, next) {
     let name = req.body.name,
         owenerId = req.session.user.id,
-        rotationX = req.body['rotation[x]'],
-        rotationY = req.body['rotation[y]'],
-        rotationZ = req.body['rotation[z]'],
-        scaleX = req.body['scale[x]'],
-        scaleY = req.body['scale[y]'],
-        scaleZ = req.body['scale[z]']
+        rotationX = +req.body['rotation[x]'],
+        rotationY = +req.body['rotation[y]'],
+        rotationZ = +req.body['rotation[z]'],
+        scaleX = +req.body['scale[x]'],
+        scaleY = +req.body['scale[y]'],
+        scaleZ = +req.body['scale[z]']
     let set = {
         "scale": {
             "x": scaleX,

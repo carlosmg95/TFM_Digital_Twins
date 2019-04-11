@@ -1,0 +1,143 @@
+<script type="text/javascript">
+  const existingNameErrorCode = +"<%= fns.getErrorCode('EXISTING_MODEL_NAME') %>"
+  const tooLargeErrorCode = +"<%= fns.getErrorCode('TOO_LARGE') %>"
+  const wrongPassErrorCode = +"<%= fns.getErrorCode('WRONG_PASSWORD') %>"
+  const wrongRegexp = new RegExp('<%- fns.getWrongPatterns() %>')
+</script>
+
+<!-- Page Content -->
+<div class="container-fluid">
+  <!-- Page Heading -->
+  <div class="d-sm-flex align-items-center justify-content-between mb-4">
+    <h1 class="h3 mb-0 text-gray-800">Escenarios</h1>
+    <a href="" id="upload-link" class="d-none d-sm-inline-block btn btn-sm btn-success shadow-sm btn-icon-split" data-toggle="modal" data-target="#upload-modal">
+      <span class="icon text-white-50">
+        <i class="fas fa-plus-circle"></i>
+      </span>
+      <span class="text">Crear escenario</span>
+    </a>
+  </div>  <!-- .Page Heading -->
+
+  <!-- Models -->
+  <div id="models-list" class="row">
+  </div>  <!-- .Models -->
+</div>  <!-- .container-fluid -->
+
+<!-- Upload modal -->
+<div class="modal fade" id="upload-modal" tabindex="-1" role="dialog" aria-labelledby="upload-modal-label" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <!-- Modal header -->
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalLabel">Subir fichero</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>  <!-- .Modal header -->
+
+      <!-- Modal body -->
+      <div class="modal-body">
+        <form id="upload-form">
+          <div class="form-group">
+            <label for="model-name">Nombre</label>
+            <input type="text" class="form-control" id="model-name" name="model-name">
+            <div class="form-group-error" data-err="Se debe rellenar el nombre del fichero"><small class="form-text text-danger"></small></div>
+          </div>
+          <div class="form-group">
+            <label for="model-file">Fichero glb</label>
+            <input type="file" class="form-control-file" id="model-file" name="model-file" accept=".glb">
+            <div class="form-group-error" data-err="Se debe proporcionar un fichero"><small class="form-text text-danger"></small></div>
+          </div>
+        </form>
+      </div>   <!-- .Modal body -->
+
+      <!-- Modal footer -->
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
+        <button id="upload-btn" type="submit" class="btn btn-primary" onclick="uploadFile()">Subir</button>
+      </div>  <!-- .Modal footer -->
+    </div>
+  </div>
+</div>  <!-- .Upload modal -->
+
+<!-- Delete modal -->
+<div class="modal fade" id="delete-modal" tabindex="-1" role="dialog" aria-labelledby="delete-modal-label" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <!-- Modal header -->
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalLabel">Borrar modelo</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>  <!-- .Modal header -->
+
+      <!-- Modal body -->
+      <div class="modal-body">
+        <!-- Alert -->
+        <div id="delete-alert" class="alert alert-danger border-bottom-danger text-center fade show" role="alert" hidden></div>   <!-- .Alert -->
+        Esta acción no se puede deshacer. ¿Borrar de todas formas?  
+        <form id="delete-form" class="mt-3">     
+          <div class="form-group mx-sm-3 mb-2">
+            <input type="text" id="delete-name" name="delete-name" value="" hidden>
+            <input type="text" id="delete-extension" name="delete-extension" value="" hidden>
+            <label for="delete-password" class="sr-only">Contraseña</label>
+            <input type="password" class="form-control" id="delete-password" name="delete-password" placeholder="Contraseña">
+            <div class="form-group-error"><small class="form-text text-danger"></small></div>
+          </div>
+        </form>
+      </div>  <!-- .Modal body -->
+
+      <!-- Modal footer -->
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
+        <button id="delete-btn" type="submit" class="btn btn-primary" onclick="deleteModel()">Borrar</button>
+      </div>  <!-- .Modal footer -->
+    </div>
+  </div>
+</div>  <!-- .Delete modal -->
+
+<script type="text/javascript">
+  $('#delete-modal').on('show.bs.modal', function(event) {
+    let button = $(event.relatedTarget)
+    let ext = button.data('whatever').split('/')[1]
+    let modal = $(this)
+    let name = button.data('whatever').split('/')[0]
+
+    modal.find('.modal-body input#delete-extension').val(ext)
+    modal.find('.modal-body input#delete-name').val(name)
+  })
+  $('#delete-modal').on('shown.bs.modal', function(event) {
+    $('input#delete-password').focus()
+  })
+</script>
+
+<!-- Three JS -->
+<script type="text/javascript" src="/components/three/build/three.min.js"></script>
+<script type="text/javascript" src="/components/three/examples/js/controls/OrbitControls.js"></script>
+<script type="text/javascript" src="/components/three/examples/js/WebGL.js"></script>
+<script type="text/javascript" src="/components/three/examples/js/loaders/GLTFLoader.js"></script>
+
+<script id="template" type="notjs">
+    <div class="model-title clearfix">
+      <a class="float-left" href="/profile/models/$name">$name</a>
+      <div class="dropdown no-arrow float-right">
+        <a class="dropdown-toggle" href="#" role="button" id="menu-$name" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+          <i class="fas fa-ellipsis-v fa-sm fa-fw text-gray-400"></i>
+        </a>
+        <div class="dropdown-menu dropdown-menu-right shadow animated--fade-in" aria-labelledby="menu-$name">
+          <div class="dropdown-header">Acciones:</div>
+          <a class="dropdown-item edit" href="/profile/models/$name?edit">Editar $name</a>
+          <a class="dropdown-item delete" href="" data-toggle="modal" data-target="#delete-modal" data-whatever="$name/$ext">Borrar $name</a>
+        </div>
+      </div>
+    </div>
+    <div class="model-body"></div>
+</script>
+
+<!-- Crypto -->
+<script type="text/javascript" src="/components/crypto-js/crypto-js.js"></script>
+
+<!-- Custom JS -->
+<script type="text/javascript" src="/javascripts/models.js"></script>
+<script type="text/javascript" src="/javascripts/showModels.js"></script>

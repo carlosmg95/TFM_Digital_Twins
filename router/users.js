@@ -19,4 +19,6 @@ module.exports = function(app) {
     // Models
     app.get('/profile/models', render('users/profile/models', 'layout-users'))
     app.get('/profile/models/:name', models.getModels, render('users/profile/models/model', 'layout-users'))
+    // Stages
+    app.get('/profile/stages', render('users/profile/stages', 'layout-users'))
 }
