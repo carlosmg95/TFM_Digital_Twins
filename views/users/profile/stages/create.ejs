@@ -1,0 +1,123 @@
+<script type="text/javascript">
+  const existingNameErrorCode = +"<%= fns.getErrorCode('EXISTING_MODEL_NAME') %>"
+  const tooLargeErrorCode = +"<%= fns.getErrorCode('TOO_LARGE') %>"
+  const wrongPassErrorCode = +"<%= fns.getErrorCode('WRONG_PASSWORD') %>"
+  const wrongRegexp = new RegExp('<%- fns.getWrongPatterns() %>')
+</script>
+
+<!-- Page Content -->
+<div class="container-fluid">
+  <div class="clearfix">
+    <!-- Page Heading -->
+    <div class="d-sm-flex align-items-center justify-content-between mb-4 float-left">
+      <h1 class="h3 mb-0 text-gray-800">Crear nuevo escenario</h1>    
+    </div>  <!-- .Page Heading -->
+    </a>
+  </div>
+
+  <!-- Breadcrumb -->
+  <div class="row">
+    <div class="col-12">
+      <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+          <li class="breadcrumb-item"><a href="/profile/stages">Lista</a></li>
+          <li class="breadcrumb-item active" aria-current="page">Crear nuevo escenario</li>
+        </ol>
+      </nav>
+    </div>
+  </div>  <!-- .Breadcrumb -->
+
+  <!-- Data -->
+  <div class="row">
+    <!-- Stage Data -->
+    <div class="col-12 col-lg-6">
+      <!-- Card -->
+      <div class="card border-left-success">
+        <h5 class="card-header">Datos escenario</h5>
+        <!-- Body -->
+        <div class="card-body">
+          <form>
+            <div class="form-group">
+              <label for="create-stage-name">Nombre</label>
+              <input type="text" class="form-control" id="create-stage-name" placeholder="Parque eólico">
+            </div>
+            <div class="form-group">
+              <label for="create-stage-id">Identificador</label>
+              <input type="text" class="form-control" id="create-stage-id" placeholder="escenario1">
+            </div>
+            <div class="form-group">
+              <label for="create-stage-model">Modelos</label>
+              <select class="form-control" id="create-stage-model" onchange="checkModel(this.value)">
+                <option>-- Selecciona --</option>
+                <% for (let i in userModels) { %>
+                <option><%= userModels[i].name %></option>
+                <% } if (!userModels || userModels.length === 0) { %>
+                <option>Subir modelo</option>
+                <% } %>
+              </select>
+            </div>
+          </form>
+        </div>  <!-- .Body -->
+      </div>  <!-- .Card -->
+    </div>  <!-- .Stage Data -->
+  </div>   <!-- .Data -->
+</div>  <!-- .Page Content -->
+
+<!-- Upload modal -->
+<div class="modal fade" id="upload-modal" tabindex="-1" role="dialog" aria-labelledby="upload-modal-label" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <!-- Modal header -->
+      <div class="modal-header">
+        <h5 class="modal-title" id="upload-modal-label">Subir fichero</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>  <!-- .Modal header -->
+
+      <!-- Modal body -->
+      <div class="modal-body">
+        <form id="upload-form">
+          <div class="form-group">
+            <label for="model-name">Nombre</label>
+            <input type="text" class="form-control" id="model-name" name="model-name">
+            <div class="form-group-error" data-err="Se debe rellenar el nombre del fichero"><small class="form-text text-danger"></small></div>
+          </div>
+          <div class="form-group">
+            <label for="model-file">Fichero glb</label>
+            <input type="file" class="form-control-file" id="model-file" name="model-file" accept=".glb">
+            <div class="form-group-error" data-err="Se debe proporcionar un fichero"><small class="form-text text-danger"></small></div>
+          </div>
+        </form>
+      </div>   <!-- .Modal body -->
+
+      <!-- Modal footer -->
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
+        <button id="upload-btn" type="submit" class="btn btn-primary" onclick="uploadFile()">Subir</button>
+      </div>  <!-- .Modal footer -->
+    </div>
+  </div>
+</div>  <!-- .Upload modal -->
+
+<!-- Three JS -->
+<script type="text/javascript" src="/components/three/build/three.min.js"></script>
+<script type="text/javascript" src="/components/three/examples/js/controls/OrbitControls.js"></script>
+<script type="text/javascript" src="/components/three/examples/js/WebGL.js"></script>
+<script type="text/javascript" src="/components/three/examples/js/loaders/GLTFLoader.js"></script>
+<script type="text/javascript" src="/components/three/examples/js/vr/WebVR.js"></script>
+<script type="text/javascript" src="/components/three/examples/js/geometries/BoxLineGeometry.js"></script>
+
+<!-- Crypto -->
+<script type="text/javascript" src="/components/crypto-js/crypto-js.js"></script>
+
+<!-- Custom JS -->
+<script type="text/javascript" src="/javascripts/models.js"></script>
+<script type="text/javascript" src="/javascripts/showModel.js"></script>
+
+<script type="text/javascript">
+  const checkModel = function(value) {
+    if (value === 'Subir modelo')
+      $('#upload-modal').modal('show')
+  }
+</script>

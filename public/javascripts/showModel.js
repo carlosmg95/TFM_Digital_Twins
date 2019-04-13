@@ -74,7 +74,7 @@ const initNormal = function(model) {
 
     // set the viewport
     let width = rect.width
-    let height = window.innerHeight - rect.top - document.getElementById('user-footer').clientHeight - document.getElementById('vr-btn').clientHeight -10
+    let height = window.innerHeight - rect.top - document.getElementById('user-footer').clientHeight - document.getElementById('vr-btn').clientHeight - 10
 
     renderer = new THREE.WebGLRenderer({ antialias: true })
     renderer.setPixelRatio(window.devicePixelRatio)
@@ -178,7 +178,7 @@ const onWindowResize = function() {
 
     // set the viewport
     let width = rect.width
-    let height = window.innerHeight - rect.top - document.getElementById('user-footer').clientHeight - document.getElementById('vr-btn').clientHeight -10
+    let height = window.innerHeight - rect.top - document.getElementById('user-footer').clientHeight - document.getElementById('vr-btn').clientHeight - 10
 
     camera.aspect = width / height
     camera.updateProjectionMatrix()
@@ -228,7 +228,7 @@ const scale = function(op) {
     }
 }
 
-const showModel = async function(model, vr) {
+const showModel = function(model, vr) {
     model = model.replace(/&#34;/gi, '"')
     model = JSON.parse(model)
 

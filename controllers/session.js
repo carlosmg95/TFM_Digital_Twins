@@ -8,6 +8,7 @@ const async = require('async')
 // ====================================================================================================================
 // Module exports
 // ====================================================================================================================
+
 module.exports.create = function(req, res, next) {
     let { username, password } = req.body
     auth(username, crypt(password), function(error, docs) {

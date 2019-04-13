@@ -18,6 +18,17 @@
     </a>
   </div>  <!-- .Page Heading -->
 
+  <!-- Breadcrumb -->
+  <div class="row">
+    <div class="col-12">
+      <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+          <li class="breadcrumb-item">Lista</li>
+        </ol>
+      </nav>
+    </div>
+  </div>  <!-- .Breadcrumb -->
+
   <!-- Models -->
   <div id="models-list" class="row">
   </div>  <!-- .Models -->
@@ -29,7 +40,7 @@
     <div class="modal-content">
       <!-- Modal header -->
       <div class="modal-header">
-        <h5 class="modal-title" id="exampleModalLabel">Subir fichero</h5>
+        <h5 class="modal-title" id="upload-modal-label">Subir fichero</h5>
         <button type="button" class="close" data-dismiss="modal" aria-label="Close">
           <span aria-hidden="true">&times;</span>
         </button>
@@ -66,7 +77,7 @@
     <div class="modal-content">
       <!-- Modal header -->
       <div class="modal-header">
-        <h5 class="modal-title" id="exampleModalLabel">Borrar modelo</h5>
+        <h5 class="modal-title" id="delete-modal-label">Borrar modelo</h5>
         <button type="button" class="close" data-dismiss="modal" aria-label="Close">
           <span aria-hidden="true">&times;</span>
         </button>
@@ -141,3 +152,7 @@
 <!-- Custom JS -->
 <script type="text/javascript" src="/javascripts/models.js"></script>
 <script type="text/javascript" src="/javascripts/showModels.js"></script>
+
+<script type="text/javascript">
+  showModels()
+</script>

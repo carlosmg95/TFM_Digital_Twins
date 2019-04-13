@@ -30,7 +30,7 @@
     <div class="col-12">
       <nav aria-label="breadcrumb">
         <ol class="breadcrumb">
-          <li class="breadcrumb-item"><a href="/profile/models">Modelos 3D</a></li>
+          <li class="breadcrumb-item"><a href="/profile/models">Lista</a></li>
           <li class="breadcrumb-item active" aria-current="page"><%= model.name %></li>
         </ol>
       </nav>
@@ -131,7 +131,7 @@
     </div>
   </div>
   <!-- .Buttons -->
-</div>  <!-- .container-fluid -->
+</div>  <!-- .Page Content -->
 
 <!-- Delete modal -->
 <div class="modal fade" id="delete-modal" tabindex="-1" role="dialog" aria-labelledby="delete-modal-label" aria-hidden="true">
@@ -139,7 +139,7 @@
     <div class="modal-content">
       <!-- Modal header -->
       <div class="modal-header">
-        <h5 class="modal-title" id="exampleModalLabel">Borrar <%= model.name %></h5>
+        <h5 class="modal-title" id="delete-modal-label">Borrar <%= model.name %></h5>
         <button type="button" class="close" data-dismiss="modal" aria-label="Close">
           <span aria-hidden="true">&times;</span>
         </button>

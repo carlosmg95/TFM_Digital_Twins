@@ -7,12 +7,14 @@ const animate = function() {
     requestAnimationFrame(animate)
 }
 
-const createAlert = function() {
+const createAlert = function(alert) {
     let element = document.createElement('div')
     element.className = 'col-12 alert alert-warning'
     element.role = 'alert'
-    element.innerHTML = 'Aún no tines ningún modelo. ¡A qué esperas para <a href="" class="alert-link" data-toggle="modal" data-target="#upload-modal">subir</a> uno!'
-
+    if (alert === 'models')
+        element.innerHTML = 'Aún no tines ningún modelo. ¡A qué esperas para <a href="" class="alert-link" data-toggle="modal" data-target="#upload-modal">subir</a> uno!'
+    else if (alert === 'stages')
+        element.innerHTML = 'Aún no tines ningún escenario. ¡A qué esperas para <a href="/profile/stages/create" class="alert-link">crear</a> uno!'
     content.appendChild(element)
 }
 
@@ -81,7 +83,7 @@ const init = function(models) {
         })
     }
 
-    renderer = new THREE.WebGLRenderer({canvas: canvas, antialias: true })
+    renderer = new THREE.WebGLRenderer({ canvas: canvas, antialias: true })
     renderer.setClearColor(0xffffff, 1)
     renderer.setPixelRatio(window.devicePixelRatio)
 }
@@ -114,7 +116,7 @@ const render = function() {
         if (rect.bottom < 0 || rect.top > renderer.domElement.clientHeight ||
              rect.right < 0 || rect.left > renderer.domElement.clientWidth) {
 
-            return // it's off screen
+            return  // it's off screen
 
         }
 
@@ -146,13 +148,34 @@ const showModels = async function() {
         content.innerHTML = ''
     })
 
-    if (models.length === 0) {
-        createAlert()
+    if (!models || models.length === 0) {
+        createAlert('models')
     } else {
         if (WEBGL.isWebGLAvailable() === false) {
             document.body.appendChild(WEBGL.getWebGLErrorMessage())
         }
 
+        init(models)
+        animate()
+    }
+}
+
+const showStages = async function() {
+    let models, stages
+    await $.get('/api/stages/getstages')
+    .done(function(data) {
+        stages = data.data
+        content.innerHTML = ''
+    })
+
+    if (!stages || stages.length === 0) {
+        createAlert('stages')
+    } else {
+        if (WEBGL.isWebGLAvailable() === false) {
+            document.body.appendChild(WEBGL.getWebGLErrorMessage())
+        }
+
+        models = stages.map(stage => stage.model)
         init(models)
         animate()
     }
@@ -166,5 +189,3 @@ const updateSize = function() {
         renderer.setSize(width, height, false)
     }
 }
-
-showModels()
