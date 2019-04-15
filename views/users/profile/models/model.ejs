@@ -37,7 +37,6 @@
     </div>
   </div>  <!-- .Breadcrumb -->
 
-  <!-- Model -->
   <div class="row">
     <!-- Edit -->
     <div id="edit-model" class="col-12 col-md-6 col-lg-4 col-xl-2" hidden>
@@ -112,10 +111,12 @@
           </div>  <!-- .RotateZ -->
         </div>  <!-- .Body -->
       </div>  <!-- .Card -->
-    </div>  <!-- .Edit -->
-    <div id="model-content" class="col-12"></div>
+    </div>  <!-- .Edit -->    
   </div>
+
   <!-- .Model -->
+  <div id="models-list" class="row model-show">
+  </div>  <!-- .Model -->
 
   <!-- Buttons -->
   <div class="row">
@@ -184,12 +185,18 @@
 <script type="text/javascript" src="/components/three/examples/js/vr/WebVR.js"></script>
 <script type="text/javascript" src="/components/three/examples/js/geometries/BoxLineGeometry.js"></script>
 
+<script id="template" type="notjs">
+    <div class="model-body"></div>
+</script>
+
 <!-- Crypto -->
 <script type="text/javascript" src="/components/crypto-js/crypto-js.js"></script>
 
 <!-- Custom JS -->
 <script type="text/javascript" src="/javascripts/models.js"></script>
-<script type="text/javascript" src="/javascripts/showModel.js"></script>
+<script type="text/javascript" src="/javascripts/showModels.js"></script>
+<script type="text/javascript" src="/javascripts/vrModel.js"></script>
+
 <script type="text/javascript">
     // Get parameters from an Url
     const getUrlParams = function() {
@@ -207,14 +214,14 @@
 
     // Show normal mode
     const showNormal = function() {
-        showModel('<%= JSON.stringify(model) %>', false)
+        showModel('<%= JSON.stringify(model) %>')
         $('button#normal-btn')[0].hidden = true
         $('button#vr-btn')[0].hidden = false
     }
 
     // Show VR mode
     const showVR = function() {
-        showModel('<%= JSON.stringify(model) %>', true)
+        showVRModel('<%= JSON.stringify(model) %>', true)
         $('button#normal-btn')[0].hidden = false
         $('button#vr-btn')[0].hidden = true
     }
@@ -340,13 +347,12 @@
         })
 
         // Show model
-
         if (navigator.getVRDisplays)
             $('button#vr-btn')[0].hidden = false
         else
             $('button#vr-btn')[0].hidden = true
 
-        showModel('<%= JSON.stringify(model) %>', false)
+        showModel('<%= JSON.stringify(model) %>')
 
         // Show edit buttons
         if (Object.keys(getUrlParams()).indexOf('edit') !== -1)

@@ -59,17 +59,25 @@ div.error-container h2 {
     top: 0;
     z-index: 1;
 }
+#models-list.model-show {
+    padding: 0;
+}
 #model {
     height: 100%;
     width: 100%;
 }
 .model-item {
+    border-radius: 20px 20px 20px 20px;
     box-shadow: 1px 2px 4px 0px rgba(0,0,0,0.25);
     display: inline-block;
     padding: 1em;
 }
 .model-item .model-body {
     height: 400px;
+    width: 100%;
+}
+.model-show .model-body {
+    height: 100px;
     width: 100%;
 }
 .list-item .model-title {
