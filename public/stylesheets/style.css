@@ -72,11 +72,15 @@ div.error-container h2 {
     display: inline-block;
     padding: 1em;
 }
-.model-item .model-body {
+.model-data > .model-body {
+    height: 260px;
+    width: 100%;
+}
+.model-item > .model-body {
     height: 400px;
     width: 100%;
 }
-.model-show .model-body {
+.model-show > .model-body {
     height: 100px;
     width: 100%;
 }

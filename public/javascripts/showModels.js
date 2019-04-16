@@ -36,6 +36,8 @@ const init = function(models, className) {
             element.className = 'col-12 col-md-6 col-lg-4 col-xl-3 model-item'
         } else if (className === 'model-show') {
             element.className = 'col-12 model-show'
+        } else if (className === 'model-data') {
+            element.className = 'col-12 col-lg-8 model-data'
         }
         element.id = `model-${model.name}-${model.ext}`
         element.innerHTML = template.replace('$ext', model.ext)
@@ -193,7 +195,7 @@ const scale = function(op) {
     }
 }
 
-const showModel = function(model) {
+const showModel = function(model, className) {
     model = model.replace(/&#34;/gi, '"')
     model = JSON.parse(model)
 
@@ -205,8 +207,27 @@ const showModel = function(model) {
 
     rotateModel = false
 
-    init([model], 'model-show')
+    init([model], className)
     animate()
+}
+
+const showModelByName = async function(name, className) {
+    let models
+    await $.get(`/api/models/getmodels/${name}`)
+    .done(function(data) {
+        model = data.data
+        content.innerHTML = ''
+
+        if (WEBGL.isWebGLAvailable() === false) {
+            document.body.appendChild(WEBGL.getWebGLErrorMessage())
+        }
+
+        rotateModel = false
+
+        init(model, className)
+        animate()
+
+    })
 }
 
 const showModels = function() {

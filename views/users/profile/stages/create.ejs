@@ -39,15 +39,15 @@
           <form>
             <div class="form-group">
               <label for="create-stage-name">Nombre</label>
-              <input type="text" class="form-control" id="create-stage-name" placeholder="Parque eólico">
+              <input type="text" class="form-control" id="create-stage-name" placeholder="Parque eólico" required>
             </div>
             <div class="form-group">
               <label for="create-stage-id">Identificador</label>
-              <input type="text" class="form-control" id="create-stage-id" placeholder="escenario1">
+              <input type="text" class="form-control" id="create-stage-id" placeholder="escenario1" required>
             </div>
             <div class="form-group">
               <label for="create-stage-model">Modelos</label>
-              <select class="form-control" id="create-stage-model" onchange="checkModel(this.value)">
+              <select class="form-control" id="create-stage-model" onchange="checkModel(this.value)" required>
                 <option>-- Selecciona --</option>
                 <% for (let i in userModels) { %>
                 <option><%= userModels[i].name %></option>
@@ -60,6 +60,21 @@
         </div>  <!-- .Body -->
       </div>  <!-- .Card -->
     </div>  <!-- .Stage Data -->
+
+    <!-- Model Data -->
+    <div class="col-12 col-lg-6">
+      <!-- Card -->
+      <div class="card border-left-info" style="background-color: rgba(0,0,0,0);">
+        <h5 class="card-header">Datos modelo</h5>
+        <!-- Body -->
+        <div class="card-body" style="background-color: rgba(0,0,0,0);">
+          <!-- .Model -->
+          <div id="models-list" class="row model-show">
+          </div>  <!-- .Model -->
+        </div>  <!-- .Body -->
+      </div>  <!-- .Card -->
+    </div>  <!-- .Model Data -->
+
   </div>   <!-- .Data -->
 </div>  <!-- .Page Content -->
 
@@ -105,19 +120,211 @@
 <script type="text/javascript" src="/components/three/examples/js/controls/OrbitControls.js"></script>
 <script type="text/javascript" src="/components/three/examples/js/WebGL.js"></script>
 <script type="text/javascript" src="/components/three/examples/js/loaders/GLTFLoader.js"></script>
-<script type="text/javascript" src="/components/three/examples/js/vr/WebVR.js"></script>
 <script type="text/javascript" src="/components/three/examples/js/geometries/BoxLineGeometry.js"></script>
 
-<!-- Crypto -->
-<script type="text/javascript" src="/components/crypto-js/crypto-js.js"></script>
+<script id="template" type="notjs">
+  <div class="model-body"></div>
+</script>
+
+<script id="template-edit" type="notjs">
+  <!-- Edit -->
+  <div id="edit-model-stage" class="col-12 col-lg-4">
+    <!-- Scale -->
+    <div class="row mb-1">
+      <div class="col-12">
+        <a class="btn btn-sm btn-info shadow-sm btn-icon-split w-100">
+          <span class="text text-white w-100">Escalar</span>
+          <span id="plus-scale" class="icon text-white-50 w-100">
+            <i class="fas fa-plus"></i>
+          </span>
+          <span id="minus-scale" class="icon text-white-50 w-100">
+            <i class="fas fa-minus"></i>
+          </span>
+        </a>
+      </div>
+    </div>  <!-- Scale -->
+
+    <!-- RotateX -->
+    <div class="row mb-1">
+      <div class="col-12">
+        <a class="btn btn-sm btn-info shadow-sm btn-icon-split w-100">
+          <span class="text text-white w-100">RotarX</span>
+          <span id="minus-rotate-x" class="icon text-white-50 w-100">
+            <i class="fas fa-arrow-left"></i>
+          </span>
+          <span id="plus-rotate-x" class="icon text-white-50 w-100">
+            <i class="fas fa-arrow-right"></i>
+          </span>
+        </a>
+      </div>
+    </div>  <!-- .RotateX -->
+
+    <!-- RotateY -->
+    <div class="row mb-1">
+      <div class="col-12">
+        <a class="btn btn-sm btn-info shadow-sm btn-icon-split w-100">
+          <span class="text text-white w-100">RotarY</span>
+          <span id="minus-rotate-y" class="icon text-white-50 w-100">
+            <i class="fas fa-arrow-left"></i>
+          </span>
+          <span id="plus-rotate-y" class="icon text-white-50 w-100">
+            <i class="fas fa-arrow-right"></i>
+          </span>
+        </a>
+      </div>
+    </div>  <!-- .RotateY -->
+
+    <!-- RotateZ -->
+    <div class="row mb-1">
+      <div class="col-12">
+        <a class="btn btn-sm btn-info shadow-sm btn-icon-split w-100">
+          <span class="text text-white w-100">RotarZ</span>
+          <span id="minus-rotate-z" class="icon text-white-50 w-100">
+            <i class="fas fa-arrow-left"></i>
+          </span>
+          <span id="plus-rotate-z" class="icon text-white-50 w-100">
+            <i class="fas fa-arrow-right"></i>
+          </span>
+        </a>
+      </div>
+    </div>  <!-- .RotateZ -->
+  </div>  <!-- .Edit -->
+</script>
 
 <!-- Custom JS -->
-<script type="text/javascript" src="/javascripts/models.js"></script>
-<script type="text/javascript" src="/javascripts/showModel.js"></script>
+<script type="text/javascript" src="/javascripts/showModels.js"></script>
 
 <script type="text/javascript">
-  const checkModel = function(value) {
-    if (value === 'Subir modelo')
-      $('#upload-modal').modal('show')
+  const checkModel = async function(value) {
+      value = value || $('#create-stage-model')[0].value
+      if (value === 'Subir modelo') {
+          $('#models-list').innerHTML = ''
+          $('#upload-modal').modal('show')
+      } else if (value === '-- Selecciona --') {
+          $('#models-list').innerHTML = ''
+      } else {
+          await showModelByName(value, 'model-data')
+          showEditOptions()
+      }
   }
+
+  const showEditOptions = function() {
+      let editOptions = document.getElementById('template-edit').text
+      $('#models-list').append(editOptions)
+
+      // Rotate X
+      let btnRotateXMinus = $('#minus-rotate-x')
+      let btnRotateXPlus = $('#plus-rotate-x')
+      // Rotate Y
+      let btnRotateYMinus = $('#minus-rotate-y')
+      let btnRotateYPlus = $('#plus-rotate-y')
+      // Rotate Z
+      let btnRotateZMinus = $('#minus-rotate-z')
+      let btnRotateZPlus = $('#plus-rotate-z')
+      // Scale
+      let btnScaleMinus = $('#minus-scale')
+      let btnScalePlus = $('#plus-scale')
+
+      let timer = null
+
+      // Rotate X
+
+      btnRotateXMinus.on('mousedown', function() {
+          rotate('-', 'x')
+          timer = setInterval(function() {
+              rotate('-', 'x')
+          }, 100)
+      })
+
+      btnRotateXMinus.on('mouseup', function() {
+          clearInterval(timer)
+      })
+
+      btnRotateXPlus.on('mousedown', function() {
+          rotate('+', 'x')
+          timer = setInterval(function() {
+              rotate('+', 'x')
+          }, 100)
+      })
+
+      btnRotateXPlus.on('mouseup', function() {
+          clearInterval(timer)
+      })
+
+      // Rotate Y
+
+      btnRotateYMinus.on('mousedown', function() {
+          rotate('-', 'y')
+          timer = setInterval(function() {
+              rotate('-', 'y')
+          }, 100)
+      })
+
+      btnRotateYMinus.on('mouseup', function() {
+          clearInterval(timer)
+      })
+
+      btnRotateYPlus.on('mousedown', function() {
+          rotate('+', 'y')
+          timer = setInterval(function() {
+              rotate('+', 'y')
+          }, 100)
+      })
+
+      btnRotateYPlus.on('mouseup', function() {
+          clearInterval(timer)
+      })
+
+      // Rotate Z
+
+      btnRotateZMinus.on('mousedown', function() {
+          rotate('-', 'z')
+          timer = setInterval(function() {
+              rotate('-', 'z')
+          }, 100)
+      })
+
+      btnRotateZMinus.on('mouseup', function() {
+          clearInterval(timer)
+      })
+
+      btnRotateZPlus.on('mousedown', function() {
+          rotate('+', 'z')
+          timer = setInterval(function() {
+              rotate('+', 'z')
+          }, 100)
+      })
+
+      btnRotateZPlus.on('mouseup', function() {
+          clearInterval(timer)
+      })
+
+      // Scale
+
+      btnScaleMinus.on('mousedown', function() {
+          scale('-')
+          timer = setInterval(function() {
+              scale('-')
+          }, 100)
+      })
+
+      btnScaleMinus.on('mouseup', function() {
+          clearInterval(timer)
+      })
+
+      btnScalePlus.on('mousedown', function() {
+          scale('+')
+          timer = setInterval(function() {
+              scale('+')
+          }, 100)
+      })
+
+      btnScalePlus.on('mouseup', function() {
+          clearInterval(timer)
+      })
+  }
+
+  $(function() {
+      checkModel()
+  })
 </script>

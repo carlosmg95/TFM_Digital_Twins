@@ -20,5 +20,5 @@ module.exports.create = function(req, res, next) {
         }
         req.userModels = docs
         next()
-    })
+    }, { "sort": { "name": 1 } })
 }

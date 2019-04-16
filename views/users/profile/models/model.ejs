@@ -214,7 +214,7 @@
 
     // Show normal mode
     const showNormal = function() {
-        showModel('<%= JSON.stringify(model) %>')
+        showModel('<%= JSON.stringify(model) %>', 'model-show')
         $('button#normal-btn')[0].hidden = true
         $('button#vr-btn')[0].hidden = false
     }
@@ -352,7 +352,7 @@
         else
             $('button#vr-btn')[0].hidden = true
 
-        showModel('<%= JSON.stringify(model) %>')
+        showModel('<%= JSON.stringify(model) %>', 'model-show')
 
         // Show edit buttons
         if (Object.keys(getUrlParams()).indexOf('edit') !== -1)
