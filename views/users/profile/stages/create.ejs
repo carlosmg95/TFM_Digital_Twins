@@ -134,11 +134,11 @@
       <div class="col-12">
         <a class="btn btn-sm btn-info shadow-sm btn-icon-split w-100">
           <span class="text text-white w-100">Escalar</span>
-          <span id="plus-scale" class="icon text-white-50 w-100">
-            <i class="fas fa-plus"></i>
-          </span>
           <span id="minus-scale" class="icon text-white-50 w-100">
             <i class="fas fa-minus"></i>
+          </span>
+          <span id="plus-scale" class="icon text-white-50 w-100">
+            <i class="fas fa-plus"></i>
           </span>
         </a>
       </div>
@@ -192,9 +192,14 @@
 </script>
 
 <!-- Custom JS -->
+<script type="text/javascript" src="/javascripts/models.js"></script>
 <script type="text/javascript" src="/javascripts/showModels.js"></script>
 
 <script type="text/javascript">
+  $('#upload-modal').on('hidden.bs.modal', function(e) {
+      location.reload()
+  })
+
   const checkModel = async function(value) {
       value = value || $('#create-stage-model')[0].value
       if (value === 'Subir modelo') {
