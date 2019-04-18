@@ -167,7 +167,7 @@ const rotate = function(op, axis) {
 }
 
 const sendNewData = function(name) {
-    $.post('/api/models/setdata', {
+    $.post('/api/models/setdata?_method=PUT', {
         "name": name,
         "scale": {
             "x": modelScene.scale.x,

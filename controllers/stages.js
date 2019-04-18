@@ -10,6 +10,11 @@ const async = require('async')
 // ====================================================================================================================
 
 module.exports.create = function(req, res, next) {
+    console.log(req.body)
+    next()
+}
+
+module.exports.new = function(req, res, next) {
     let owenerId = req.session.user.id
 
     mongodb.read('models', {owenerId}, function(error, docs) {

@@ -14,8 +14,8 @@ const createUser = async function() {
     
     if (rightUsername && rightEmail && rightPasswords) {
         $.post('/api/users/join', {
-            "username": username,
-            "email": email,
+            username,
+            email,
             "password": password1
         })
         .done(function(data) {
@@ -60,8 +60,8 @@ const login = async function() {
 
     if (username && $('#login-password').val()) {
         await $.post('/api/users/login', {
-            "username": username,
-            "password": password
+            username,
+            password
         })
         .done(function(data) {
             let code = data.code

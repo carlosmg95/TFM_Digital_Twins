@@ -27,6 +27,13 @@
     </div>
   </div>  <!-- .Breadcrumb -->
 
+  <!-- Button -->
+  <div class="row mb-3">
+    <div class="col-12 col-md-auto">
+      <button type="button" id="create-stage-btn" class="btn btn-info btn-block btn-flat" onclick="createStage()">Crear escenario</button>
+    </div>
+  </div>  <!-- .Button -->
+
   <!-- Data -->
   <div class="row">
     <!-- Stage Data -->
@@ -194,6 +201,7 @@
 <!-- Custom JS -->
 <script type="text/javascript" src="/javascripts/models.js"></script>
 <script type="text/javascript" src="/javascripts/showModels.js"></script>
+<script type="text/javascript" src="/javascripts/stages.js"></script>
 
 <script type="text/javascript">
   $('#upload-modal').on('hidden.bs.modal', function(e) {
@@ -201,12 +209,12 @@
   })
 
   const checkModel = async function(value) {
-      value = value || $('#create-stage-model')[0].value
+      value = value || $('#create-stage-model').val()
       if (value === 'Subir modelo') {
-          $('#models-list').innerHTML = ''
+          $('#models-list')[0].innerHTML = ''
           $('#upload-modal').modal('show')
       } else if (value === '-- Selecciona --') {
-          $('#models-list').innerHTML = ''
+          $('#models-list')[0].innerHTML = ''
       } else {
           await showModelByName(value, 'model-data')
           showEditOptions()

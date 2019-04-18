@@ -21,5 +21,5 @@ module.exports = function(app) {
     app.get('/profile/models/:name', models.getModels, render('users/profile/models/model', 'layout-users'))
     // Stages
     app.get('/profile/stages', render('users/profile/stages', 'layout-users'))
-    app.get('/profile/stages/create', stages.create, render('users/profile/stages/create', 'layout-users'))
+    app.get('/profile/stages/create', stages.new, render('users/profile/stages/create', 'layout-users'))
 }
