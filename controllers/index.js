@@ -38,6 +38,7 @@ module.exports.prerender = function(req, res) {
     res.locals.model =        req.model || null
     res.locals.userModels =   req.userModels || null
     res.locals.path =         req.path
+    res.locals.stage =        req.stage || null
     res.locals.user =         req.user || req.session.user || null
 }
 

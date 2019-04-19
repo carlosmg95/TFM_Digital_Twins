@@ -52,9 +52,9 @@ module.exports.create = function(req, res, next) {
 }
 
 module.exports.getStages = function(req, res, next) {
-    let {name} = req.params
+    let {id_str} = req.params
     let owenerId = req.session.user.id
-    let where = name ? {name, "owener_id": owenerId} : {"owener_id": owenerId}  // If there isn't a name, it get all models
+    let where = id_str ? {id_str, "owener_id": owenerId} : {"owener_id": owenerId}  // If there isn't a id_str, it get all models
 
     mongodb.read('stages', where, function(error, docs) {
         if (error) {
@@ -63,7 +63,7 @@ module.exports.getStages = function(req, res, next) {
         }
         if (docs && docs.length !== 0)
             req.stage = docs[0]  // Show the stage in its page
-        else if (name && (!docs || docs.length === 0))
+        else if (id_str && (!docs || docs.length === 0))
             return res.renderError(404)
         req.data = docs  // Get all the stages in the index page
         next()

@@ -22,4 +22,5 @@ module.exports = function(app) {
     // Stages
     app.get('/profile/stages', render('users/profile/stages', 'layout-users'))
     app.get('/profile/stages/create', stages.new, render('users/profile/stages/create', 'layout-users'))
+    app.get('/profile/stages/:id_str', stages.getStages, render('users/profile/stages/stage', 'layout-users'))
 }
