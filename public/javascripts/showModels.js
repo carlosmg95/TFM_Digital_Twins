@@ -19,87 +19,68 @@ const createAlert = function(alert) {
     content.appendChild(element)
 }
 
-const init = function(models, className) {
+const init = function(element, model) {
     canvas = document.getElementById('c')
     canvas.style.height = `${window.innerHeight}px`
 
-    for (let i in models) {
-        let model = models[i]
+    let scene = new THREE.Scene()
 
-        let scene = new THREE.Scene()
+    // Look up the element that represents the area
+    // we want to render the scene
+    scene.userData.element = element.querySelector('.model-body')
+    content.appendChild(element)
 
-        let template = document.getElementById('template').text
+    // Camera
 
-        // make a list item
-        let element = document.createElement('div')
-        if (className === 'model-item') {
-            element.className = 'col-12 col-md-6 col-lg-4 col-xl-3 model-item'
-        } else if (className === 'model-show') {
-            element.className = 'col-12 model-show'
-        } else if (className === 'model-data') {
-            element.className = 'col-12 col-lg-8 model-data'
-        }
-        element.id = `model-${model.name}-${model.ext}`
-        element.innerHTML = template.replace('$ext', model.ext)
-        element.innerHTML = element.innerHTML.replace(/\$name/g, model.name)
+    let camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.25, 100)
+    camera.position.set(-5, 3, 10)
+    camera.lookAt(new THREE.Vector3(0, 2, 0))
+    scene.userData.camera = camera
 
-        // Look up the element that represents the area
-        // we want to render the scene
-        scene.userData.element = element.querySelector('.model-body')
-        content.appendChild(element)
+    // Controls
 
-        // Camera
+    let controls = new THREE.OrbitControls(scene.userData.camera, scene.userData.element)
+    controls.target.set(0, -0.2, -0.2)
+    controls.update()
+    scene.userData.controls = controls
 
-        let camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.25, 100)
-        camera.position.set(-5, 3, 10)
-        camera.lookAt(new THREE.Vector3(0, 2, 0))
-        scene.userData.camera = camera
+    // Models
 
-        // Controls
+    let loader = new THREE.GLTFLoader()
+    loader.load(`/api/models/getModel/${model.name}`, function(gltf) {
+        modelScene = gltf.scene
+        // Scale
+        modelScene.scale.x = model.scale.x
+        modelScene.scale.y = model.scale.y
+        modelScene.scale.z = model.scale.z
+        // Rotation
+        modelScene.rotation.x = model.rotation.x
+        modelScene.rotation.y = model.rotation.y
+        modelScene.rotation.z = model.rotation.z
 
-        let controls = new THREE.OrbitControls(scene.userData.camera, scene.userData.element)
-        controls.target.set(0, -0.2, -0.2)
-        controls.update()
-        scene.userData.controls = controls
+        scene.add(modelScene)
+        scene.add(new THREE.HemisphereLight(0xaaaaaa, 0x444444))
 
-        // Models
+        // Light
 
-        let loader = new THREE.GLTFLoader()
-        loader.load(`/api/models/getModel/${model.name}`, function(gltf) {
-            modelScene = gltf.scene
-            // Scale
-            modelScene.scale.x = model.scale.x
-            modelScene.scale.y = model.scale.y
-            modelScene.scale.z = model.scale.z
-            // Rotation
-            modelScene.rotation.x = model.rotation.x
-            modelScene.rotation.y = model.rotation.y
-            modelScene.rotation.z = model.rotation.z
+        let light = new THREE.DirectionalLight(0xffffff, 0.5)
+        light.position.set(1, 1, 1)
+        scene.add(light)
 
-            scene.add(modelScene)
-            scene.add(new THREE.HemisphereLight(0xaaaaaa, 0x444444))
+        scene.background = new THREE.Color(0xffffff)
+        scene.fog = new THREE.Fog(0xe0e0e0, 20, 100)
 
-            // Light
+        // Grid
 
-            let light = new THREE.DirectionalLight(0xffffff, 0.5)
-            light.position.set(1, 1, 1)
-            scene.add(light)
+        let grid = new THREE.GridHelper(200, 40, 0x000000, 0x000000)
+        grid.material.opacity = 0.2
+        grid.material.transparent = true
+        scene.add(grid)
 
-            scene.background = new THREE.Color(0xffffff)
-            scene.fog = new THREE.Fog(0xe0e0e0, 20, 100)
-
-            // Grid
-
-            let grid = new THREE.GridHelper(200, 40, 0x000000, 0x000000)
-            grid.material.opacity = 0.2
-            grid.material.transparent = true
-            scene.add(grid)
-
-            scenes.push(scene)
-        }, undefined, function(e) {
-            console.error(e)
-        })
-    }
+        scenes.push(scene)
+    }, undefined, function(e) {
+        console.error(e)
+    })
 
     renderer = new THREE.WebGLRenderer({ canvas: canvas, antialias: true })
     renderer.setClearColor(0xffffff, 1)
@@ -207,7 +188,22 @@ const showModel = function(model, className) {
 
     rotateModel = false
 
-    init([model], className)
+    let template = document.getElementById('template').text
+
+    // make a list item
+    let element = document.createElement('div')
+    if (className === 'model-item') {
+        element.className = 'col-12 col-md-6 col-lg-4 col-xl-3 model-item'
+    } else if (className === 'model-show') {
+        element.className = 'col-12 model-show'
+    } else if (className === 'model-data') {
+        element.className = 'col-12 col-lg-8 model-data'
+    }
+    element.id = `model-${model.name}-${model.ext}`
+    element.innerHTML = template.replace('$ext', model.ext)
+    element.innerHTML = element.innerHTML.replace(/\$name/g, model.name)
+
+    init(element, model)
     animate()
 }
 
@@ -224,7 +220,22 @@ const showModelByName = async function(name, className) {
 
         rotateModel = false
 
-        init(model, className)
+        let template = document.getElementById('template').text
+
+        // make a list item
+        let element = document.createElement('div')
+        if (className === 'model-item') {
+            element.className = 'col-12 col-md-6 col-lg-4 col-xl-3 model-item'
+        } else if (className === 'model-show') {
+            element.className = 'col-12 model-show'
+        } else if (className === 'model-data') {
+            element.className = 'col-12 col-lg-8 model-data'
+        }
+        element.id = `model-${model.name}-${model.ext}`
+        element.innerHTML = template.replace('$ext', model.ext)
+        element.innerHTML = element.innerHTML.replace(/\$name/g, model.name)
+
+        init(element, model[0])
         animate()
 
     })
@@ -244,7 +255,19 @@ const showModels = function() {
                 document.body.appendChild(WEBGL.getWebGLErrorMessage())
             }
 
-            init(models, 'model-item')
+            for (let i in models) {
+                let model = models[i]
+
+                let template = document.getElementById('template').text
+
+                // make a list item
+                let element = document.createElement('div')
+                element.className = 'col-12 col-md-6 col-lg-4 col-xl-3 model-item'
+                element.id = `model-${model.name}-${model.ext}`
+                element.innerHTML = template.replace('$ext', model.ext)
+                element.innerHTML = element.innerHTML.replace(/\$name/g, model.name)
+                init(element, model)
+            }
             animate()
         }
 
@@ -265,11 +288,21 @@ const showStages = function() {
                 document.body.appendChild(WEBGL.getWebGLErrorMessage())
             }
 
-            models = stages.map(stage => stage.model)
-            init(models, 'model-item')
+            for (let i in stages) {
+                let stage = stages[i]
+
+                let template = document.getElementById('template').text
+
+                // make a list item
+                let element = document.createElement('div')
+                element.className = 'col-12 col-md-6 col-lg-4 col-xl-3 model-item'
+                element.id = `stage-${stage.id_str}`
+                element.innerHTML = template.replace('$id', stage.id_str)
+                element.innerHTML = element.innerHTML.replace(/\$name/g, stage.name)
+                init(element, stage.model)
+            }
             animate()
         }
-
     })
 }
 

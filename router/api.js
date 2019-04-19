@@ -29,6 +29,6 @@ module.exports = function(app) {
     app.delete('/api/models/deletemodel', models.deleteModel, api.common.ok)
     app.put('/api/models/setdata', models.updatePosition, api.common.ok)
     // Stages
-    //app.get('/api/stages/getstages', stages.getStages, api.common.data)
+    app.get('/api/stages/getstages', stages.getStages, api.common.data)
     app.post('/api/stages/create', stages.create, api.common.data)
 }

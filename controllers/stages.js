@@ -51,6 +51,25 @@ module.exports.create = function(req, res, next) {
     })
 }
 
+module.exports.getStages = function(req, res, next) {
+    let {name} = req.params
+    let owenerId = req.session.user.id
+    let where = name ? {name, "owener_id": owenerId} : {"owener_id": owenerId}  // If there isn't a name, it get all models
+
+    mongodb.read('stages', where, function(error, docs) {
+        if (error) {
+            req.error = error
+            return res.renderError(500)
+        }
+        if (docs && docs.length !== 0)
+            req.stage = docs[0]  // Show the stage in its page
+        else if (name && (!docs || docs.length === 0))
+            return res.renderError(404)
+        req.data = docs  // Get all the stages in the index page
+        next()
+    }, { "project": { "model.path": 0 } })
+}
+
 module.exports.new = function(req, res, next) {
     let owenerId = req.session.user.id
 
