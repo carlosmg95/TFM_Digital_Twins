@@ -10,8 +10,45 @@ const async = require('async')
 // ====================================================================================================================
 
 module.exports.create = function(req, res, next) {
-    console.log(req.body)
-    next()
+    let {id_str, model, name} = req.body
+    let owenerId = req.session.user.id
+
+    async.series([
+        // Get the model data
+        function getModel(cb) {
+            mongodb.read('models', {owenerId, "name": model.name}, function(error, docs) {
+                if (error)
+                    return cb(error)
+
+                let newData = { "ext": docs[0].ext, "path": docs[0].path }
+                model = fns.concatObjects(model, newData)
+                cb()
+            })
+        },
+        // Save the stage data
+        function saveStage(cb) {
+            let article = {
+                name,
+                id_str,
+                "owener_id": owenerId,
+                model
+            }
+            mongodb.create('stages', article, function(error, result) {
+                if (error)
+                    return cb(error)
+
+                log.info(`Inserted stage with ID: ${result.insertedId}`)
+                cb()
+            })
+        }
+    ], function(error) {
+        if (error) {
+            req.error = error
+            log.error(req.error)
+            return res.renderError(500)
+        }
+        next()
+    })
 }
 
 module.exports.new = function(req, res, next) {
