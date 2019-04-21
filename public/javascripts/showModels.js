@@ -1,9 +1,13 @@
+let actions, activeAction, clock, mixer, previousAction
 let canvas
 let content = document.getElementById('models-list')
 let modelScene, scenes = [], renderer
 let rotateModel = true
 
 const animate = function() {
+    let dt = clock.getDelta()
+    if (mixer)
+        mixer.update(dt)
     render()
     requestAnimationFrame(animate)
 }
@@ -19,9 +23,55 @@ const createAlert = function(alert) {
     content.appendChild(element)
 }
 
+const createGUI = function(model, animations) {
+    let api = {}
+    let gui = new dat.GUI()
+    mixer = new THREE.AnimationMixer(model)
+    actions = {}
+
+    // animations
+
+    let animationFolder = gui.addFolder('Animaciones')
+
+    function createAnimationCallback(name) {
+        api[name] = function() {fadeToAction(name, 0.2)}
+        animationFolder.add(api, name)
+    }
+
+    for (let i = 0; i < animations.length; i++) {
+        let clip = animations[i]
+        let action = mixer.clipAction(clip)
+
+        actions[clip.name] = action
+        action.clampWhenFinished = true
+        action.loop = THREE.LoopOnce
+
+        createAnimationCallback(animations[i].name)
+    }
+
+    animationFolder.open()
+}
+
+const fadeToAction = function(name, duration) {
+    previousAction = activeAction
+    activeAction = actions[name]
+
+    if (previousAction && (previousAction !== activeAction)) {
+        previousAction.fadeOut(duration)
+    }
+
+    activeAction
+        .reset()
+        .setEffectiveTimeScale(1)
+        .setEffectiveWeight(1)
+        .fadeIn(duration)
+        .play()
+}
+
 const init = function(element, model) {
     canvas = document.getElementById('c')
     canvas.style.height = `${window.innerHeight}px`
+    clock = new THREE.Clock()
 
     let scene = new THREE.Scene()
 
@@ -49,6 +99,12 @@ const init = function(element, model) {
     let loader = new THREE.GLTFLoader()
     loader.load(`/api/models/getModel/${model.name}`, function(gltf) {
         modelScene = gltf.scene
+        try {
+            if (gltf.animations.length > 0)
+                createGUI(modelScene, gltf.animations)
+        } catch(e) {
+            // Act normally
+        }
         // Scale
         modelScene.scale.x = model.scale.x
         modelScene.scale.y = model.scale.y
@@ -128,6 +184,9 @@ const render = function() {
 
         renderer.setViewport(left, bottom, width, height)
         renderer.setScissor(left, bottom, width, height)
+
+        $('.dg.ac').css('top', `${rect.top}px`)
+        $('.dg.ac').css('z-index', '5')
 
         let camera = scene.userData.camera
 
