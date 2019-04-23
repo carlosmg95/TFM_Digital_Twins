@@ -37,7 +37,7 @@
   <!-- Data -->
   <div class="row">
     <!-- Stage Data -->
-    <div class="col-12 col-lg-6">
+    <div id="stage-data" class="col-12 col-lg-6 mb-2">
       <!-- Card -->
       <div class="card border-left-success">
         <h5 class="card-header">Datos escenario</h5>
@@ -69,18 +69,30 @@
     </div>  <!-- .Stage Data -->
 
     <!-- Model Data -->
-    <div class="col-12 col-lg-6">
+    <div id="model-data" class="col-12 col-lg-6 mb-2">
       <!-- Card -->
       <div class="card border-left-info" style="background-color: rgba(0,0,0,0);">
         <h5 class="card-header">Datos modelo</h5>
         <!-- Body -->
-        <div class="card-body" style="background-color: rgba(0,0,0,0);">
+        <div class="card-body">
           <!-- .Model -->
           <div id="models-list" class="row model-show">
           </div>  <!-- .Model -->
         </div>  <!-- .Body -->
       </div>  <!-- .Card -->
     </div>  <!-- .Model Data -->
+
+    <!-- Actions Data -->
+    <div id="actions-data" class="col-12 col-lg-6 mb-2">
+      <!-- Card -->
+      <div class="card border-left-warning">
+        <h5 class="card-header">Datos de acciones</h5>
+        <!-- Body -->
+        <div class="card-body">
+
+        </div>  <!-- .Body -->
+      </div>  <!-- .Card -->
+    </div>  <!-- .Actions Data -->
 
   </div>   <!-- .Data -->
 </div>  <!-- .Page Content -->
@@ -218,7 +230,21 @@
       } else {
           await showModelByName(value, 'model-data')
           showEditOptions()
+          showAnimationsOptions(value)
       }
+  }
+
+  const showAnimationsOptions = function(name) {
+      let animations
+      let animationTimer = setInterval(function() {
+          animations = getAnimations(name)[1]
+          let modelName = getAnimations(name)[0]
+          if (name === modelName) {
+              clearInterval(animationTimer)
+              let container = $('#actions-data .card-body')[0]
+              container.innerHTML = animations.map((animation) => `<p>${animation}</p>`).join('')
+          }
+      }, 100)
   }
 
   const showEditOptions = function() {

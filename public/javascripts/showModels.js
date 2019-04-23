@@ -1,4 +1,4 @@
-let actions, activeAction, clock, mixer, previousAction
+let actions, activeAction, clock, mixer, modelAnimations, modelName, previousAction
 let canvas
 let content = document.getElementById('models-list')
 let modelScene, scenes = [], renderer
@@ -68,6 +68,10 @@ const fadeToAction = function(name, duration) {
         .play()
 }
 
+const getAnimations = function(name) {
+    return [modelName, modelAnimations && modelAnimations.map((animation) => animation.name)]
+}
+
 const init = function(element, model) {
     canvas = document.getElementById('c')
     canvas.style.height = `${window.innerHeight}px`
@@ -98,10 +102,12 @@ const init = function(element, model) {
 
     let loader = new THREE.GLTFLoader()
     loader.load(`/api/models/getModel/${model.name}`, function(gltf) {
+        modelAnimations = gltf.animations
         modelScene = gltf.scene
+        modelName = model.name
         try {
             if (gltf.animations.length > 0)
-                createGUI(modelScene, gltf.animations)
+                createGUI(modelScene, modelAnimations)
         } catch(e) {
             // Act normally
         }
@@ -296,7 +302,6 @@ const showModelByName = async function(name, className) {
 
         init(element, model[0])
         animate()
-
     })
 }
 
@@ -329,7 +334,6 @@ const showModels = function() {
             }
             animate()
         }
-
     })
 }
 
