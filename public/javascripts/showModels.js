@@ -68,8 +68,8 @@ const fadeToAction = function(name, duration) {
         .play()
 }
 
-const getAnimations = function(name) {
-    return [modelName, modelAnimations && modelAnimations.map((animation) => animation.name)]
+const getAnimations = function() {
+    return modelAnimations && modelAnimations.map((animation) => animation.name)
 }
 
 const init = function(element, model) {
