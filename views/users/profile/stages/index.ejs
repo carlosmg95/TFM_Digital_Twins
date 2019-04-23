@@ -93,20 +93,23 @@
 <script type="text/javascript" src="/components/three/examples/js/loaders/GLTFLoader.js"></script>
 
 <script id="template" type="notjs">
-    <div class="model-title clearfix">
-      <a class="float-left" href="/profile/stages/$id">$name</a>
-      <div class="dropdown no-arrow float-right">
-        <a class="dropdown-toggle" href="#" role="button" id="menu-$id" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-          <i class="fas fa-ellipsis-v fa-sm fa-fw text-gray-400"></i>
-        </a>
-        <div class="dropdown-menu dropdown-menu-right shadow animated--fade-in" aria-labelledby="menu-$id">
-          <div class="dropdown-header">Acciones:</div>
-          <a class="dropdown-item edit" href="/profile/stages/$id?edit">Editar $name</a>
-          <a class="dropdown-item delete" href="" data-toggle="modal" data-target="#delete-modal" data-whatever="$id">Borrar $name</a>
-        </div>
+  <div class="model-title clearfix">
+    <a class="float-left" href="/profile/stages/$id">$name</a>
+    <div class="dropdown no-arrow float-right">
+      <a class="dropdown-toggle" href="#" role="button" id="menu-$id" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+        <i class="fas fa-ellipsis-v fa-sm fa-fw text-gray-400"></i>
+      </a>
+      <div class="dropdown-menu dropdown-menu-right shadow animated--fade-in" aria-labelledby="menu-$id">
+        <div class="dropdown-header">Acciones:</div>
+        <a class="dropdown-item edit" href="/profile/stages/$id?edit">Editar $name</a>
+        <a class="dropdown-item delete" href="" data-toggle="modal" data-target="#delete-modal" data-whatever="$id">Borrar $name</a>
       </div>
     </div>
-    <div class="model-body"></div>
+  </div>
+  <div id="$modelName" class="progress">
+    <div class="progress-bar" role="progressbar" style="width: 0%;" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
+  </div>
+  <div class="model-body"></div>
 </script>
 
 <!-- Crypto -->

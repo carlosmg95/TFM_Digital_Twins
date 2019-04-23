@@ -102,6 +102,8 @@ const init = function(element, model) {
 
     let loader = new THREE.GLTFLoader()
     loader.load(`/api/models/getModel/${model.name}`, function(gltf) {
+        $(`.progress#${model.name}`)[0].hidden = true
+
         modelAnimations = gltf.animations
         modelScene = gltf.scene
         modelName = model.name
@@ -140,7 +142,14 @@ const init = function(element, model) {
         scene.add(grid)
 
         scenes.push(scene)
-    }, undefined, function(e) {
+    }, function(xhr) {
+        let loaded = Math.round((xhr.loaded / xhr.total) * 100)
+        let progressBar = $(`.progress#${model.name} .progress-bar`)
+
+        progressBar.css('width', `${loaded}%`)
+        progressBar.attr('aria-valuenow', loaded)
+        progressBar.text(`${loaded}%`)
+    }, function(e) {
         console.error(e)
     })
 
@@ -265,8 +274,7 @@ const showModel = function(model, className) {
         element.className = 'col-12 col-lg-8 model-data'
     }
     element.id = `model-${model.name}-${model.ext}`
-    element.innerHTML = template.replace('$ext', model.ext)
-    element.innerHTML = element.innerHTML.replace(/\$name/g, model.name)
+    element.innerHTML = template.replace(/\$name/g, model.name)
 
     init(element, model)
     animate()
@@ -276,7 +284,7 @@ const showModelByName = async function(name, className) {
     let models
     await $.get(`/api/models/getmodels/${name}`)
     .done(function(data) {
-        model = data.data
+        model = data.data[0]
         content.innerHTML = ''
 
         if (WEBGL.isWebGLAvailable() === false) {
@@ -297,10 +305,9 @@ const showModelByName = async function(name, className) {
             element.className = 'col-12 col-lg-8 model-data'
         }
         element.id = `model-${model.name}-${model.ext}`
-        element.innerHTML = template.replace('$ext', model.ext)
-        element.innerHTML = element.innerHTML.replace(/\$name/g, model.name)
+        element.innerHTML = template.replace(/\$name/g, model.name)
 
-        init(element, model[0])
+        init(element, model)
         animate()
     })
 }
@@ -360,8 +367,9 @@ const showStages = function() {
                 let element = document.createElement('div')
                 element.className = 'col-12 col-md-6 col-lg-4 col-xl-3 model-item'
                 element.id = `stage-${stage.id_str}`
-                element.innerHTML = template.replace('$id', stage.id_str)
+                element.innerHTML = template.replace(/\$id/g, stage.id_str)
                 element.innerHTML = element.innerHTML.replace(/\$name/g, stage.name)
+                element.innerHTML = element.innerHTML.replace(/\$modelName/g, stage.model.name)
                 init(element, stage.model)
             }
             animate()
