@@ -1,4 +1,6 @@
 const createStage = async function() {
+    let actions = $('div[id^=action-item-]')
+    let actionsData = []
     let idStr = $('input#create-stage-id').val()
     let modelName = $('select#create-stage-model').val()
     let model = {
@@ -15,10 +17,41 @@ const createStage = async function() {
         }
     }
     let name = $('input#create-stage-name').val()
+
+    for (let i = 0; i < actions.length; i++) {
+        let action = actions[i]
+        if ($(action).hasClass('hidden'))
+            continue
+        let actionName = $(action).find('input.action-name').val()
+        let animations = $(`div[id^=form-animation-${i + 1}-`)
+        let animationsData = []
+
+        for (let j = 0; j < animations.length; j++) {
+            let animation = animations[j]
+            let animationName = $(animation).find('select.action-animations').val()
+            let fin = $(animation).find('input[name^=action-fin-]:checked').val() === 'end'
+            let nRepeat = +$(animation).find('input.action-repeat').val()
+            let reverse = $(animation).find('input[name^=action-reverse-]')[0].checked
+            
+            animationsData.push({
+                "name": animationName,
+                "repeat": nRepeat,
+                fin,
+                reverse
+            })
+        }
+        actionsData.push({
+            "name": actionName,
+            "animations": animationsData
+        })
+        animationsData = []
+    }
+
     let data = {
         name,
         "id_str": idStr,
-        model
+        model,
+        "actions": actionsData
     }
 
     $.ajax({

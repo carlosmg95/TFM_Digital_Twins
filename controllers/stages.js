@@ -10,7 +10,7 @@ const async = require('async')
 // ====================================================================================================================
 
 module.exports.create = function(req, res, next) {
-    let {id_str, model, name} = req.body
+    let {actions, id_str, model, name} = req.body
     let owenerId = req.session.user.id
 
     async.series([
@@ -31,7 +31,8 @@ module.exports.create = function(req, res, next) {
                 name,
                 id_str,
                 "owener_id": owenerId,
-                model
+                model,
+                actions
             }
             mongodb.create('stages', article, function(error, result) {
                 if (error)

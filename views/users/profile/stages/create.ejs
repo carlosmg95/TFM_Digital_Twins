@@ -158,7 +158,7 @@
 
 <script id="template-model-actions" type="notjs">
   <!-- Action -->
-  <div id="action-$n" class="col-12 col-lg-6 mb-3">
+  <div id="action-item-$n" class="col-12 col-lg-6 mb-3">
     <!-- Action Card -->
     <div class="card">
       <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
@@ -201,7 +201,7 @@
     <!-- Repeat -->
     <div class="form-group">
       <label>Repeticiones</label>
-      <input type="number" class="form-control action-repeat" placeholder="0" min="0"  data-toggle="tooltip" data-placement="top" title="0 para infinito" required>
+      <input type="number" class="form-control action-repeat" value="0" min="0"  data-toggle="tooltip" data-placement="top" title="0 para infinito" required>
     </div>  <!-- .Repeat -->
 
     <!-- Fin -->
@@ -218,13 +218,13 @@
       </label>
     </div>  <!-- .Fin -->
 
-    <!-- Invers -->
+    <!-- Reverse -->
     <div class="form-check">
-      <input class="form-check-input" type="checkbox" value="" name="action-invers-$y">
+      <input class="form-check-input" type="checkbox" value="" name="action-reverse-$y">
       <label class="form-check-label">
         Invertir animación
       </label>
-    </div>  <!-- Invers -->
+    </div>  <!-- Reverse -->
   </div>  <!-- .Animation form -->
 </script>
 
@@ -327,7 +327,7 @@
       let nAnimations = $(`#action-animations-${action}`)[0].children.length
 
       animationsTemplate = animationsTemplate.replace(/\$y/g, nAnimations)
-      animationsTemplate = animationsTemplate.replace(/\$selectOptions/g, animations.map((animation) => `<option>${animation}</option>`).join(''))
+      animationsTemplate = animationsTemplate.replace(/\$selectOptions/g, animations.map((animation) => `<option value="${animation}">${animation}</option>`).join(''))
       animationsTemplate = animationsTemplate.replace(/\$n/g, action)
 
       $(self).before(animationsTemplate)
@@ -363,7 +363,7 @@
       let nActions = actions[0].children.length
 
       animationsTemplate = animationsTemplate.replace(/\$y/g, 1)
-      animationsTemplate = animationsTemplate.replace(/\$selectOptions/g, animations.map((animation) => `<option>${animation}</option>`).join(''))
+      animationsTemplate = animationsTemplate.replace(/\$selectOptions/g, animations.map((animation) => `<option value="${animation}">${animation}</option>`).join(''))
       actionsTemplate = actionsTemplate.replace(/\$animationForm/g, animationsTemplate)
       actionsTemplate = actionsTemplate.replace(/\$n/g, nActions + 1)
 
@@ -373,13 +373,13 @@
 
   const removeAction = function(action) {
       let actions = $('#actions-data').find('.card-body').find('.row')
-      let div = $(`div#action-${action}`)
+      let div = $(`div#action-item-${action}`)
       let nActions = actions[0].children.length
       
       div.addClass('hidden')
       div[0].hidden = true
 
-      let nHiddens = $('div[id^=action-].hidden').length
+      let nHiddens = $('div[id^=action-item].hidden').length
       if (nHiddens === nActions)
           $('#actions-data')[0].hidden = true
   }
