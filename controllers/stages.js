@@ -52,6 +52,27 @@ module.exports.create = function(req, res, next) {
     })
 }
 
+module.exports.idStrExist = function(req, res, next) {
+    let idStr = req.params.idStr
+
+    mongodb.read('stages', { "id_str": idStr }, function(error, docs) {
+        if (error) {
+            req.error = error
+            return res.renderError(500)
+        }
+
+        // If the idStr exists or it is a reserved word
+        if ((docs && docs.length) || fns.arrayContains(config.reservedWords, idStr)) {
+            req.error = fns.formatError(errors.EXISTING_STAGE_ID_STR, idStr)
+            log.error(req.error.message)
+            return next()
+        } else {
+            log.debug('Id str free')
+        }
+        return next()
+    })
+}
+
 module.exports.getStages = function(req, res, next) {
     let {id_str} = req.params
     let owenerId = req.session.user.id

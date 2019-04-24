@@ -1,5 +1,5 @@
 <script type="text/javascript">
-  const existingNameErrorCode = +"<%= fns.getErrorCode('EXISTING_MODEL_NAME') %>"
+  const existingIdStrErrorCode = +"<%= fns.getErrorCode('EXISTING_STAGE_ID_STR') %>"
   const tooLargeErrorCode = +"<%= fns.getErrorCode('TOO_LARGE') %>"
   const wrongPassErrorCode = +"<%= fns.getErrorCode('WRONG_PASSWORD') %>"
   const wrongRegexp = new RegExp('<%- fns.getWrongPatterns() %>')
@@ -34,6 +34,9 @@
     </div>
   </div>  <!-- .Button -->
 
+  <!-- Alert -->
+  <div id="create-stage-err" class="alert alert-danger text-center" role="alert" hidden></div>  <!-- .Alert -->
+
   <!-- Data -->
   <div class="row">
     <!-- Stage Data -->
@@ -47,19 +50,21 @@
             <!-- Name -->
             <div class="form-group">
               <label for="create-stage-name">Nombre</label>
-              <input type="text" class="form-control" id="create-stage-name" placeholder="Parque eólico" required>
+              <input type="text" class="form-control" id="create-stage-name" placeholder="Parque eólico" onchange="checkName(this.value)" required>
+              <div class="form-group-error" data-err="Este campo se debe rellenar"><small class="form-text text-danger"></small></div>
             </div>  <!-- .Name -->
 
             <!-- Id -->
             <div class="form-group">
               <label for="create-stage-id">Identificador</label>
-              <input type="text" class="form-control" id="create-stage-id" placeholder="escenario1" required>
+              <input type="text" class="form-control" id="create-stage-id" placeholder="escenario1" onchange="checkId(this.value)" required>
+              <div class="form-group-error" data-err="El identificador no puede contener espacios ni caracteres especiales"><small class="form-text text-danger"></small></div>
             </div>  <!-- .Id -->
 
             <!-- Model -->
             <div class="form-group">
               <label for="create-stage-model">Modelos</label>
-              <select class="form-control" id="create-stage-model" onchange="checkModel(this.value)" required>
+              <select class="form-control" id="create-stage-model" onchange="selectModel(this.value); checkModel(this.value)" required>
                 <option>-- Selecciona --</option>
                 <% for (let i in userModels) { %>
                 <option><%= userModels[i].name %></option>
@@ -67,6 +72,7 @@
                 <option>Subir modelo</option>
                 <% } %>
               </select>
+              <div class="form-group-error" data-err="Selecciona un modelo"><small class="form-text text-danger"></small></div>
             </div>  <!-- .Model -->
           </form>
         </div>  <!-- .Body -->
@@ -174,7 +180,8 @@
           <!-- Name -->
           <div class="form-group">
             <label>Nombre</label>
-            <input type="text" class="form-control action-name" placeholder="volar" required>
+            <input type="text" id="action-name-$n" class="form-control action-name" placeholder="volar" onchange="checkActionName(this.value, $n)" required>
+            <div class="form-group-error" data-err="Este campo se debe rellenar"><small class="form-text text-danger"></small></div>
           </div>  <!-- .Name -->
           <div id="action-animations-$n">
             $animationForm
@@ -192,10 +199,11 @@
     <!-- Animation -->
     <div class="form-group">
       <label>Animación</label>
-      <select class="form-control action-animations" required>
+      <select id="animation-name-$n-$y" class="form-control action-animations" onchange="checkAnimationName(this.value, $n, $y)" required>
         <option>-- Selecciona --</option>
         $selectOptions
       </select>
+      <div class="form-group-error" data-err="Se debe añadir una animación"><small class="form-text text-danger"></small></div>
     </div>  <!-- .Animation -->
 
     <!-- Repeat -->
@@ -312,7 +320,6 @@
 </script>
 
 <!-- Custom JS -->
-<script type="text/javascript" src="/javascripts/models.js"></script>
 <script type="text/javascript" src="/javascripts/showModels.js"></script>
 <script type="text/javascript" src="/javascripts/stages.js"></script>
 
@@ -333,7 +340,7 @@
       $(self).before(animationsTemplate)
   }
 
-  const checkModel = async function(value) {
+  const selectModel = async function(value) {
       value = value || $('#create-stage-model').val()
       if (value === 'Subir modelo') {
           $('#model-data')[0].hidden = true
@@ -501,7 +508,7 @@
   }
 
   $(function() {
-      checkModel()
+      selectModel()
       $('[data-toggle="tooltip"]').tooltip()
   })
 </script>

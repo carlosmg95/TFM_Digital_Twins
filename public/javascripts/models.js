@@ -1,11 +1,9 @@
 // It remove the default submit function
 $('#delete-form').on('submit', function(e){
     e.preventDefault()
-    let f = $(this)
 })
 $('#upload-form').on('submit', function(e){
     e.preventDefault()
-    let f = $(this)
 })
 
 const deleteModel = async function(modelName) {
@@ -13,7 +11,7 @@ const deleteModel = async function(modelName) {
     let name = modelName || $('#delete-name').val()
     let password = hash($('#delete-password').val())
 
-    strButton = $('#delete-btn')[0].innerText  // Save the text of the button
+    let strButton = $('#delete-btn')[0].innerText  // Save the text of the button
     $('#delete-btn')[0].innerHTML = '<i class="fas fa-spinner fa-spin"></i>'  // Show a wait icon
     $('#delete-btn').attr('disabled', 'disabled')  // Disable the button
 
@@ -50,7 +48,7 @@ const deleteModel = async function(modelName) {
 const uploadFile = async function() {
     let formData = new FormData(document.getElementById('upload-form'))
 
-    strButton = $('#upload-btn')[0].innerText  // Save the text of the button
+    let strButton = $('#upload-btn')[0].innerText  // Save the text of the button
     $('#upload-btn')[0].innerHTML = '<i class="fas fa-spinner fa-spin"></i>'  // Show a wait icon
     $('#upload-btn').attr('disabled', 'disabled')  // Disable the button
 

@@ -28,7 +28,9 @@ const apiErrors = {
     WRONG_FORMAT_USER:          {code: 604, message: 'El formato del username ("%p") es incorrecto'},
         // Models
     EXISTING_MODEL_NAME:        {code: 700, message: 'El nombre "%p" ya existe'},
-    WRONG_FORMAT_MODEL:         {code: 701, message: 'El formato del nombre ("%p") es incorrecto'}
+    WRONG_FORMAT_MODEL:         {code: 701, message: 'El formato del nombre ("%p") es incorrecto'},
+        // Stages
+    EXISTING_STAGE_ID_STR:      {code: 800, message: 'El id "%p" ya existe'}
 }
 
 // Client-side errors
