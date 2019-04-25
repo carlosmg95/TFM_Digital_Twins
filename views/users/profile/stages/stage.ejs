@@ -355,6 +355,7 @@
             $('button#vr-btn')[0].hidden = true
 
         showModel('<%= JSON.stringify(stage.model) %>', 'model-show')
+        setupActions('<%= JSON.stringify(stage.actions) %>')
 
         // Show edit buttons
         if (Object.keys(getUrlParams()).indexOf('edit') !== -1)
