@@ -9,6 +9,9 @@ const async = require('async')
 // Module exports
 // ====================================================================================================================
 
+const HEADER_SIZE_MSG_MQTT = 2
+const MAX_SIZE_MSG_MQTT = 256
+
 module.exports.create = function(req, res, next) {
     let {actions, id_str, model, name} = req.body
     let owenerId = req.session.user.id
@@ -110,6 +113,25 @@ module.exports.new = function(req, res, next) {
 module.exports.readData = function(topic, payload, message) {
     let {dataid, stageid, username} = message.params
     let {data, len, type} = fns.readMQTT(payload, topic)
-    io.emit(`${username}/${stageid}`, { "action": dataid })
-    console.log({dataid, stageid, username, len, type, data})
+
+    console.log(`MQTT ${topic}`)
+
+    switch(type) {
+        case 0:
+            sendAction(dataid, data, len, stageid, username)
+            break
+        default:
+            break
+    }
+}
+
+// ====================================================================================================================
+// Private functions
+// ====================================================================================================================
+
+const sendAction = function(dataid, data, len, stageid, username) {
+    len = len > (MAX_SIZE_MSG_MQTT - HEADER_SIZE_MSG_MQTT) ? MAX_SIZE_MSG_MQTT - HEADER_SIZE_MSG_MQTT : len
+    data = +data.substring(0, len)
+
+    io.emit(`${username}/${stageid}`, { "action": { "name": dataid, "stop": data === 0 } })
 }

@@ -157,16 +157,15 @@ module.exports.pathLike = function(path, string, regExp) {
 }
 
 // Read the MQTT msg
-module.exports.readMQTT = function(buffer, topic) {
+module.exports.readMQTT = function(buffer) {
     let data, len, type
-    if ((buffer[0] & 0xd0) !== 0xd0)
+    if ((buffer[0] & 0xf0) !== 0xd0)
         return { data, len, type }
     if ((buffer[0] & 0x08) !== 0)
         return { data, len, type }
-    len = buffer[1]
-    type = buffer[0] & 0x7
-    data = +buffer.toString('ascii', 2, len + 2).replace(',', '.')
-    console.log(`MQTT ${topic}`)
+    len = +buffer[1]
+    type = +(buffer[0] & 0x7)
+    data = buffer.toString('ascii', 2, len + 2).replace(',', '.')
     return { data, len, type }
 }
 

@@ -6,3 +6,4 @@ package-lock.json
 tests/reports/
 tests/screenshots/
 conf/config.js
+publish_mqtt

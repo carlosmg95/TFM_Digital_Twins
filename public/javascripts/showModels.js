@@ -259,10 +259,10 @@ const setupActions = function(modelScene, modelActions) {
     mixer = new THREE.AnimationMixer(modelScene)
 
     modelActions.forEach(function(modelAction) {
-        stageActions[modelAction.name] = function() {
+        stageActions[modelAction.name] = function(stop) {
             modelAction.animations.forEach(function(animation) {
                 let clip = THREE.AnimationClip.findByName(modelAnimations, animation.name)
-                clip.uuid = Math.random() + ''
+                clip.uuid = animation.uuid
 
                 let action = mixer.clipAction(clip)
                 if (animation.repeat === 0)
@@ -272,8 +272,10 @@ const setupActions = function(modelScene, modelActions) {
                 else
                     action.setLoop(THREE.LoopRepeat, animation.repeat)
                 action.clampWhenFinished = animation.fin
-                action.timeScale = animation.reverse ? -1 : 1
-                action.fadeIn(0.2).play()
+                if (stop)
+                    action.fadeOut(0.2).play()
+                else
+                    action.reset().fadeIn(0.2).play()
             })
         }
     })
