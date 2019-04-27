@@ -105,3 +105,11 @@ module.exports.new = function(req, res, next) {
         next()
     }, { "sort": { "name": 1 } })
 }
+
+// Read the data sent by MQTT
+module.exports.readData = function(topic, payload, message) {
+    let {dataid, stageid, username} = message.params
+    let {data, len, type} = fns.readMQTT(payload, topic)
+    socket.emit(`${username}/${stageid}`, { "action": dataid })
+    console.log({dataid, stageid, username, len, type, data})
+}
