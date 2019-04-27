@@ -361,7 +361,7 @@
             $('#edit-model')[0].hidden = false
         else
             $('#edit-model')[0].hidden = true
-
+          
         let socket = io.connect(baseUrl)
         socket.on('<%= user.username %>/<%= stage.id_str %>', function (data) {
             let {name, stop} = data.action

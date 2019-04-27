@@ -255,7 +255,7 @@ const sendNewData = function(name) {
 const setupActions = function(modelScene, modelActions) {
     modelActions = modelActions.replace(/&#34;/gi, '"')
     modelActions = JSON.parse(modelActions)
-
+    
     mixer = new THREE.AnimationMixer(modelScene)
 
     modelActions.forEach(function(modelAction) {
