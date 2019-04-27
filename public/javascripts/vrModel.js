@@ -4,7 +4,7 @@ const animateVR = function() {
     rendererVR.setAnimationLoop(renderVR)
 }
 
-const initVR = function(model) {
+const initVR = function(model, modelActions) {
     container = document.createElement('div')
     container.className = 'model'
 
@@ -46,19 +46,22 @@ const initVR = function(model) {
 
     let loader = new THREE.GLTFLoader()
     loader.load(`/api/models/getModel/${model.name}`, function(gltf) {
-        let object = gltf.scene
+        let modelSceneVr = gltf.scene
         // Scale
-        object.scale.x = model.scale.x * 0.4
-        object.scale.y = model.scale.y * 0.4
-        object.scale.z = model.scale.z * 0.4
+        modelSceneVr.scale.x = model.scale.x * 0.4
+        modelSceneVr.scale.y = model.scale.y * 0.4
+        modelSceneVr.scale.z = model.scale.z * 0.4
         // Rotation
-        object.rotation.x = model.rotation.x
-        object.rotation.y = model.rotation.y
-        object.rotation.z = model.rotation.z
+        modelSceneVr.rotation.x = model.rotation.x
+        modelSceneVr.rotation.y = model.rotation.y
+        modelSceneVr.rotation.z = model.rotation.z
 
-        object.position.y = 1.5
-        object.position.z = -3
-        scene.add(object)
+        modelSceneVr.position.y = 1.5
+        modelSceneVr.position.z = -3
+
+        scene.add(modelSceneVr)
+
+        setupActions(modelSceneVr, modelActions)
     }, undefined, function(e) {
         console.error(e)
     })
@@ -107,10 +110,13 @@ const onWindowResize = function() {
 
 const renderVR = function() {
     onWindowResize()
+    let dt = clock.getDelta()
+    if (mixer)
+        mixer.update(dt)
     rendererVR.render(scene, camera)
 }
 
-const showVRModel = function(model) {
+const showVRModel = function(model, modelActions) {
     model = model.replace(/&#34;/gi, '"')
     model = JSON.parse(model)
 
@@ -118,6 +124,6 @@ const showVRModel = function(model) {
         $('#models-list').append(WEBGL.getWebGLErrorMessage())
     }
 
-    initVR(model)
+    initVR(model, modelActions)
     animateVR()
 }

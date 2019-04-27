@@ -72,7 +72,7 @@ const getAnimations = function() {
     return modelAnimations && modelAnimations.map((animation) => animation.name)
 }
 
-const init = function(element, model) {
+const init = function(element, model, modelActions) {
     canvas = document.getElementById('c')
     canvas.style.height = `${window.innerHeight}px`
     clock = new THREE.Clock()
@@ -142,6 +142,8 @@ const init = function(element, model) {
         scene.add(grid)
 
         scenes.push(scene)
+        if (modelActions)
+            setupActions(modelScene, modelActions)
     }, function(xhr) {
         let loaded = Math.round((xhr.loaded / xhr.total) * 100)
         let progressBar = $(`.progress#${model.name} .progress-bar`)
@@ -250,40 +252,34 @@ const sendNewData = function(name) {
     })
 }
 
-const setupActions = function(modelActions) {
+const setupActions = function(modelScene, modelActions) {
     modelActions = modelActions.replace(/&#34;/gi, '"')
     modelActions = JSON.parse(modelActions)
 
-    let animationsTimer = setInterval(function() {
-        if (modelScene !== undefined) {
-            clearInterval(animationsTimer)
+    mixer = new THREE.AnimationMixer(modelScene)
 
-            mixer = new THREE.AnimationMixer(modelScene)
+    modelActions.forEach(function(modelAction) {
+        stageActions[modelAction.name] = function() {
+            modelAction.animations.forEach(function(animation) {
+                let clip = THREE.AnimationClip.findByName(modelAnimations, animation.name)
+                clip.uuid = Math.random() + ''
 
-            modelActions.forEach(function(modelAction) {
-                stageActions[modelAction.name] = function() {
-                    modelAction.animations.forEach(function(animation) {
-                        let clip = THREE.AnimationClip.findByName(modelAnimations, animation.name)
-                        clip.uuid = Math.random() + ''
-
-                        let action = mixer.clipAction(clip)
-                        if (animation.repeat === 0)
-                            action.setLoop(THREE.LoopRepeat)
-                        else if (animation.repeat === 1)
-                            action.setLoop(THREE.LoopOnce, 1)
-                        else
-                            action.setLoop(THREE.LoopRepeat, animation.repeat)
-                        action.clampWhenFinished = animation.fin
-                        action.timeScale = animation.reverse ? -1 : 1
-                        action.fadeIn(0.2).play()
-                    })
-                }
+                let action = mixer.clipAction(clip)
+                if (animation.repeat === 0)
+                    action.setLoop(THREE.LoopRepeat)
+                else if (animation.repeat === 1)
+                    action.setLoop(THREE.LoopOnce, 1)
+                else
+                    action.setLoop(THREE.LoopRepeat, animation.repeat)
+                action.clampWhenFinished = animation.fin
+                action.timeScale = animation.reverse ? -1 : 1
+                action.fadeIn(0.2).play()
             })
         }
-    }, 100)
+    })
 }
 
-const showModel = function(model, className) {
+const showModel = function(model, className, modelActions) {
     model = model.replace(/&#34;/gi, '"')
     model = JSON.parse(model)
 
@@ -309,7 +305,7 @@ const showModel = function(model, className) {
     element.id = `model-${model.name}-${model.ext}`
     element.innerHTML = template.replace(/\$name/g, model.name)
 
-    init(element, model)
+    init(element, model, modelActions)
     animate()
 }
 
