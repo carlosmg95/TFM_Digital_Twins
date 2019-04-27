@@ -9,7 +9,7 @@ const fileUpload = require('express-fileupload')
 const http = require('http')
 const methodOverride = require('method-override')
 const morgan = require('morgan')
-const mqttr = require('mqttr');
+const mqttr = require('mqttr')
 const parser = require('body-parser')
 const partials = require('express-partials')
 const path = require('path')
@@ -133,8 +133,8 @@ app.set('port', config.port)
 // Create MQTT subscription
 // ====================================================================================================================
 
-let client  = mqttr.connect('mqtt://localhost')
-router.mountMQTT(client)
+let clientMQTT  = mqttr.connect(`mqtt://${config.domain}:${config.portMQTT}`)
+router.mountMQTT(clientMQTT)
 
 // ====================================================================================================================
 // Create server
@@ -142,6 +142,11 @@ router.mountMQTT(client)
 
 // Create HTTP server
 let server = http.createServer(app)
+
+const io = require('socket.io')(server)
+io.on('connection', function (socket) {
+    global['socket'] = socket
+})
 
 // Listen on provided port, on all network interfaces
 server.listen(config.port)

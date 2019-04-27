@@ -264,7 +264,7 @@ const setupActions = function(modelActions) {
                 stageActions[modelAction.name] = function() {
                     modelAction.animations.forEach(function(animation) {
                         let clip = THREE.AnimationClip.findByName(modelAnimations, animation.name)
-                        clip.name = Math.random() + ''
+                        clip.uuid = Math.random() + ''
 
                         let action = mixer.clipAction(clip)
                         if (animation.repeat === 0)

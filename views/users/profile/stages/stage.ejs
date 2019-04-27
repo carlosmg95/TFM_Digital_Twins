@@ -176,6 +176,9 @@
   })
 </script>
 
+<!-- WebSockets -->
+<script type="text/javascript" src="/components/socket.io-client/dist/socket.io.js"></script>
+
 <!-- Three JS -->
 <script type="text/javascript" src="/components/three/build/three.min.js"></script>
 <script type="text/javascript" src="/components/three/examples/js/controls/OrbitControls.js"></script>
@@ -190,9 +193,6 @@
   </div>
   <div class="model-body"></div>
 </script>
-
-<!-- Crypto -->
-<script type="text/javascript" src="/components/crypto-js/crypto-js.js"></script>
 
 <!-- Custom JS -->
 <script type="text/javascript" src="/javascripts/models.js"></script>
@@ -362,5 +362,11 @@
             $('#edit-model')[0].hidden = false
         else
             $('#edit-model')[0].hidden = true
+
+        let socket = io.connect('http://192.168.1.42:3000')
+        socket.on('<%= user.username %>/<%= stage.id_str %>', function (data) {
+            let action = data.action
+            stageActions[action]()
+        })
     })
 </script>
