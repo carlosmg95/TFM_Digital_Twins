@@ -58,7 +58,6 @@ const createStage = async function() {
             let animationName = $(animation).find('select.action-animations').val()
             let fin = $(animation).find('input[name^=action-fin-]:checked').val() === 'end'
             let nRepeat = +$(animation).find('input.action-repeat').val()
-            let uuid = createUuid()
             let y = j + 1
 
             let rightAnimationName = checkAnimationName(animationName, n, y)
@@ -68,8 +67,7 @@ const createStage = async function() {
             animationsData.push({
                 "name": animationName,
                 "repeat": nRepeat,
-                fin,
-                uuid
+                fin
             })
         }
         actionsData.push({
@@ -201,16 +199,6 @@ const checkName = function(name) {
         hideErrorMsg($('#create-stage-name'))
         return true
     }
-}
-
-function createUuid(){
-    let dt = new Date().getTime()
-    let uuid = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
-        let r = (dt + Math.random()*16)%16 | 0
-        dt = Math.floor(dt/16)
-        return (c=='x' ? r :(r&0x3|0x8)).toString(16)
-    })
-    return uuid
 }
 
 // Function to hide error message under a form

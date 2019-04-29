@@ -364,8 +364,8 @@
           
         let socket = io.connect(baseUrl)
         socket.on('<%= user.username %>/<%= stage.id_str %>', function (data) {
-            let {name, stop} = data.action
-            stageActions[name](stop)
+            let {name, status} = data.action
+            stageActions[name](status)
         })
     })
 </script>

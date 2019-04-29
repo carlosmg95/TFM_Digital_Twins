@@ -133,5 +133,24 @@ const sendAction = function(dataid, data, len, stageid, username) {
     len = len > (MAX_SIZE_MSG_MQTT - HEADER_SIZE_MSG_MQTT) ? MAX_SIZE_MSG_MQTT - HEADER_SIZE_MSG_MQTT : len
     data = +data.substring(0, len)
 
-    io.emit(`${username}/${stageid}`, { "action": { "name": dataid, "stop": data === 0 } })
+    let status = ''
+
+    switch(data) {
+        case 0:
+            status = 'START'
+            break
+        case 1:
+            status = 'PAUSE'
+            break
+        case 2:
+            status = 'RESUME'
+            break
+        case 3:
+            status = 'STOP'
+            break
+        default:
+            break
+    }
+
+    io.emit(`${username}/${stageid}`, { "action": { "name": dataid, status } })
 }
