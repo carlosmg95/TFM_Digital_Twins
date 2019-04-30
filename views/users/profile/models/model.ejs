@@ -218,14 +218,14 @@
 
     // Show normal mode
     const showNormal = function() {
-        showModel('<%= JSON.stringify(model) %>', 'model-show')
+        showModel('<%- JSON.stringify(model) %>', 'model-show')
         $('button#normal-btn')[0].hidden = true
         $('button#vr-btn')[0].hidden = false
     }
 
     // Show VR mode
     const showVR = function() {
-        showVRModel('<%= JSON.stringify(model) %>', true)
+        showVRModel('<%- JSON.stringify(model) %>', true)
         $('button#normal-btn')[0].hidden = false
         $('button#vr-btn')[0].hidden = true
     }
@@ -356,7 +356,7 @@
         else
             $('button#vr-btn')[0].hidden = true
 
-        showModel('<%= JSON.stringify(model) %>', 'model-show')
+        showModel('<%- JSON.stringify(model) %>', 'model-show')
 
         // Show edit buttons
         if (Object.keys(getUrlParams()).indexOf('edit') !== -1)

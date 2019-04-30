@@ -140,7 +140,7 @@ const saveData = function(stageId, dataName, value) {
                 if (docs[0].data) {
                     data = docs[0].data
                     if (data[dataName])
-                        data[dataName] = [value, ...data[dataName]]
+                        data[dataName] = value.value !== data[dataName][0].value ? [value, ...data[dataName]] : data[dataName]
                     else
                         data[dataName] = [value]
                 } else {
@@ -164,28 +164,39 @@ const sendAction = function(actionName, data, len, stageId, username) {
     len = Math.min(len, MAX_SIZE_MSG_MQTT - HEADER_SIZE_MSG_MQTT)
     data = +data.substring(0, len)
 
-    let status = ''
+    let status = '', value = {}
 
     switch(data) {
         case 0:
             status = 'START'
+            value = {
+                "value": "Running",
+                "timestamp": new Date()
+            }
             break
         case 1:
             status = 'PAUSE'
+            value = {
+                "value": "Paused",
+                "timestamp": new Date()
+            }
             break
         case 2:
             status = 'RESUME'
+            value = {
+                "value": "Running",
+                "timestamp": new Date()
+            }
             break
         case 3:
             status = 'STOP'
+            value = {
+                "value": "Stopped",
+                "timestamp": new Date()
+            }
             break
         default:
             break
-    }
-
-    let value = {
-        "value": status,
-        "timestamp": new Date()
     }
 
     saveData(stageId, actionName, value)

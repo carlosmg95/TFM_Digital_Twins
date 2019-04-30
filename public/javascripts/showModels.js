@@ -72,7 +72,7 @@ const getAnimations = function() {
     return modelAnimations && modelAnimations.map((animation) => animation.name)
 }
 
-const init = function(element, model, modelActions) {
+const init = function(element, model, modelActions, modelData) {
     canvas = document.getElementById('c')
     canvas.style.height = `${window.innerHeight}px`
     clock = new THREE.Clock()
@@ -144,6 +144,8 @@ const init = function(element, model, modelActions) {
         scenes.push(scene)
         if (modelActions)
             setupActions(modelScene, modelActions)
+        if (modelData)
+            showData(modelData)
     }, function(xhr) {
         let loaded = Math.round((xhr.loaded / xhr.total) * 100)
         let progressBar = $(`.progress#${model.name} .progress-bar`)
@@ -253,7 +255,6 @@ const sendNewData = function(name) {
 }
 
 const setupActions = function(modelScene, modelActions) {
-    modelActions = modelActions.replace(/&#34;/gi, '"')
     modelActions = JSON.parse(modelActions)
     
     mixer = new THREE.AnimationMixer(modelScene)
@@ -296,8 +297,16 @@ const setupActions = function(modelScene, modelActions) {
     })
 }
 
-const showModel = function(model, className, modelActions) {
-    model = model.replace(/&#34;/gi, '"')
+const showData = function(modelData) {
+    modelData = JSON.parse(modelData)
+
+    for (let i in modelData) {
+        if (modelData[i][0].value === 'Running')
+            stageActions[i]('START')
+    }
+}
+
+const showModel = function(model, className, modelActions, modelData) {
     model = JSON.parse(model)
 
     content.innerHTML = ''
@@ -322,7 +331,7 @@ const showModel = function(model, className, modelActions) {
     element.id = `model-${model.name}-${model.ext}`
     element.innerHTML = template.replace(/\$name/g, model.name)
 
-    init(element, model, modelActions)
+    init(element, model, modelActions, modelData)
     animate()
 }
 
