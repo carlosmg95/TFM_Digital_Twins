@@ -129,8 +129,39 @@ module.exports.readData = function(topic, payload, message) {
 // Private functions
 // ====================================================================================================================
 
-const sendAction = function(dataid, data, len, stageid, username) {
-    len = len > (MAX_SIZE_MSG_MQTT - HEADER_SIZE_MSG_MQTT) ? MAX_SIZE_MSG_MQTT - HEADER_SIZE_MSG_MQTT : len
+const saveData = function(stageId, dataName, value) {
+    async.waterfall([
+        // Get the data of the stage
+        function getData(cb) {
+            mongodb.read('stages', { "id_str": stageId }, function(error, docs) {
+                if (error || !docs[0])
+                    return
+                let data
+                if (docs[0].data) {
+                    data = docs[0].data
+                    if (data[dataName])
+                        data[dataName] = [value, ...data[dataName]]
+                    else
+                        data[dataName] = [value]
+                } else {
+                    data = {}
+                    data[dataName] = [value]
+                }
+                cb(null, data)
+            }, { "project": { "data": 1, "_id": 0 } })
+        },
+        // Update the stage with the new data
+        function updateStage(data, cb) {
+            mongodb.update('stages', { "id_str": stageId }, {data}, function(error, result) {
+                if (error)
+                    return
+            })
+        }
+    ])
+}
+
+const sendAction = function(actionName, data, len, stageId, username) {
+    len = Math.min(len, MAX_SIZE_MSG_MQTT - HEADER_SIZE_MSG_MQTT)
     data = +data.substring(0, len)
 
     let status = ''
@@ -152,5 +183,12 @@ const sendAction = function(dataid, data, len, stageid, username) {
             break
     }
 
-    io.emit(`${username}/${stageid}`, { "action": { "name": dataid, status } })
+    let value = {
+        "value": status,
+        "timestamp": new Date()
+    }
+
+    saveData(stageId, actionName, value)
+    if (typeof io !== 'undefined')
+        io.emit(`${username}/${stageId}`, { "action": { "name": actionName, status } })
 }
