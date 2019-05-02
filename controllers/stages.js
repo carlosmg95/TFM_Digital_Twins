@@ -129,23 +129,40 @@ module.exports.readData = function(topic, payload, message) {
 // Private functions
 // ====================================================================================================================
 
-const saveData = function(stageId, dataName, value) {
+const saveData = function(stageId, dataName, type, value) {
     async.waterfall([
         // Get the data of the stage
         function getData(cb) {
             mongodb.read('stages', { "id_str": stageId }, function(error, docs) {
                 if (error || !docs[0])
                     return
-                let data
+                let data, dataAux
                 if (docs[0].data) {
                     data = docs[0].data
-                    if (data[dataName])
-                        data[dataName] = value.value !== data[dataName][0].value ? [value, ...data[dataName]] : data[dataName]
-                    else
-                        data[dataName] = [value]
+                    if (data[dataName]) {
+                        let values = data[dataName].values
+                        if (value.value !== values[0].value)  // If different value, the new value is in the first position
+                            values = [value, ...values]
+                        else if (value.value === 'START')  // If same value and it is "START", it replaces the value
+                            values[0] = value
+                        // If same value and it's not "START", it doesn't change
+                        data[dataName].values = values
+                        // Set the data in the last position
+                        dataAux = data[dataName]
+                        delete data[dataName]
+                        data[dataName] = dataAux
+                    } else {
+                        data[dataName] = {
+                            "type": type,
+                            "values": [value]
+                        }
+                    }
                 } else {
                     data = {}
-                    data[dataName] = [value]
+                    data[dataName] = {
+                        "type": type,
+                        "values": [value]
+                    }
                 }
                 cb(null, data)
             }, { "project": { "data": 1, "_id": 0 } })
@@ -170,28 +187,28 @@ const sendAction = function(actionName, data, len, stageId, username) {
         case 0:
             status = 'START'
             value = {
-                "value": "Running",
+                "value": "START",
                 "timestamp": new Date()
             }
             break
         case 1:
             status = 'PAUSE'
             value = {
-                "value": "Paused",
+                "value": "PAUSE",
                 "timestamp": new Date()
             }
             break
         case 2:
             status = 'RESUME'
             value = {
-                "value": "Running",
+                "value": "RESUME",
                 "timestamp": new Date()
             }
             break
         case 3:
             status = 'STOP'
             value = {
-                "value": "Stopped",
+                "value": "STOP",
                 "timestamp": new Date()
             }
             break
@@ -199,7 +216,7 @@ const sendAction = function(actionName, data, len, stageId, username) {
             break
     }
 
-    saveData(stageId, actionName, value)
+    saveData(stageId, actionName, 0, value)
     if (typeof io !== 'undefined')
         io.emit(`${username}/${stageId}`, { "action": { "name": actionName, status } })
 }

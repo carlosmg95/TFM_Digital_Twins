@@ -260,7 +260,7 @@ const setupActions = function(modelScene, modelActions) {
     mixer = new THREE.AnimationMixer(modelScene)
 
     modelActions.forEach(function(modelAction) {
-        stageActions[modelAction.name] = function(status) {
+        stageActions[modelAction.name] = function(status, time) {
             modelAction.animations.forEach(function(animation) {
                 let clip = THREE.AnimationClip.findByName(modelAnimations, animation.name)
 
@@ -275,18 +275,19 @@ const setupActions = function(modelScene, modelActions) {
 
                 switch(status) {
                     case 'START':
-                        action.timeScale = 1
-                        action.reset().fadeIn(0.2).play()
+                        action.reset()
+                        action.time = time || 0
+                        action.fadeIn(0.2).play()
                         break
                     case 'PAUSE':
-                        action.timeScale = 0
+                        action.paused = true
                         break
                     case 'RESUME':
-                        action.timeScale = 1
+                        action.paused = false
                         action.play()
                         break
                     case 'STOP':
-                        action.timeScale = 1
+                        action.paused = false
                         action.fadeOut(0.2).play()
                         break
                     default:
@@ -297,12 +298,22 @@ const setupActions = function(modelScene, modelActions) {
     })
 }
 
+const showActionsData = function(actionName, values) {
+    if (values[0].value === 'START') {
+        let time = (new Date() - new Date(values[0].timestamp)) / 1000
+        stageActions[actionName]('START', time)
+    }
+}
+
 const showData = function(modelData) {
     modelData = JSON.parse(modelData)
 
     for (let i in modelData) {
-        if (modelData[i][0].value === 'Running')
-            stageActions[i]('START')
+        switch(modelData[i].type) {
+            case 0:
+                showActionsData(i, modelData[i].values)
+                break
+        }
     }
 }
 
