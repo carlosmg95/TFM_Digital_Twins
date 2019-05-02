@@ -1,6 +1,7 @@
 const createStage = async function() {
     let rightValues = true
     // Stage data
+    let background = new FormData(document.getElementById('create-stage-form'))
     let idStr = $('input#create-stage-id').val()
     let modelName = $('select#create-stage-model').val()
     let name = $('input#create-stage-name').val()
@@ -86,6 +87,8 @@ const createStage = async function() {
         "actions": actionsData
     }
 
+    background.append('data', JSON.stringify(data))
+
     if (rightValues) {
         let strButton = $('#create-stage-btn')[0].innerText  // Save the text of the button
         $('#create-stage-btn')[0].innerHTML = '<i class="fas fa-spinner fa-spin"></i>'  // Show a wait icon
@@ -94,8 +97,10 @@ const createStage = async function() {
         $.ajax({
             type: 'POST',
             url: '/api/stages/create',
-            contentType: 'application/json',
-            data: JSON.stringify(data)
+            data: background,
+            cache: false,
+            contentType: false,
+            processData: false,
         })
         .done(function(data) {
             if(data.error) {

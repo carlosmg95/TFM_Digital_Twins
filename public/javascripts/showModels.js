@@ -93,7 +93,7 @@ const getRunningTime = function(values, now) {
     return time.toString().indexOf('false') === -1 ? time : false
 }
 
-const init = function(element, model, modelActions, modelData) {
+const init = function(element, model, modelActions, modelData, idStr) {
     canvas = document.getElementById('c')
     canvas.style.height = `${window.innerHeight}px`
     clock = new THREE.Clock()
@@ -154,13 +154,25 @@ const init = function(element, model, modelActions, modelData) {
 
         scene.background = new THREE.Color(0xffffff)
         scene.fog = new THREE.Fog(0xe0e0e0, 20, 100)
+        if (model.background && model.background.type === 'cube') {
+            scene.background = new THREE.CubeTextureLoader().load([
+                `/api/stage/getbackground/cube/${idStr}/posx`,
+                `/api/stage/getbackground/cube/${idStr}/negx`,
+                `/api/stage/getbackground/cube/${idStr}/posy`,
+                `/api/stage/getbackground/cube/${idStr}/negy`,
+                `/api/stage/getbackground/cube/${idStr}/posz`,
+                `/api/stage/getbackground/cube/${idStr}/negz`
+            ])
+        } else if (model.background && model.background.type === 'texture') {
+            scene.background = new THREE.TextureLoader().load(`/api/stage/getbackground/texture/${idStr}/0`)
+        } else{
+            // Grid
 
-        // Grid
-
-        let grid = new THREE.GridHelper(200, 40, 0x000000, 0x000000)
-        grid.material.opacity = 0.2
-        grid.material.transparent = true
-        scene.add(grid)
+            let grid = new THREE.GridHelper(200, 40, 0x000000, 0x000000)
+            grid.material.opacity = 0.2
+            grid.material.transparent = true
+            scene.add(grid)
+        }
 
         scenes.push(scene)
         if (modelActions)
@@ -339,7 +351,7 @@ const showData = function(modelData) {
     }
 }
 
-const showModel = function(model, className, modelActions, modelData) {
+const showModel = function(model, className, modelActions, modelData, idStr) {
     model = JSON.parse(model)
 
     content.innerHTML = ''
@@ -364,7 +376,7 @@ const showModel = function(model, className, modelActions, modelData) {
     element.id = `model-${model.name}-${model.ext}`
     element.innerHTML = template.replace(/\$name/g, model.name)
 
-    init(element, model, modelActions, modelData)
+    init(element, model, modelActions, modelData, idStr)
     animate()
 }
 
@@ -390,7 +402,7 @@ const showModelByName = async function(name, className) {
         } else if (className === 'model-show') {
             element.className = 'col-12 model-show'
         } else if (className === 'model-data') {
-            element.className = 'col-12 col-lg-8 model-data'
+            element.className = 'col-12 model-data'
         }
         element.id = `model-${model.name}-${model.ext}`
         element.innerHTML = template.replace(/\$name/g, model.name)
@@ -458,7 +470,7 @@ const showStages = function() {
                 element.innerHTML = template.replace(/\$id/g, stage.id_str)
                 element.innerHTML = element.innerHTML.replace(/\$name/g, stage.name)
                 element.innerHTML = element.innerHTML.replace(/\$modelName/g, stage.model.name)
-                init(element, stage.model)
+                init(element, stage.model, null, null, stage.id_str)
             }
             animate()
         }

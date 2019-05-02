@@ -4,7 +4,7 @@ const animateVR = function() {
     rendererVR.setAnimationLoop(renderVR)
 }
 
-const initVR = function(model, modelActions) {
+const initVR = function(model, modelActions, idStr) {
     container = document.createElement('div')
     container.className = 'model'
 
@@ -14,6 +14,26 @@ const initVR = function(model, modelActions) {
 
     scene = new THREE.Scene()
     scene.background = new THREE.Color(0x505050)
+    
+    if (model.background && model.background.type === 'cube') {
+        scene.background = new THREE.CubeTextureLoader().load([
+            `/api/stage/getbackground/cube/${idStr}/posx`,
+            `/api/stage/getbackground/cube/${idStr}/negx`,
+            `/api/stage/getbackground/cube/${idStr}/posy`,
+            `/api/stage/getbackground/cube/${idStr}/negy`,
+            `/api/stage/getbackground/cube/${idStr}/posz`,
+            `/api/stage/getbackground/cube/${idStr}/negz`
+        ])
+    } else if (model.background && model.background.type === 'texture') {
+        scene.background = new THREE.TextureLoader().load(`/api/stage/getbackground/texture/${idStr}`)
+    } else{
+        room = new THREE.LineSegments(
+            new THREE.BoxLineGeometry(6, 6, 10, 10, 10, 10),
+            new THREE.LineBasicMaterial({ color: 0x808080 })
+        )
+        room.position.y = 3
+        scene.add(room)
+    }
 
     camera = new THREE.PerspectiveCamera(70, window.innerWidth / window.innerHeight, 0.1, 10)
     scene.add(camera)
@@ -28,13 +48,6 @@ const initVR = function(model, modelActions) {
     )
     crosshair.position.z = -2
     camera.add(crosshair)
-
-    room = new THREE.LineSegments(
-        new THREE.BoxLineGeometry(6, 6, 10, 10, 10, 10),
-        new THREE.LineBasicMaterial({ color: 0x808080 })
-    )
-    room.position.y = 3
-    scene.add(room)
 
     scene.add(new THREE.HemisphereLight(0x606060, 0x404040))
 
@@ -116,7 +129,7 @@ const renderVR = function() {
     rendererVR.render(scene, camera)
 }
 
-const showVRModel = function(model, modelActions) {
+const showVRModel = function(model, modelActions, idStr) {
     model = model.replace(/&#34;/gi, '"')
     model = JSON.parse(model)
 
@@ -124,6 +137,6 @@ const showVRModel = function(model, modelActions) {
         $('#models-list').append(WEBGL.getWebGLErrorMessage())
     }
 
-    initVR(model, modelActions)
+    initVR(model, modelActions, idStr)
     animateVR()
 }

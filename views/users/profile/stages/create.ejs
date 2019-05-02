@@ -46,7 +46,7 @@
         <h5 class="card-header font-weight-bold text-primary">Datos escenario</h5>
         <!-- Body -->
         <div class="card-body">
-          <form>
+          <form id="create-stage-form">
             <!-- Name -->
             <div class="form-group">
               <label for="create-stage-name">Nombre</label>
@@ -74,6 +74,13 @@
               </select>
               <div class="form-group-error" data-err="Selecciona un modelo"><small class="form-text text-danger"></small></div>
             </div>  <!-- .Model -->
+
+            <!-- Background -->
+            <div class="form-group">
+              <label for="background-file">Paisaje</label>
+              <input type="file" class="form-control-file" id="background-file" name="background-file" accept=".png, .jpg, .jpeg" multiple="true">
+              <div><small>Se puede subir o un solo fichero que se usará de fondo o seis ficheros que deben llamarse: posx, negx, posy, negy, posz y negz</small></div>
+            </div>  <!-- .Background -->
           </form>
         </div>  <!-- .Body -->
       </div>  <!-- .Card -->
@@ -230,7 +237,7 @@
 
 <script id="template-model-options" type="notjs">
   <!-- Edit -->
-  <div id="edit-model-stage" class="col-12 col-lg-4">
+  <div id="edit-model-stage" class="col-12 col-lg-6">
     <!-- Scale -->
     <div class="row mb-1">
       <div class="col-12">
@@ -290,7 +297,10 @@
         </a>
       </div>
     </div>  <!-- .RotateZ -->
+  </div>  <!-- .Edit -->
 
+  <!-- New Actions and Events -->
+  <div id="add.act-evn-model-stage" class="col-12 col-lg-6">
     <!-- Add Action -->
     <div class="row mb-1 mt-3">
       <div class="col-12">
@@ -308,7 +318,7 @@
         </a>
       </div>
     </div>  <!-- .Add Event -->
-  </div>  <!-- .Edit -->
+  </div>  <!-- .New Actions and Events -->
 </script>
 
 <!-- Custom JS -->
@@ -346,6 +356,7 @@
       } else {
           let actions = $('#actions-data').find('.card-body').find('.row')
           actions.text('')
+          $('#model-data > .card').css('height', `${$('#stage-data')[0].clientHeight}px`)
           $('#model-data')[0].hidden = false
           $('#actions-data')[0].hidden = true
           await showModelByName(value, 'model-data')

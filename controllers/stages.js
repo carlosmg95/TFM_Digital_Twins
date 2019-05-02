@@ -4,6 +4,7 @@
 
 // Node modules
 const async = require('async')
+const path = require('path')
 
 // ====================================================================================================================
 // Module exports
@@ -13,7 +14,9 @@ const HEADER_SIZE_MSG_MQTT = 2
 const MAX_SIZE_MSG_MQTT = 256
 
 module.exports.create = function(req, res, next) {
-    let {actions, id_str, model, name} = req.body
+    let background = req.files['background-file']
+    let {actions, id_str, model, name} = JSON.parse(req.body.data)
+    let filePathBackgrounds = path.join(__dirname, '../files/backgrounds')
     let owenerId = req.session.user.id
 
     async.series([
@@ -27,6 +30,52 @@ module.exports.create = function(req, res, next) {
                 model = fns.concatObjects(model, newData)
                 cb()
             })
+        },
+        // Save the background
+        function saveBackground(cb) {
+            if (!background) {
+                cb()
+            } else if (!background.length) {
+                let backgroundStage, fileExt = background.name.split('.').pop()
+                filePath = `${filePathBackgrounds}/${owenerId}_${id_str}.${fileExt}`
+                backgroundStage = {
+                    "type": "texture",
+                    "path": filePath
+                }
+                background.mv(filePath, function(error) {
+                    if (error) {
+                        req.error = error
+                        return res.renderError(500)
+                    } else {
+                        model['background'] = backgroundStage
+                        log.debug(`File ${filePath} saved`)
+                        cb()
+                    }
+                })
+            } else if (background.length > 0) {
+                let backgroundStage = {
+                    "type": "cube",
+                    "path": []
+                }
+                background.forEach(function(file) {
+                    let fileExt = file.name.split('.').pop()
+                    let fileName = file.name.split('.')[0]
+                    let orderNames = ['posx', 'negx', 'posy', 'negy', 'posz', 'negz']
+                    filePath = `${filePathBackgrounds}/${owenerId}_${id_str}_${fileName}.${fileExt}`
+                    file.mv(filePath, function(error, a, b,c,d) {
+                        if (error) {
+                            req.error = error
+                            return res.renderError(500)
+                        } else {
+                            let fileItemName = `${filePathBackgrounds}/${owenerId}_${id_str}_${fileName}.${fileExt}`
+                            backgroundStage.path[orderNames.indexOf(fileName)] = fileItemName
+                            log.debug(`File ${fileItemName} saved`)
+                        }
+                    })
+                })
+                model['background'] = backgroundStage
+                cb()
+            }
         },
         // Save the stage data
         function saveStage(cb) {
@@ -55,6 +104,52 @@ module.exports.create = function(req, res, next) {
     })
 }
 
+module.exports.getBackground = function(req, res, next) {
+    let {idStr, pos, type} = req.params
+    let owenerId = req.session.user.id
+
+    let orderNames = ['posx', 'negx', 'posy', 'negy', 'posz', 'negz']
+
+    mongodb.read('stages', { "id_str": idStr }, function(error, docs) {
+        //If error in query
+        if (error) {
+            req.error = error
+            log.error(req.error)
+            return next()
+        }
+        // If no results found
+        if (!docs || !docs.length) {
+            req.error = errors.RESOURCE_NOT_FOUND
+            log.error(req.error.message)
+            return next()
+        }
+        if (type === 'texture')
+            req.file = docs[0].model.background.path
+        else if (type === 'cube')
+            req.file = docs[0].model.background.path[orderNames.indexOf(pos)]
+        return next()
+    }, { "project": { "model.background": 1 } })
+}
+
+module.exports.getStages = function(req, res, next) {
+    let {id_str} = req.params
+    let owenerId = req.session.user.id
+    let where = id_str ? {id_str, "owener_id": owenerId} : {"owener_id": owenerId}  // If there isn't a id_str, it get all models
+
+    mongodb.read('stages', where, function(error, docs) {
+        if (error) {
+            req.error = error
+            return res.renderError(500)
+        }
+        if (docs && docs.length !== 0)
+            req.stage = docs[0]  // Show the stage in its page
+        else if (id_str && (!docs || docs.length === 0))
+            return res.renderError(404)
+        req.data = docs  // Get all the stages in the index page
+        next()
+    }, { "project": { "model.path": 0, "model.background.path": 0 } })
+}
+
 module.exports.idStrExist = function(req, res, next) {
     let idStr = req.params.idStr
 
@@ -74,25 +169,6 @@ module.exports.idStrExist = function(req, res, next) {
         }
         return next()
     })
-}
-
-module.exports.getStages = function(req, res, next) {
-    let {id_str} = req.params
-    let owenerId = req.session.user.id
-    let where = id_str ? {id_str, "owener_id": owenerId} : {"owener_id": owenerId}  // If there isn't a id_str, it get all models
-
-    mongodb.read('stages', where, function(error, docs) {
-        if (error) {
-            req.error = error
-            return res.renderError(500)
-        }
-        if (docs && docs.length !== 0)
-            req.stage = docs[0]  // Show the stage in its page
-        else if (id_str && (!docs || docs.length === 0))
-            return res.renderError(404)
-        req.data = docs  // Get all the stages in the index page
-        next()
-    }, { "project": { "model.path": 0 } })
 }
 
 module.exports.new = function(req, res, next) {
