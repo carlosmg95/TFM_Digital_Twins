@@ -72,6 +72,27 @@ const getAnimations = function() {
     return modelAnimations && modelAnimations.map((animation) => animation.name)
 }
 
+const getRunningTime = function(values, now) {
+    let time = now
+    switch(values[0].value) {
+        case 'START':
+            time = (now - new Date(values[0].timestamp)) / 1000
+            break
+        case 'PAUSE':
+            time = getRunningTime(values.slice(1, values.length), new Date(values[0].timestamp))
+            break
+        case 'RESUME':
+            time = (now - new Date(values[0].timestamp)) / 1000 + getRunningTime(values.slice(1, values.length), new Date(values[0].timestamp))
+            break
+        case 'STOP':
+            time = false
+            break
+        default:
+            break
+    }
+    return time.toString().indexOf('false') === -1 ? time : false
+}
+
 const init = function(element, model, modelActions, modelData) {
     canvas = document.getElementById('c')
     canvas.style.height = `${window.innerHeight}px`
@@ -299,9 +320,10 @@ const setupActions = function(modelScene, modelActions) {
 }
 
 const showActionsData = function(actionName, values) {
-    if (values[0].value === 'START') {
-        let time = (new Date() - new Date(values[0].timestamp)) / 1000
-        stageActions[actionName]('START', time)
+    let time = getRunningTime(values, new Date())
+    if (values[0].value === 'START' || values[0].value === 'RESUME') {
+        if (time)
+            stageActions[actionName]('START', time)
     }
 }
 
