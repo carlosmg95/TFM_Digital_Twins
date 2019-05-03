@@ -4,7 +4,7 @@ const animateVR = function() {
     rendererVR.setAnimationLoop(renderVR)
 }
 
-const initVR = function(model, modelActions, idStr) {
+const initVR = function(model, modelActions, modelData, idStr) {
     container = document.createElement('div')
     container.className = 'model'
 
@@ -74,7 +74,10 @@ const initVR = function(model, modelActions, idStr) {
 
         scene.add(modelSceneVr)
 
-        setupActions(modelSceneVr, modelActions)
+        if (modelActions)
+            setupActions(modelSceneVr, modelActions)
+        if (modelData)
+            showData(modelData)
     }, undefined, function(e) {
         console.error(e)
     })
@@ -129,7 +132,7 @@ const renderVR = function() {
     rendererVR.render(scene, camera)
 }
 
-const showVRModel = function(model, modelActions, idStr) {
+const showVRModel = function(model, modelActions, modelData, idStr) {
     model = model.replace(/&#34;/gi, '"')
     model = JSON.parse(model)
 
@@ -137,6 +140,6 @@ const showVRModel = function(model, modelActions, idStr) {
         $('#models-list').append(WEBGL.getWebGLErrorMessage())
     }
 
-    initVR(model, modelActions, idStr)
+    initVR(model, modelActions, modelData, idStr)
     animateVR()
 }

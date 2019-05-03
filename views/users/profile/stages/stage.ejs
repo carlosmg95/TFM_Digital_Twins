@@ -223,7 +223,7 @@
 
     // Show VR mode
     const showVR = function() {
-        showVRModel('<%- JSON.stringify(stage.model) %>', '<%- JSON.stringify(stage.actions) %>', '<%= stage.id_str %>')
+        showVRModel('<%- JSON.stringify(stage.model) %>', '<%- JSON.stringify(stage.actions) %>', '<%- JSON.stringify(stage.data) %>', '<%= stage.id_str %>')
         $('button#normal-btn')[0].hidden = false
         $('button#vr-btn')[0].hidden = true
     }
