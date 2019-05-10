@@ -121,15 +121,26 @@ const init = function(element, model, modelActions, modelData, idStr) {
 
     // Models
 
-    let loader = new THREE.GLTFLoader()
-    loader.load(`/api/models/getModel/${model.name}`, function(gltf) {
+    let ext = model.ext, loader
+
+    if (ext === 'glb')
+        loader = new THREE.GLTFLoader()
+    else if (ext === 'fbx')
+        loader = new THREE.FBXLoader()
+
+    loader.load(`/api/models/getModel/${model.name}`, function(result) {
         $(`.progress#${model.name}`)[0].hidden = true
 
-        modelAnimations = gltf.animations
-        modelScene = gltf.scene
+        modelAnimations = result.animations
         modelName = model.name
+        if (ext === 'glb')
+            modelScene = result.scene
+        else if (ext === 'fbx')
+            modelScene = result
+
+
         try {
-            if (gltf.animations.length > 0)
+            if (result.animations.length > 0)
                 createGUI(modelScene, modelAnimations)
         } catch(e) {
             // Act normally

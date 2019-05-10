@@ -57,9 +57,19 @@ const initVR = function(model, modelActions, modelData, idStr) {
 
     // model
 
-    let loader = new THREE.GLTFLoader()
-    loader.load(`/api/models/getModel/${model.name}`, function(gltf) {
-        let modelSceneVr = gltf.scene
+    let ext = model.ext, loader
+
+    if (ext === 'glb')
+        loader = new THREE.GLTFLoader()
+    else if (ext === 'fbx')
+        loader = new THREE.FBXLoader()
+
+    loader.load(`/api/models/getModel/${model.name}`, function(result) {
+        let modelSceneVr
+        if (ext === 'glb')
+            modelSceneVr = result.scene
+        else if (ext === 'fbx')
+            modelSceneVr = result
         // Scale
         modelSceneVr.scale.x = model.scale.x * 0.4
         modelSceneVr.scale.y = model.scale.y * 0.4

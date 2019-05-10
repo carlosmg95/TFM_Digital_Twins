@@ -92,6 +92,11 @@ module.exports.formatError = function(error, replaceContent, replaceChar) {
     return err
 }
 
+// Get the accepted extensions for a model
+module.exports.getAcceptedExt = function() {
+    return config.acceptedExt.join(',')
+}
+
 // Get the code of an error
 module.exports.getErrorCode = function(error) {
     return errors[error].code
