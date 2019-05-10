@@ -55,8 +55,8 @@
             <div class="form-group-error" data-err="Se debe rellenar el nombre del fichero"><small class="form-text text-danger"></small></div>
           </div>
           <div class="form-group">
-            <label for="model-file">Fichero glb</label>
-            <input type="file" class="form-control-file" id="model-file" name="model-file" accept=".glb">
+            <label for="model-file">Fichero 3D</label>
+            <input type="file" class="form-control-file" id="model-file" name="model-file" accept="<%= fns.getAcceptedExt() %>">
             <div class="form-group-error" data-err="Se debe proporcionar un fichero"><small class="form-text text-danger"></small></div>
           </div>
         </form>

@@ -133,7 +133,7 @@ app.set('port', config.port)
 // Create MQTT subscription
 // ====================================================================================================================
 
-let clientMQTT  = mqttr.connect(`mqtt://${config.domain}:${config.portMQTT}`)
+let clientMQTT  = mqttr.connect(`mqtt://${config.mqttDomain}:${config.portMQTT}`)
 router.mountMQTT(clientMQTT)
 
 // ====================================================================================================================
