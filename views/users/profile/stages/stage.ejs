@@ -227,6 +227,7 @@
     // Show AR mode
     const showAR = function() {
         document.body.innerHTML = ''
+        rotateModel = false
         showARModel('<%- JSON.stringify(stage.model) %>', '<%- JSON.stringify(stage.actions) %>', '<%- JSON.stringify(stage.data) %>', '<%= stage.id_str %>')
     }
 

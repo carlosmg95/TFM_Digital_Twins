@@ -14,7 +14,7 @@ const initAR = function(model, modelActions, modelData, idStr) {
     rendererAR.domElement.style.left = '0px'
     document.body.append(rendererAR.domElement)
 
-    let scene = new THREE.Scene()
+    let scene = new THREE.Scene(), modelSceneAr
 
     let camera = new THREE.Camera()
     scene.add(camera)
@@ -80,9 +80,12 @@ const initAR = function(model, modelActions, modelData, idStr) {
 
     // Add an object in the scene
 
-    let light = new THREE.HemisphereLight(0xbbbbff, 0x444422)
-    light.position.set(0, 1, 0)
-    scene.add(light)
+    let ambient = new THREE.AmbientLight(0x666666)
+    scene.add(ambient)
+
+    let directionalLight = new THREE.DirectionalLight('white')
+    directionalLight.position.set(1, 2, 0.3).setLength(2)
+    scene.add(directionalLight)
 
     let geometry = new THREE.CubeGeometry(1,1,1)
     let material = new THREE.MeshNormalMaterial({
@@ -103,7 +106,6 @@ const initAR = function(model, modelActions, modelData, idStr) {
         loader = new THREE.FBXLoader()
 
     loader.load(`/api/models/getModel/${model.name}`, function(result) {
-        let modelSceneAr
         if (ext === 'glb')
             modelSceneAr = result.scene
         else if (ext === 'fbx')
@@ -150,6 +152,9 @@ const initAR = function(model, modelActions, modelData, idStr) {
         let dt = clock.getDelta()
 
         if (mixer) mixer.update(dt)
+
+        if (rotateModel && modelSceneAr)
+            modelSceneAr.rotation.y = Date.now() * 0.001  // so something moves
 
         // measure time
         lastTimeMsec = lastTimeMsec || nowMsec - 1000 / 60

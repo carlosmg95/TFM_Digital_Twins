@@ -154,7 +154,6 @@ const init = function(element, model, modelActions, modelData, idStr) {
         modelScene.rotation.y = model.rotation.y
         modelScene.rotation.z = model.rotation.z
 
-        scene.add(modelScene)
         scene.add(new THREE.HemisphereLight(0xaaaaaa, 0x444444))
 
         // Light
@@ -174,6 +173,10 @@ const init = function(element, model, modelActions, modelData, idStr) {
                 `/api/stage/getbackground/cube/${idStr}/posz`,
                 `/api/stage/getbackground/cube/${idStr}/negz`
             ])
+            modelScene.traverse(function(child) {
+                if (child.isMesh)
+                    child.material.envMap = scene.background
+            })
         } else if (model.background && model.background.type === 'texture') {
             scene.background = new THREE.TextureLoader().load(`/api/stage/getbackground/texture/${idStr}/0`)
         } else{
@@ -185,6 +188,7 @@ const init = function(element, model, modelActions, modelData, idStr) {
             scene.add(grid)
         }
 
+        scene.add(modelScene)
         scenes.push(scene)
         if (modelActions)
             setupActions(modelScene, modelActions)
