@@ -6,7 +6,9 @@
 const cookieParser = require('cookie-parser')
 const express = require('express')
 const fileUpload = require('express-fileupload')
+//const fs = require('fs')
 const http = require('http')
+//const https = require('https')
 const methodOverride = require('method-override')
 const morgan = require('morgan')
 const mqttr = require('mqttr')
@@ -123,6 +125,14 @@ app.use(express.static(path.join(__dirname, 'public')))
 // Upload files
 app.use(fileUpload())
 
+// HTTPs
+/*app.use(function(req, res, next) {
+    if (req.headers['x-forwarded-proto'] !== 'https')
+        res.redirect(`https://${req.get('Host')}${req.url}`)
+    else
+        next()
+})*/
+
 // Initialize router
 router.mount(app)
 
@@ -142,7 +152,18 @@ router.mountMQTT(clientMQTT)
 
 // Create HTTP server
 let server = http.createServer(app)
+/*
+// Create HTTPs server
+let options = {
+    "key": fs.readFileSync('certs/dgiotwins-2019-key.pem').toString(),
+    "cert": fs.readFileSync('certs/dgiotwins-2019-cert.pem').toString()
+}
+let serverSecure = https.createServer(options, app)
+serverSecure.listen(8443, function() {
+    console.log(`Express server listening on port ${server.address().port}`)
+})*/
 
+// Web socket connection
 const io = require('socket.io')(server)
 io.on('connection', function (socket) {
     global['io'] = io
