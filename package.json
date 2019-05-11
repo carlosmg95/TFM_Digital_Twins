@@ -26,6 +26,7 @@
   },
   "homepage": "https://github.com/carlosmg95/TFM_Digital_Twins#readme",
   "dependencies": {
+    "ar.js": "^1.6.2",
     "async": "^2.6.1",
     "body-parser": "^1.18.3",
     "bootstrap": "^4.2.1",

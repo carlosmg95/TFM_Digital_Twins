@@ -130,6 +130,12 @@
         <i class="fas fa-chalkboard"></i>
       </button>
     </div>
+    <div class="col-6 col-lg-4 col-xl-auto">
+      <button id="ar-btn" type="button" class="btn btn-success btn-block btn-flat" onclick="showAR()">
+        Modo AR
+        <i class="fas fa-cube"></i>
+      </button>
+    </div>
   </div>
   <!-- .Buttons -->
 </div>  <!-- .Page Content -->
@@ -185,6 +191,7 @@
 <script type="text/javascript" src="/components/three/examples/js/vr/WebVR.js"></script>
 <script type="text/javascript" src="/components/three/examples/js/geometries/BoxLineGeometry.js"></script>
 <script type="text/javascript" src="/components/three/examples/js/libs/dat.gui.min.js"></script>
+<script type="text/javascript" src="/components/ar.js/three.js/build/ar.js"></script>
 
 <script id="template" type="notjs">
   <div id="$name" class="progress">
@@ -200,6 +207,7 @@
 <script type="text/javascript" src="/javascripts/models.js"></script>
 <script type="text/javascript" src="/javascripts/showModels.js"></script>
 <script type="text/javascript" src="/javascripts/vrModel.js"></script>
+<script type="text/javascript" src="/javascripts/arModel.js"></script>
 
 <script type="text/javascript">
     // Get parameters from an Url
@@ -214,6 +222,12 @@
             previous[param[0]] = param[1]
             return previous
         }, {})
+    }
+
+    // Show AR mode
+    const showAR = function() {
+        document.body.innerHTML = ''
+        showARModel('<%- JSON.stringify(model) %>')
     }
 
     // Show normal mode
