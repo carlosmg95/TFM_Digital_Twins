@@ -95,9 +95,19 @@ const initAR = function(model, modelActions, modelData, idStr) {
     mesh.position.y = geometry.parameters.height / 2
     scene.add(mesh)
 
-    let loader = new THREE.GLTFLoader()
-    loader.load(`/api/models/getModel/${model.name}`, function(gltf) {
-        let modelSceneAr = gltf.scene
+    let ext = model.ext, loader
+
+    if (ext === 'glb')
+        loader = new THREE.GLTFLoader()
+    else if (ext === 'fbx')
+        loader = new THREE.FBXLoader()
+
+    loader.load(`/api/models/getModel/${model.name}`, function(result) {
+        let modelSceneAr
+        if (ext === 'glb')
+            modelSceneAr = result.scene
+        else if (ext === 'fbx')
+            modelSceneAr = result
         // Scale
         modelSceneAr.scale.x = model.scale.x * 0.2
         modelSceneAr.scale.y = model.scale.y * 0.2
