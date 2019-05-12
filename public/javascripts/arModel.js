@@ -106,6 +106,8 @@ const initAR = function(model, modelActions, modelData, idStr) {
         loader = new THREE.FBXLoader()
 
     loader.load(`/api/models/getModel/${model.name}`, function(result) {
+        $(`.progress#${model.name}`)[0].hidden = true
+
         if (ext === 'glb')
             modelSceneAr = result.scene
         else if (ext === 'fbx')
@@ -128,7 +130,14 @@ const initAR = function(model, modelActions, modelData, idStr) {
             setupActions(modelSceneAr, modelActions)
         if (modelData)
             showData(modelData)
-    }, undefined, function(e) {
+    }, function(xhr) {
+        let loaded = Math.round((xhr.loaded / xhr.total) * 100)
+        let progressBar = $(`.progress#${model.name} .progress-bar`)
+
+        progressBar.css('width', `${loaded}%`)
+        progressBar.attr('aria-valuenow', loaded)
+        progressBar.text(`${loaded}%`)
+    }, function(e) {
         console.error(e)
     })
 

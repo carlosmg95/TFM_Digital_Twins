@@ -226,7 +226,10 @@
 
     // Show AR mode
     const showAR = function() {
-        document.body.innerHTML = ''
+        document.body.innerHTML = '' +
+          '<div id="<%= stage.model.name %>" class="progress">' +
+            '<div class="progress-bar" role="progressbar" style="width: 0%;" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>' +
+          '</div>'
         rotateModel = false
         showARModel('<%- JSON.stringify(stage.model) %>', '<%- JSON.stringify(stage.actions) %>', '<%- JSON.stringify(stage.data) %>', '<%= stage.id_str %>')
     }
