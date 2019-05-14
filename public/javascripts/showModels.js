@@ -338,6 +338,9 @@ const setupActions = function(modelScene, modelActions) {
                         action.paused = false
                         action.fadeOut(0.2).play()
                         break
+                    case 'STOP_ALL':
+                        modelAnimations.forEach((animation) => mixer.clipAction(animation).fadeOut(0.2).play())
+                        break
                     default:
                         break
                 }
@@ -357,13 +360,13 @@ const showActionsData = function(actionName, values) {
 const showData = function(modelData) {
     modelData = JSON.parse(modelData)
 
-    for (let i in modelData) {
-        switch(modelData[i].type) {
+    modelData.forEach(function(datum) {
+        switch(datum.type) {
             case 0:
-                showActionsData(i, modelData[i].values)
+                showActionsData(datum.name, datum.values)
                 break
         }
-    }
+    })
 }
 
 const showModel = function(model, className, modelActions, modelData, idStr) {

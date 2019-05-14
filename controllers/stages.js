@@ -197,7 +197,7 @@ module.exports.readData = function(topic, payload, message) {
             sendAction(dataid, data, len, stageid, username)
             break
         default:
-            break
+            return
     }
 }
 
@@ -212,33 +212,50 @@ const saveData = function(stageId, dataName, type, value) {
             mongodb.read('stages', { "id_str": stageId }, function(error, docs) {
                 if (error || !docs[0])
                     return
-                let data, dataAux
-                if (docs[0].data) {
+                let data, dataAux, dataNames
+
+                if (docs[0].data) {  // If there is saved data
                     data = docs[0].data
-                    if (data[dataName]) {
-                        let values = data[dataName].values
-                        if (value.value !== values[0].value)  // If different value, the new value is in the first position
-                            values = [value, ...values]
-                        else if (value.value === 'START')  // If same value and it is "START", it replaces the value
-                            values[0] = value
-                        // If same value and it's not "START", it doesn't change
-                        data[dataName].values = values
-                        // Set the data in the last position
-                        dataAux = data[dataName]
-                        delete data[dataName]
-                        data[dataName] = dataAux
+
+                    if (value.value === 'STOP_ALL') {
+                        dataNames = data.filter((datum) => datum.type === type).map((datum) => datum.name)  // Update all data
+                        value.value = 'STOP'
                     } else {
-                        data[dataName] = {
-                            "type": type,
-                            "values": [value]
-                        }
+                        dataNames = [dataName]  // Update only one datum
                     }
-                } else {
-                    data = {}
-                    data[dataName] = {
+
+                    dataNames.forEach(function(dataName) {
+                        if (data.reduce((pre, curr) => pre |= (curr.name === dataName), false)) {  // If there is saved data with this name
+                            let index = data.findIndex((datum) => datum.name === dataName)
+                            let {name, type, values} = data[index]
+
+                            if (value.value !== values[0].value)  // If different value, the new value is in the first position
+                                values = [value, ...values]
+                            else if (value.value === 'START')  // If same value and it is "START", it replaces the value
+                                values[0] = value
+                            // If same value and it's not "START", it doesn't change
+
+                            // Set the data in the last position
+                            data.splice(index, 1)
+                            data.push({
+                                "name": dataName,
+                                "type": type,
+                                "values": values
+                            })
+                        } else {  // If there is no saved data with this name yet
+                            data.push({
+                                "name": dataName,
+                                "type": type,
+                                "values": [value]
+                            })
+                        }
+                    })
+                } else {  // If there is no saved data yet
+                    data = [{
+                        "name": dataName,
                         "type": type,
                         "values": [value]
-                    }
+                    }]
                 }
                 cb(null, data)
             }, { "project": { "data": 1, "_id": 0 } })
@@ -262,34 +279,26 @@ const sendAction = function(actionName, data, len, stageId, username) {
     switch(data) {
         case 0:
             status = 'START'
-            value = {
-                "value": "START",
-                "timestamp": new Date()
-            }
             break
         case 1:
             status = 'PAUSE'
-            value = {
-                "value": "PAUSE",
-                "timestamp": new Date()
-            }
             break
         case 2:
             status = 'RESUME'
-            value = {
-                "value": "RESUME",
-                "timestamp": new Date()
-            }
             break
         case 3:
             status = 'STOP'
-            value = {
-                "value": "STOP",
-                "timestamp": new Date()
-            }
+            break
+        case 4:
+            status = 'STOP_ALL'
             break
         default:
-            break
+            return
+    }
+
+    value = {
+        "value": status,
+        "timestamp": new Date()
     }
 
     saveData(stageId, actionName, 0, value)
