@@ -96,7 +96,7 @@ module.exports.deleteUser = function(req, res, next) {
         },
         // Get the user's models
         function(cb) {
-            mongodb.read('models', { "owenerId": userId }, function(error, docs) {
+            mongodb.read('models', { "owner_id": userId }, function(error, docs) {
                 if (error) {
                     req.error = error
                     return res.renderError(500)

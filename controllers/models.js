@@ -25,9 +25,9 @@ module.exports.checkSize = function(req, res, next) {
 // Delete a model from the server
 module.exports.deleteModel = function(req, res, next) {
     let model = req.body
-    let owenerId = req.session.user.id
+    let ownerId = req.session.user.id
 
-    deleteModelAux(model, owenerId, function(error) {
+    deleteModelAux(model, ownerId, function(error) {
         if (error) {
             log.error(error.message)
             req.error = error
@@ -38,11 +38,11 @@ module.exports.deleteModel = function(req, res, next) {
 }
 
 // Auxialir function to delete a model
-module.exports.deleteModelAux = deleteModelAux = function({name, ext}, owenerId, callback) {
+module.exports.deleteModelAux = deleteModelAux = function({name, ext}, ownerId, callback) {
     async.parallel([
         // Delete the model from the database
         function deleteModel(cb) {
-            mongodb.delete('models', {name, owenerId}, function(error, results) {
+            mongodb.delete('models', { name, "owner_id": ownerId }, function(error, results) {
                 //If error in query
                 if (error) {
                     req.error = error
@@ -55,7 +55,7 @@ module.exports.deleteModelAux = deleteModelAux = function({name, ext}, owenerId,
         // Remove the model file
         function removeFile(cb) {
             let filePath = path.join(__dirname, '../files/models')
-            filePath = `${filePath}/${owenerId}_${name}.${ext}`
+            filePath = `${filePath}/${ownerId}_${name}.${ext}`
             fs.unlink(filePath, function(error) {
                 if (error) {
                     req.error = error.code === 'ENOENT' ? error.message.split(', unlink')[0] : error  // Don't show the file path
@@ -71,9 +71,9 @@ module.exports.deleteModelAux = deleteModelAux = function({name, ext}, owenerId,
 // Get file of a model
 module.exports.getModel = function(req, res, next) {
     let {name} = req.params
-    let owenerId = req.session.user.id
+    let ownerId = req.session.user.id
 
-    mongodb.read('models', {name, owenerId}, function(error, docs) {
+    mongodb.read('models', { name, "owner_id": ownerId }, function(error, docs) {
         //If error in query
         if (error) {
             req.error = error
@@ -94,8 +94,8 @@ module.exports.getModel = function(req, res, next) {
 // Get the models of an user
 module.exports.getModels = function(req, res, next) {
     let {name} = req.params
-    let owenerId = req.session.user.id
-    let where = name ? {name, owenerId} : {owenerId}  // If there isn't a name, it get all models
+    let ownerId = req.session.user.id
+    let where = name ? { name, "owner_id": ownerId } : { "owner_id": ownerId }  // If there isn't a name, it get all models
 
     mongodb.read('models', where, function(error, docs) {
         if (error) {
@@ -114,9 +114,9 @@ module.exports.getModels = function(req, res, next) {
 // Check if an name exist
 module.exports.nameExist = function(req, res, next) {
     let name = req.params.name
-    let owenerId = req.session.user.id
+    let ownerId = req.session.user.id
 
-    mongodb.read('models', {name, owenerId}, function(error, docs) {
+    mongodb.read('models', { name, "owner_id": ownerId }, function(error, docs) {
         if (error) {
             req.error = error
             return res.renderError(500)
@@ -136,7 +136,7 @@ module.exports.nameExist = function(req, res, next) {
 
 module.exports.updatePosition = function(req, res, next) {
     let name = req.body.name,
-        owenerId = req.session.user.id,
+        ownerId = req.session.user.id,
         rotationX = +req.body['rotation[x]'],
         rotationY = +req.body['rotation[y]'],
         rotationZ = +req.body['rotation[z]'],
@@ -156,7 +156,7 @@ module.exports.updatePosition = function(req, res, next) {
         }
     }
 
-    mongodb.update('models', {name}, set, function(error, result) {
+    mongodb.update('models', { name, "owner_id": ownerId }, set, function(error, result) {
         if (error) {
             req.error = error
             return res.renderError(500)
@@ -171,9 +171,9 @@ module.exports.uploadModel = function(req, res, next) {
     let fileExt = file.name.split('.').pop()
     let fileName = req.body['model-name']
     let filePath = path.join(__dirname, '../files/models')
-    let owenerId = req.session.user.id
+    let ownerId = req.session.user.id
 
-    filePath = `${filePath}/${owenerId}_${fileName}.${fileExt}`
+    filePath = `${filePath}/${ownerId}_${fileName}.${fileExt}`
 
     async.series([
         // Check the size
@@ -186,7 +186,7 @@ module.exports.uploadModel = function(req, res, next) {
         },
         // Check if the name existes
         function checkName(cb) {
-            mongodb.read('models', {"name": fileName, owenerId}, function(error, docs) {
+            mongodb.read('models', { "name": fileName, "owner_id": ownerId }, function(error, docs) {
                 if (error) {
                     log.error(error.message)
                     return res.renderError(500)
@@ -209,7 +209,7 @@ module.exports.uploadModel = function(req, res, next) {
                     req.error = error
                     return res.renderError(500)
                 } else {
-                    log.debug(`File ${owenerId}_${fileName}.${fileExt} saved`)
+                    log.debug(`File ${ownerId}_${fileName}.${fileExt} saved`)
                     cb()
                 }
             })
@@ -230,7 +230,7 @@ module.exports.uploadModel = function(req, res, next) {
                     "y": 0,
                     "z": 0
                 },
-                owenerId
+                "owner_id": ownerId
             }
             mongodb.create('models', article, function(error, result) {
                 if (error) {

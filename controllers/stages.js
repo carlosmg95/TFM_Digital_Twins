@@ -17,12 +17,12 @@ module.exports.create = function(req, res, next) {
     let background = req.files['background-file']
     let {actions, id_str, model, name} = JSON.parse(req.body.data)
     let filePathBackgrounds = path.join(__dirname, '../files/backgrounds')
-    let owenerId = req.session.user.id
+    let ownerId = req.session.user.id
 
     async.series([
         // Get the model data
         function getModel(cb) {
-            mongodb.read('models', {owenerId, "name": model.name}, function(error, docs) {
+            mongodb.read('models', {"owner_id": ownerId, "name": model.name}, function(error, docs) {
                 if (error)
                     return cb(error)
 
@@ -37,7 +37,7 @@ module.exports.create = function(req, res, next) {
                 cb()
             } else if (!background.length) {
                 let backgroundStage, fileExt = background.name.split('.').pop()
-                filePath = `${filePathBackgrounds}/${owenerId}_${id_str}.${fileExt}`
+                filePath = `${filePathBackgrounds}/${ownerId}_${id_str}.${fileExt}`
                 backgroundStage = {
                     "type": "texture",
                     "path": filePath
@@ -61,13 +61,13 @@ module.exports.create = function(req, res, next) {
                     let fileExt = file.name.split('.').pop()
                     let fileName = file.name.split('.')[0]
                     let orderNames = ['posx', 'negx', 'posy', 'negy', 'posz', 'negz']
-                    filePath = `${filePathBackgrounds}/${owenerId}_${id_str}_${fileName}.${fileExt}`
+                    filePath = `${filePathBackgrounds}/${ownerId}_${id_str}_${fileName}.${fileExt}`
                     file.mv(filePath, function(error, a, b,c,d) {
                         if (error) {
                             req.error = error
                             return res.renderError(500)
                         } else {
-                            let fileItemName = `${filePathBackgrounds}/${owenerId}_${id_str}_${fileName}.${fileExt}`
+                            let fileItemName = `${filePathBackgrounds}/${ownerId}_${id_str}_${fileName}.${fileExt}`
                             backgroundStage.path[orderNames.indexOf(fileName)] = fileItemName
                             log.debug(`File ${fileItemName} saved`)
                         }
@@ -82,7 +82,7 @@ module.exports.create = function(req, res, next) {
             let article = {
                 name,
                 id_str,
-                "owener_id": owenerId,
+                "owner_id": ownerId,
                 model,
                 actions
             }
@@ -106,11 +106,11 @@ module.exports.create = function(req, res, next) {
 
 module.exports.getBackground = function(req, res, next) {
     let {idStr, pos, type} = req.params
-    let owenerId = req.session.user.id
+    let ownerId = req.session.user.id
 
     let orderNames = ['posx', 'negx', 'posy', 'negy', 'posz', 'negz']
 
-    mongodb.read('stages', { "id_str": idStr }, function(error, docs) {
+    mongodb.read('stages', { "id_str": idStr, "owner_id": ownerId }, function(error, docs) {
         //If error in query
         if (error) {
             req.error = error
@@ -133,8 +133,8 @@ module.exports.getBackground = function(req, res, next) {
 
 module.exports.getStages = function(req, res, next) {
     let {id_str} = req.params
-    let owenerId = req.session.user.id
-    let where = id_str ? {id_str, "owener_id": owenerId} : {"owener_id": owenerId}  // If there isn't a id_str, it get all models
+    let ownerId = req.session.user.id
+    let where = id_str ? {id_str, "owner_id": ownerId} : {"owner_id": ownerId}  // If there isn't a id_str, it get all models
 
     mongodb.read('stages', where, function(error, docs) {
         if (error) {
@@ -172,9 +172,9 @@ module.exports.idStrExist = function(req, res, next) {
 }
 
 module.exports.new = function(req, res, next) {
-    let owenerId = req.session.user.id
+    let ownerId = req.session.user.id
 
-    mongodb.read('models', {owenerId}, function(error, docs) {
+    mongodb.read('models', { "owner_id": ownerId }, function(error, docs) {
         if (error) {
             req.error = error
             log.error(req.error)
