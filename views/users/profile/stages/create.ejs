@@ -101,20 +101,34 @@
     </div>  <!-- .Model Data -->
 
     <!-- Actions Data -->
-    <div id="actions-data" class="col-12" hidden>
+    <div id="actions-data" class="col-12 mb-2" hidden>
       <!-- Card -->
       <div class="card border-left-warning">
         <h5 class="card-header font-weight-bold text-primary">Datos de acciones</h5>
         <!-- Body -->
         <div class="card-body">
           <!-- Actions -->
-          <div class="row">
+          <div class="row actions">
             
           </div>  <!-- .Actions -->
         </div>  <!-- .Body -->
       </div>  <!-- .Card -->
     </div>  <!-- .Actions Data -->
 
+    <!-- Events Data -->
+    <div id="events-data" class="col-12 mb-2" hidden>
+      <!-- Card -->
+      <div class="card border-left-danger">
+        <h5 class="card-header font-weight-bold text-primary">Datos de eventos</h5>
+        <!-- Body -->
+        <div class="card-body">
+          <!-- Events -->
+          <div class="row events">
+
+          </div>  <!-- .Events -->
+        </div>  <!-- .Body -->
+      </div>  <!-- .Card -->
+    </div>  <!-- .Events Data -->
   </div>   <!-- .Data -->
 </div>  <!-- .Page Content -->
 
@@ -237,6 +251,61 @@
   </div>  <!-- .Animation form -->
 </script>
 
+<script id="template-model-events" type="notjs">
+  <!-- Event -->
+  <div id="event-item-$n" class="col-12 col-lg-6 mb-3">
+    <!-- Event Card -->
+    <div class="card">
+      <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+        <h6 class="m-0 font-weight-bold text-secondary">Evento</h6>
+        <a href="javascript:void(0);" role="button" onclick="removeEvent($n)">
+          <i class="fas fa-times"></i>
+        </a>
+      </div>
+      <!-- Event body -->
+      <div class="card-body">
+        <!-- Event form -->
+        <form id="form-event-$n">
+          <!-- Name -->
+          <div class="form-group">
+            <label>Nombre</label>
+            <input type="text" id="event-name-$n" class="form-control event-name" placeholder="pulsar_boton" onchange="checkActionName(this.value, $n)" required>
+            <div class="form-group-error" data-err="Este campo se debe rellenar"><small class="form-text text-danger"></small></div>
+          </div>  <!-- .Name -->
+          <div class="row">
+            <div class="col-6">
+              <strong>Partes del modelo</strong>
+              $children
+            </div>
+            <!-- HTML events -->
+            <div class="col-6">
+              <strong>Eventos</strong>
+              <div class="form-check">
+                <input class="form-check-input" type="radio" name="event-html-event-$n" value="click" checked>
+                <label class="form-check-label">
+                  <em>Click</em>
+                </label>
+              </div>
+              <div class="form-check">
+                <input class="form-check-input" type="radio" name="event-html-event-$n" value="dblclick">
+                <label class="form-check-label">
+                  Doble <em>click</em>
+                </label>
+              </div>
+              <div class="form-check">
+                <input class="form-check-input" type="radio" name="event-html-event-$n" value="mousemove">
+                <label class="form-check-label">
+                  Pasar ratón
+                </label>
+              </div>
+            </div>  <!-- .HTML events -->
+          </div>
+        </form>  <!-- .Event form -->
+      </div>  <!-- .Event body -->
+    </div>  <!-- .Event Card -->
+  </div>  <!-- .Event -->
+</script>
+
 <script id="template-model-options" type="notjs">
   <!-- Edit -->
   <div id="edit-model-stage" class="col-12 col-lg-6">
@@ -315,7 +384,7 @@
     <!-- Add Event -->
     <div class="row mb-1">
       <div class="col-12">
-        <a class="btn btn-sm btn-danger shadow-sm btn-icon-split w-100">
+        <a class="btn btn-sm btn-danger shadow-sm btn-icon-split w-100" onclick="newEvent()">
           <span class="text text-white">Añadir evento</span>
         </a>
       </div>
@@ -349,18 +418,23 @@
       if (value === 'Subir modelo') {
           $('#model-data')[0].hidden = true
           $('#actions-data')[0].hidden = true
+          $('#events-data')[0].hidden = true
           $('#models-list')[0].innerHTML = ''
           $('#upload-modal').modal('show')
       } else if (value === '-- Selecciona --') {
           $('#model-data')[0].hidden = true
           $('#actions-data')[0].hidden = true
+          $('#events-data')[0].hidden = true
           $('#models-list')[0].innerHTML = ''
       } else {
           let actions = $('#actions-data').find('.card-body').find('.row')
           actions.text('')
+          let events = $('#events-data').find('.card-body').find('.row')
+          events.text('')
           $('#model-data > .card').css('height', `${$('#stage-data')[0].clientHeight}px`)
           $('#model-data')[0].hidden = false
           $('#actions-data')[0].hidden = true
+          $('#events-data')[0].hidden = true
           await showModelByName(value, 'model-data')
           showExtraOptions()
       }
@@ -368,7 +442,7 @@
 
   const newAction = function() {
       let actionData = $('#actions-data')
-      let actions = $('#actions-data').find('.card-body').find('.row')
+      let actions = $('#actions-data').find('.card-body').find('.row.actions')
       let actionsTemplate = document.getElementById('template-model-actions').text
       let animations = getAnimations()
       let animationsTemplate = document.getElementById('template-model-animations').text
@@ -383,6 +457,27 @@
       actionData[0].hidden = false
   }
 
+  const newEvent = function() {
+      let eventData = $('#events-data')
+      let events = $('#events-data').find('.card-body').find('.row.events')
+      let eventsTemplate = document.getElementById('template-model-events').text
+      let nEvents = events[0].children.length
+      let parts = getModelChildren().map(function(child) {
+        return '<div class="form-check">' +
+               `  <input class="form-check-input" type="checkbox" name="event-html-event-${nEvents + 1}" value="${child}">` +
+               '  <label class="form-check-label">' +
+               `    ${child}` +
+               '  </label>' +
+               '</div>'
+      }).join('')
+
+      eventsTemplate = eventsTemplate.replace(/\$n/g, nEvents + 1)
+      eventsTemplate = eventsTemplate.replace(/\$children/g, parts)
+
+      events.append(eventsTemplate)
+      eventData[0].hidden = false
+  }
+
   const removeAction = function(action) {
       let actions = $('#actions-data').find('.card-body').find('.row')
       let div = $(`div#action-item-${action}`)
@@ -394,6 +489,19 @@
       let nHiddens = $('div[id^=action-item].hidden').length
       if (nHiddens === nActions)
           $('#actions-data')[0].hidden = true
+  }
+
+  const removeEvent = function(event) {
+      let events = $('#events-data').find('.card-body').find('.row')
+      let div = $(`div#event-item-${event}`)
+      let nEvents = events[0].children.length
+
+      div.addClass('hidden')
+      div[0].hidden = true
+
+      let nHiddens = $('div[id^=event-item].hidden').length
+      if (nHiddens === nEvents)
+          $('#events-data')[0].hidden = true
   }
 
   const showExtraOptions = function() {

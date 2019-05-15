@@ -72,6 +72,22 @@ const getAnimations = function() {
     return modelAnimations && modelAnimations.map((animation) => animation.name)
 }
 
+const getModelChildren = function(obj) {
+    obj = obj || modelScene
+    let children = []
+
+    if (!obj.children) {
+        return children
+    } else {
+        obj.children.forEach(function(child) {
+            if (child.isMesh)
+                children = [...children, child.name]
+            children = [...children, ...getModelChildren(child)]
+        })
+    }
+    return children
+}
+
 const getRunningTime = function(values, now) {
     let time = now
     switch(values[0].value) {
