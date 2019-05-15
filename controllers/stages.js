@@ -15,7 +15,7 @@ const MAX_SIZE_MSG_MQTT = 256
 
 module.exports.create = function(req, res, next) {
     let background = req.files['background-file']
-    let {actions, id_str, model, name} = JSON.parse(req.body.data)
+    let {actions, events, id_str, model, name} = JSON.parse(req.body.data)
     let filePathBackgrounds = path.join(__dirname, '../files/backgrounds')
     let ownerId = req.session.user.id
 
@@ -84,7 +84,8 @@ module.exports.create = function(req, res, next) {
                 id_str,
                 "owner_id": ownerId,
                 model,
-                actions
+                actions,
+                events
             }
             mongodb.create('stages', article, function(error, result) {
                 if (error)

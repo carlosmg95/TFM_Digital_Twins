@@ -44,8 +44,8 @@ const createStage = async function() {
         let animations = $(`div[id^=form-animation-${n}-`)
         let animationsData = []
 
-        let rightActionName = checkActionName(actionName, n)
-        rightActionName &= notRepeatActionName(actionName, actionsNames, n)
+        let rightActionName = checkActionEventName(actionName, 'action', n)
+        rightActionName &= notRepeatActionEventName(actionName, actionsNames, 'action', n)
 
         rightValues &= rightActionName
 
@@ -78,13 +78,55 @@ const createStage = async function() {
         animationsData = []
     }
 
+    // Events data
+    let events = $('div[id^=event-item-]')
+    let eventsData = []
+    let eventsNames = []
+
+    for (let i = 0; i < events.length; i++) {
+        let event = events[i]
+        let n = i + 1
+        if ($(event).hasClass('hidden'))
+            continue
+        let eventName = $(event).find('input.event-name').val()
+
+        let rightEventName = checkActionEventName(eventName, 'event', n)
+        rightEventName &= notRepeatActionEventName(eventName, eventsNames, 'event', n)
+
+        rightValues &= rightEventName
+
+        if (rightEventName) {
+            eventsNames.push(eventName)
+            hideErrorMsg($(`#event-name-${n}`))
+        }
+
+        let children = $(event).find('input[name^=event-children-]:checked').map((i, event) => event.value).toArray()
+        let htmlEvent = $(event).find('input[name^=event-html-event-]:checked').val()
+
+        let rightChildren = children.length > 0
+
+        if (rightChildren)
+            hideErrorMsg($(`[name=event-children-${n}]`))
+        else
+            showErrorMsg($(`[name=event-children-${n}]`))
+
+        rightValues &= rightChildren
+
+        eventsData.push({
+            "name": eventName,
+            "event": htmlEvent,
+            children
+        })
+    }
+
     // Complet data
 
     let data = {
         name,
         "id_str": idStr,
         model,
-        "actions": actionsData
+        "actions": actionsData,
+        "events": eventsData
     }
 
     background.append('data', JSON.stringify(data))
@@ -121,18 +163,18 @@ const createStage = async function() {
 //  Private functions                                                                                                 //
 // ================================================================================================================== //
 
-const checkActionName = function(actionName, n) {
-    if (!actionName) {
-        showErrorMsg($(`#action-name-${n}`))
+const checkActionEventName = function(name, item, n) {
+    if (!name) {
+        showErrorMsg($(`#${item}-name-${n}`))
         return false
     } else {
-        let wrongActionName = actionName.search(wrongRegexp) !== -1
+        let wrongName = name.search(wrongRegexp) !== -1
 
-        if (wrongActionName) {
-            showErrorMsg($(`#action-name-${n}`), 'El nombre no puede contener espacios ni caracteres especiales')
+        if (wrongName) {
+            showErrorMsg($(`#${item}-name-${n}`), 'El nombre no puede contener espacios ni caracteres especiales')
             return false
         } else {
-            hideErrorMsg($(`#action-name-${n}`))
+            hideErrorMsg($(`#${item}-name-${n}`))
             return true
         }
     }
@@ -222,9 +264,9 @@ const hideErrorMsg = function(inputElement) {
     small.innerText = ''
 }
 
-const notRepeatActionName = function(item, total, n) {
-    if (total.indexOf(item) > -1) {
-        showErrorMsg($(`#action-name-${n}`), 'El nombre está repetido')
+const notRepeatActionEventName = function(name, names, item, n) {
+    if (names.indexOf(name) > -1) {
+        showErrorMsg($(`#${item}-name-${n}`), 'El nombre está repetido')
         return false
     } else {
         return true

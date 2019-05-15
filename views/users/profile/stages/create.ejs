@@ -203,7 +203,7 @@
           <!-- Name -->
           <div class="form-group">
             <label>Nombre</label>
-            <input type="text" id="action-name-$n" class="form-control action-name" placeholder="volar" onchange="checkActionName(this.value, $n)" required>
+            <input type="text" id="action-name-$n" class="form-control action-name" placeholder="volar" onchange="checkActionEventName(this.value, 'action', $n)" required>
             <div class="form-group-error" data-err="Este campo se debe rellenar"><small class="form-text text-danger"></small></div>
           </div>  <!-- .Name -->
           <div id="action-animations-$n">
@@ -269,7 +269,7 @@
           <!-- Name -->
           <div class="form-group">
             <label>Nombre</label>
-            <input type="text" id="event-name-$n" class="form-control event-name" placeholder="pulsar_boton" onchange="checkActionName(this.value, $n)" required>
+            <input type="text" id="event-name-$n" class="form-control event-name" placeholder="pulsar_boton" onchange="checkActionEventName(this.value, 'event', $n)" required>
             <div class="form-group-error" data-err="Este campo se debe rellenar"><small class="form-text text-danger"></small></div>
           </div>  <!-- .Name -->
           <div class="row">
@@ -462,13 +462,15 @@
       let events = $('#events-data').find('.card-body').find('.row.events')
       let eventsTemplate = document.getElementById('template-model-events').text
       let nEvents = events[0].children.length
-      let parts = getModelChildren().map(function(child) {
-        return '<div class="form-check">' +
-               `  <input class="form-check-input" type="checkbox" name="event-html-event-${nEvents + 1}" value="${child}">` +
-               '  <label class="form-check-label">' +
-               `    ${child}` +
-               '  </label>' +
-               '</div>'
+      let parts = getModelChildren().map(function(child, i) {
+        let s =        '<div class="form-check">'
+        s += i === 0 ? '  <div class="form-group-error" data-err="Debes elegir al menos uno"><small class="form-text text-danger"></small></div>' : ''
+        s +=           `  <input class="form-check-input" type="checkbox" name="event-children-${nEvents + 1}" value="${child}">` +
+                       '  <label class="form-check-label">' +
+                       `    ${child}` +
+                       '  </label>' +
+                       '</div>'
+        return s
       }).join('')
 
       eventsTemplate = eventsTemplate.replace(/\$n/g, nEvents + 1)
