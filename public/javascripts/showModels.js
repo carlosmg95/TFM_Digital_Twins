@@ -2,6 +2,7 @@ let actions, activeAction, clock, mixer, modelAnimations, modelName, previousAct
 let canvas
 let content = document.getElementById('models-list')
 let modelScene, scenes = [], renderer
+let selectedObject = null, lastSelectedObject = null
 let rotateModel = true
 
 const animate = function() {
@@ -72,6 +73,21 @@ const getAnimations = function() {
     return modelAnimations && modelAnimations.map((animation) => animation.name)
 }
 
+const getIntersects = function(x, y) {
+    let mouseVector = new THREE.Vector3()
+    let raycaster = new THREE.Raycaster()
+
+    let element = scenes[0].userData.element
+
+    x = (x / element.offsetWidth) * 2 - 1
+    y = -(y / element.offsetHeight) * 2 + 1
+
+    mouseVector.set(x, y, 0.5)
+    raycaster.setFromCamera(mouseVector, scenes[0].userData.camera)
+
+    return raycaster.intersectObject(modelScene, true)
+}
+
 const getModelChildren = function(obj) {
     obj = obj || modelScene
     let children = []
@@ -109,7 +125,7 @@ const getRunningTime = function(values, now) {
     return time.toString().indexOf('false') === -1 ? time : false
 }
 
-const init = function(element, model, modelActions, modelData, idStr) {
+const init = function(element, model, modelActions, modelData, modelEvents, idStr) {
     canvas = document.getElementById('c')
     canvas.style.height = `${window.innerHeight}px`
     clock = new THREE.Clock()
@@ -210,6 +226,12 @@ const init = function(element, model, modelActions, modelData, idStr) {
             setupActions(modelScene, modelActions)
         if (modelData)
             showData(modelData)
+        if (modelEvents) {
+            setupEvents(modelScene, modelEvents)
+            element.addEventListener('click', onMouseClick, false)
+            element.addEventListener('dblclick', onMouseDblClick, false)
+            element.addEventListener('mousemove', onMouseMove, false)
+        }
     }, function(xhr) {
         let loaded = Math.round((xhr.loaded / xhr.total) * 100)
         let progressBar = $(`.progress#${model.name} .progress-bar`)
@@ -224,6 +246,66 @@ const init = function(element, model, modelActions, modelData, idStr) {
     renderer = new THREE.WebGLRenderer({ canvas: canvas, antialias: true })
     renderer.setClearColor(0xffffff, 1)
     renderer.setPixelRatio(window.devicePixelRatio)
+}
+
+const onMouseClick = function(event) {
+    event.preventDefault()
+
+    if (selectedObject && selectedObject.material) {
+        selectedObject.material.emissive.r = 0
+        selectedObject = null
+    }
+
+    let intersects = getIntersects(event.layerX, event.layerY)
+
+    if (intersects.length > 0) {
+        let res = intersects.filter((res) => res && res.object)[0]
+        selectedObject = res.object
+        selectedObject.material.emissive.r = 0.5
+        console.log(`Click en ${selectedObject.name}`)
+    }
+}
+
+const onMouseDblClick = function(event) {
+    event.preventDefault()
+
+    let intersects = getIntersects(event.layerX, event.layerY)
+
+    if (intersects.length > 0) {
+        let res = intersects.filter((res) => res && res.object)[0]
+        selectedObject = res.object
+        selectedObject.material.emissive.g = 0.5
+        console.log(`Doble click en ${selectedObject.name}`)
+    }
+}
+
+const onMouseMove = function(event) {
+    event.preventDefault()
+
+    let intersects = getIntersects(event.layerX, event.layerY)
+
+    if (intersects.length > 0) {
+        let res = intersects.filter((res) => res && res.object)[0]
+        selectedObject = res.object
+
+        if (lastSelectedObject && (selectedObject.name !== lastSelectedObject.name)) {
+            if (lastSelectedObject.material) {
+                lastSelectedObject.material.emissive.b = 0
+                console.log(`Sale de ${lastSelectedObject.name}`)
+            }
+            console.log(`Entra en ${selectedObject.name}`)
+        } else if (!lastSelectedObject) {
+            console.log(`Entra en ${selectedObject.name}`)
+        }
+        selectedObject.material.emissive.b = 0.5
+        lastSelectedObject = selectedObject
+    } else {
+        if (lastSelectedObject) {
+            lastSelectedObject.material.emissive.b = 0
+            console.log(`Sale de ${lastSelectedObject.name}`)
+            lastSelectedObject = null
+        }
+    }
 }
 
 const render = function() {
@@ -385,7 +467,7 @@ const showData = function(modelData) {
     })
 }
 
-const showModel = function(model, className, modelActions, modelData, idStr) {
+const showModel = function(model, className, modelActions, modelData, modelEvents, idStr) {
     model = JSON.parse(model)
 
     content.innerHTML = ''
@@ -410,7 +492,7 @@ const showModel = function(model, className, modelActions, modelData, idStr) {
     element.id = `model-${model.name}-${model.ext}`
     element.innerHTML = template.replace(/\$name/g, model.name)
 
-    init(element, model, modelActions, modelData, idStr)
+    init(element, model, modelActions, modelData, modelEvents, idStr)
     animate()
 }
 
@@ -504,7 +586,7 @@ const showStages = function() {
                 element.innerHTML = template.replace(/\$id/g, stage.id_str)
                 element.innerHTML = element.innerHTML.replace(/\$name/g, stage.name)
                 element.innerHTML = element.innerHTML.replace(/\$modelName/g, stage.model.name)
-                init(element, stage.model, null, null, stage.id_str)
+                init(element, stage.model, null, null, null, stage.id_str)
             }
             animate()
         }
