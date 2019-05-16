@@ -2,7 +2,7 @@ let actions, activeAction, clock, mixer, modelAnimations, modelName, previousAct
 let canvas
 let content = document.getElementById('models-list')
 let modelScene, scenes = [], renderer
-let selectedObject = null, lastSelectedObject = null
+let clickTimer = null, selectedObject = null, lastSelectedObject = null
 let rotateModel = true
 
 const animate = function() {
@@ -227,7 +227,7 @@ const init = function(element, model, modelActions, modelData, modelEvents, idSt
         if (modelData)
             showData(modelData)
         if (modelEvents) {
-            setupEvents(modelScene, modelEvents)
+            //setupEvents(modelScene, modelEvents)
             element.addEventListener('click', onMouseClick, false)
             element.addEventListener('dblclick', onMouseDblClick, false)
             element.addEventListener('mousemove', onMouseMove, false)
@@ -251,18 +251,18 @@ const init = function(element, model, modelActions, modelData, modelEvents, idSt
 const onMouseClick = function(event) {
     event.preventDefault()
 
-    if (selectedObject && selectedObject.material) {
-        selectedObject.material.emissive.r = 0
-        selectedObject = null
-    }
-
     let intersects = getIntersects(event.layerX, event.layerY)
 
     if (intersects.length > 0) {
+        scenes[0].userData.element.parentElement.removeEventListener('click', onMouseClick, false)
         let res = intersects.filter((res) => res && res.object)[0]
-        selectedObject = res.object
-        selectedObject.material.emissive.r = 0.5
-        console.log(`Click en ${selectedObject.name}`)
+        clearTimeout(clickTimer)
+        clickTimer = setTimeout(function() {
+            scenes[0].userData.element.parentElement.addEventListener('click', onMouseClick, false)
+            selectedObject = res.object
+            selectedObject.material.emissive.r = 0.5
+            console.log(`Click en ${selectedObject.name}`)
+        }, 200)
     }
 }
 
@@ -272,6 +272,8 @@ const onMouseDblClick = function(event) {
     let intersects = getIntersects(event.layerX, event.layerY)
 
     if (intersects.length > 0) {
+        clearTimeout(clickTimer)
+        scenes[0].userData.element.parentElement.addEventListener('click', onMouseClick, false)
         let res = intersects.filter((res) => res && res.object)[0]
         selectedObject = res.object
         selectedObject.material.emissive.g = 0.5
