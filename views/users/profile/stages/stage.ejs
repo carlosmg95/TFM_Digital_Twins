@@ -1,5 +1,7 @@
 <script type="text/javascript">
   const existingNameErrorCode = +"<%= fns.getErrorCode('EXISTING_MODEL_NAME') %>"
+  const stageId = '<%= stage.id_str %>'
+  const username = '<%= user.username %>'
   const wrongPassErrorCode = +"<%= fns.getErrorCode('WRONG_PASSWORD') %>"
 </script>
 
@@ -231,19 +233,19 @@
             '<div class="progress-bar" role="progressbar" style="width: 0%;" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>' +
           '</div>'
         rotateModel = false
-        showARModel('<%- JSON.stringify(stage.model) %>', '<%- JSON.stringify(stage.actions) %>', '<%- JSON.stringify(stage.data) %>', '<%= stage.id_str %>')
+        showARModel('<%- JSON.stringify(stage.model) %>', '<%- JSON.stringify(stage.actions) %>', '<%- JSON.stringify(stage.data) %>')
     }
 
     // Show normal mode
     const showNormal = function() {
-        showModel('<%- JSON.stringify(stage.model) %>', 'model-show', '<%- JSON.stringify(stage.actions) %>', '<%- JSON.stringify(stage.data) %>', '<%- JSON.stringify(stage.events) %>', '<%= stage.id_str %>')
+        showModel('<%- JSON.stringify(stage.model) %>', 'model-show', '<%- JSON.stringify(stage.actions) %>', '<%- JSON.stringify(stage.data) %>', '<%- JSON.stringify(stage.events) %>')
         $('button#normal-btn')[0].hidden = true
         $('button#vr-btn')[0].hidden = false
     }
 
     // Show VR mode
     const showVR = function() {
-        showVRModel('<%- JSON.stringify(stage.model) %>', '<%- JSON.stringify(stage.actions) %>', '<%- JSON.stringify(stage.data) %>', '<%= stage.id_str %>')
+        showVRModel('<%- JSON.stringify(stage.model) %>', '<%- JSON.stringify(stage.actions) %>', '<%- JSON.stringify(stage.data) %>')
         $('button#normal-btn')[0].hidden = false
         $('button#vr-btn')[0].hidden = true
     }
@@ -374,7 +376,7 @@
         else
             $('button#vr-btn')[0].hidden = true
 
-        showModel('<%- JSON.stringify(stage.model) %>', 'model-show', '<%- JSON.stringify(stage.actions) %>', '<%- JSON.stringify(stage.data) %>', '<%- JSON.stringify(stage.events) %>', '<%= stage.id_str %>')
+        showModel('<%- JSON.stringify(stage.model) %>', 'model-show', '<%- JSON.stringify(stage.actions) %>', '<%- JSON.stringify(stage.data) %>', '<%- JSON.stringify(stage.events) %>')
 
         // Show edit buttons
         if (Object.keys(getUrlParams()).indexOf('edit') !== -1)
@@ -383,7 +385,7 @@
             $('#edit-model')[0].hidden = true
           
         let socket = io.connect(baseUrl)
-        socket.on('<%= user.username %>/<%= stage.id_str %>', function (data) {
+        socket.on('<%= user.username %>/<%= stage.id_str %>', function(data) {
             let {name, status} = data.action
             stageActions[name](status)
         })

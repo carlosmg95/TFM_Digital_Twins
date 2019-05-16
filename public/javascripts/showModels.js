@@ -1,8 +1,14 @@
 let actions, activeAction, clock, mixer, modelAnimations, modelName, previousAction, stageActions = {}
 let canvas
-let content = document.getElementById('models-list')
-let modelScene, scenes = [], renderer
 let clickTimer = null, selectedObject = null, lastSelectedObject = null
+let content = document.getElementById('models-list')
+let events = {
+    "click": {},
+    "dblclick": {},
+    "mousein": {},
+    "mouseout": {}
+}
+let modelScene, scenes = [], renderer
 let rotateModel = true
 
 const animate = function() {
@@ -125,7 +131,7 @@ const getRunningTime = function(values, now) {
     return time.toString().indexOf('false') === -1 ? time : false
 }
 
-const init = function(element, model, modelActions, modelData, modelEvents, idStr) {
+const init = function(element, model, modelActions, modelData, modelEvents) {
     canvas = document.getElementById('c')
     canvas.style.height = `${window.innerHeight}px`
     clock = new THREE.Clock()
@@ -198,19 +204,19 @@ const init = function(element, model, modelActions, modelData, modelEvents, idSt
         scene.fog = new THREE.Fog(0xe0e0e0, 20, 100)
         if (model.background && model.background.type === 'cube') {
             scene.background = new THREE.CubeTextureLoader().load([
-                `/api/stage/getbackground/cube/${idStr}/posx`,
-                `/api/stage/getbackground/cube/${idStr}/negx`,
-                `/api/stage/getbackground/cube/${idStr}/posy`,
-                `/api/stage/getbackground/cube/${idStr}/negy`,
-                `/api/stage/getbackground/cube/${idStr}/posz`,
-                `/api/stage/getbackground/cube/${idStr}/negz`
+                `/api/stage/getbackground/cube/${stageId}/posx`,
+                `/api/stage/getbackground/cube/${stageId}/negx`,
+                `/api/stage/getbackground/cube/${stageId}/posy`,
+                `/api/stage/getbackground/cube/${stageId}/negy`,
+                `/api/stage/getbackground/cube/${stageId}/posz`,
+                `/api/stage/getbackground/cube/${stageId}/negz`
             ])
             modelScene.traverse(function(child) {
                 if (child.isMesh)
                     child.material.envMap = scene.background
             })
         } else if (model.background && model.background.type === 'texture') {
-            scene.background = new THREE.TextureLoader().load(`/api/stage/getbackground/texture/${idStr}/0`)
+            scene.background = new THREE.TextureLoader().load(`/api/stage/getbackground/texture/${stageId}/0`)
         } else{
             // Grid
 
@@ -227,7 +233,7 @@ const init = function(element, model, modelActions, modelData, modelEvents, idSt
         if (modelData)
             showData(modelData)
         if (modelEvents) {
-            //setupEvents(modelScene, modelEvents)
+            setupEvents(modelScene, modelEvents)
             element.addEventListener('click', onMouseClick, false)
             element.addEventListener('dblclick', onMouseDblClick, false)
             element.addEventListener('mousemove', onMouseMove, false)
@@ -260,8 +266,8 @@ const onMouseClick = function(event) {
         clickTimer = setTimeout(function() {
             scenes[0].userData.element.parentElement.addEventListener('click', onMouseClick, false)
             selectedObject = res.object
-            selectedObject.material.emissive.r = 0.5
-            console.log(`Click en ${selectedObject.name}`)
+            if (events.click[selectedObject.name])
+                sendEvent(events.click[selectedObject.name])
         }, 200)
     }
 }
@@ -276,8 +282,8 @@ const onMouseDblClick = function(event) {
         scenes[0].userData.element.parentElement.addEventListener('click', onMouseClick, false)
         let res = intersects.filter((res) => res && res.object)[0]
         selectedObject = res.object
-        selectedObject.material.emissive.g = 0.5
-        console.log(`Doble click en ${selectedObject.name}`)
+        if (events.dblclick[selectedObject.name])
+            sendEvent(events.dblclick[selectedObject.name])
     }
 }
 
@@ -293,18 +299,22 @@ const onMouseMove = function(event) {
         if (lastSelectedObject && (selectedObject.name !== lastSelectedObject.name)) {
             if (lastSelectedObject.material) {
                 lastSelectedObject.material.emissive.b = 0
-                console.log(`Sale de ${lastSelectedObject.name}`)
+                if (events.mousein[selectedObject.name])
+                    sendEvent(events.mousein[selectedObject.name])
             }
-            console.log(`Entra en ${selectedObject.name}`)
+            if (events.mouseout[selectedObject.name])
+                sendEvent(events.mouseout[selectedObject.name])
         } else if (!lastSelectedObject) {
-            console.log(`Entra en ${selectedObject.name}`)
+            if (events.mouseout[selectedObject.name])
+                sendEvent(events.mouseout[selectedObject.name])
         }
         selectedObject.material.emissive.b = 0.5
         lastSelectedObject = selectedObject
     } else {
         if (lastSelectedObject) {
             lastSelectedObject.material.emissive.b = 0
-            console.log(`Sale de ${lastSelectedObject.name}`)
+            if (events.mousein[selectedObject.name])
+                sendEvent(events.mousein[selectedObject.name])
             lastSelectedObject = null
         }
     }
@@ -386,6 +396,13 @@ const scale = function(op) {
     }
 }
 
+const sendEvent = function(event) {
+    let socket = io.connect(baseUrl)
+    socket.on('connect', function() {
+        socket.emit('event', {username, stageId, event})
+    })
+}
+
 const sendNewData = function(name) {
     $.post('/api/models/setdata?_method=PUT', {
         "name": name,
@@ -449,6 +466,16 @@ const setupActions = function(modelScene, modelActions) {
     })
 }
 
+const setupEvents = function(modelScene, modelEvents) {
+    modelEvents = JSON.parse(modelEvents)
+
+    modelEvents.forEach(function(event) {
+        event.children.forEach(function(child) {
+            events[event.event][child] = event.name
+        })
+    })
+}
+
 const showActionsData = function(actionName, values) {
     let time = getRunningTime(values, new Date())
     if (values[0].value === 'START' || values[0].value === 'RESUME') {
@@ -469,7 +496,7 @@ const showData = function(modelData) {
     })
 }
 
-const showModel = function(model, className, modelActions, modelData, modelEvents, idStr) {
+const showModel = function(model, className, modelActions, modelData, modelEvents) {
     model = JSON.parse(model)
 
     content.innerHTML = ''
@@ -494,7 +521,7 @@ const showModel = function(model, className, modelActions, modelData, modelEvent
     element.id = `model-${model.name}-${model.ext}`
     element.innerHTML = template.replace(/\$name/g, model.name)
 
-    init(element, model, modelActions, modelData, modelEvents, idStr)
+    init(element, model, modelActions, modelData, modelEvents)
     animate()
 }
 
@@ -588,7 +615,7 @@ const showStages = function() {
                 element.innerHTML = template.replace(/\$id/g, stage.id_str)
                 element.innerHTML = element.innerHTML.replace(/\$name/g, stage.name)
                 element.innerHTML = element.innerHTML.replace(/\$modelName/g, stage.model.name)
-                init(element, stage.model, null, null, null, stage.id_str)
+                init(element, stage.model)
             }
             animate()
         }

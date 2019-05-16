@@ -11,6 +11,7 @@ const http = require('http')
 //const https = require('https')
 const methodOverride = require('method-override')
 const morgan = require('morgan')
+const mqtt = require('mqtt')
 const mqttr = require('mqttr')
 const parser = require('body-parser')
 const partials = require('express-partials')
@@ -168,6 +169,16 @@ const io = require('socket.io')(server)
 io.on('connection', function (socket) {
     global['io'] = io
     global['socket'] = socket
+
+    socket.on('event', function(eventSent) {
+        let {event, stageId, username} = eventSent
+        let buffer1 = Buffer.from([0xd8, 0x01])
+        let buffer2 = Buffer.from('1', 'utf-8')
+        let buffer = Buffer.concat([buffer1, buffer2])
+        let client = mqtt.connect(`mqtt://${config.mqttDomain}:${config.portMQTT}`)
+
+        client.publish(`dgiotwins/user/${username}/stage/${stageId}/data/${event}`, buffer)
+    })
 })
 
 // Listen on provided port, on all network interfaces

@@ -1,6 +1,6 @@
 let arToolkitContext, arToolkitSource, rendererAR
 
-const initAR = function(model, modelActions, modelData, idStr) {
+const initAR = function(model, modelActions, modelData) {
     let onRenderFcts = []
 
     rendererAR = new THREE.WebGLRenderer({
@@ -186,7 +186,7 @@ function onResize(){
     }
 }
 
-const showARModel = function(model, modelActions, modelData, idStr) {
+const showARModel = function(model, modelActions, modelData) {
     model = model.replace(/&#34;/gi, '"')
     model = JSON.parse(model)
 
@@ -194,5 +194,5 @@ const showARModel = function(model, modelActions, modelData, idStr) {
         $('#models-list').append(WEBGL.getWebGLErrorMessage())
     }
 
-    initAR(model, modelActions, modelData, idStr)
+    initAR(model, modelActions, modelData)
 }
