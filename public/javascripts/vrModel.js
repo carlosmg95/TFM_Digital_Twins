@@ -1,7 +1,17 @@
 let camera, container, scene, rendererVR
+let selectedObjectVR = null, lastSelectedObjectVR = null
 
 const animateVR = function() {
     rendererVR.setAnimationLoop(renderVR)
+}
+
+const getIntersectsVR = function() {
+    let mouseVector = new THREE.Vector3()
+    let raycaster = new THREE.Raycaster()
+
+    raycaster.setFromCamera({x:0,y:0}, camera)
+
+    return raycaster.intersectObject(scene.children[scene.children.length - 1], true)
 }
 
 const initVR = function(model, modelActions, modelData) {
@@ -111,6 +121,37 @@ const initVR = function(model, modelActions, modelData) {
     content.appendChild(WEBVR.createButton(rendererVR))
 }
 
+const onCrosshairMove = function() {
+    let intersects = getIntersectsVR(0, 0)
+
+    if (intersects.length > 0) {
+        let res = intersects.filter((res) => res && res.object)[0]
+        selectedObjectVR = res.object
+
+        if (lastSelectedObjectVR && (selectedObjectVR.name !== lastSelectedObjectVR.name)) {
+            if (lastSelectedObjectVR.material) {
+                lastSelectedObjectVR.material.emissive.b = 0
+                /*if (events.mousein[selectedObjectVR.name])
+                    sendEvent(events.mousein[selectedObjectVR.name])*/
+            }
+            /*if (events.mouseout[selectedObjectVR.name])
+                sendEvent(events.mouseout[selectedObjectVR.name])*/
+        } else if (!lastSelectedObjectVR) {
+            /*if (events.mouseout[selectedObjectVR.name])
+                sendEvent(events.mouseout[selectedObjectVR.name])*/
+        }
+        selectedObjectVR.material.emissive.b = 0.5
+        lastSelectedObjectVR = selectedObjectVR
+    } else {
+        if (lastSelectedObjectVR) {
+            lastSelectedObjectVR.material.emissive.b = 0
+            /*if (events.mousein[selectedObjectVR.name])
+                sendEvent(events.mousein[selectedObjectVR.name])*/
+            lastSelectedObjectVR = null
+        }
+    }
+}
+
 const onPointerRestricted = function() {
     let pointerLockElement = rendererVR.domElement
     if (pointerLockElement && typeof (pointerLockElement.requestPointerLock) === 'function') {
@@ -140,7 +181,7 @@ const onWindowResize = function() {
 }
 
 const renderVR = function() {
-    onWindowResize()
+    onCrosshairMove()
     let dt = clock.getDelta()
     if (mixer)
         mixer.update(dt)

@@ -235,8 +235,10 @@ const init = function(element, model, modelActions, modelData, modelEvents) {
         if (modelEvents) {
             setupEvents(modelScene, modelEvents)
             element.addEventListener('click', onMouseClick, false)
+            element.addEventListener('touchstart', onMouseClick, false)
             element.addEventListener('dblclick', onMouseDblClick, false)
             element.addEventListener('mousemove', onMouseMove, false)
+            element.addEventListener('touchmove', onMouseMove, false)
         }
     }, function(xhr) {
         let loaded = Math.round((xhr.loaded / xhr.total) * 100)
