@@ -131,7 +131,9 @@ const getRunningTime = function(values, now) {
     return time.toString().indexOf('false') === -1 ? time : false
 }
 
-const init = function(element, model, modelActions, modelData, modelEvents) {
+const init = function(element, model, modelActions, modelData, modelEvents, modelStageId) {
+    modelStageId = modelStageId || stageId
+
     canvas = document.getElementById('c')
     canvas.style.height = `${window.innerHeight}px`
     clock = new THREE.Clock()
@@ -204,19 +206,19 @@ const init = function(element, model, modelActions, modelData, modelEvents) {
         scene.fog = new THREE.Fog(0xe0e0e0, 20, 100)
         if (model.background && model.background.type === 'cube') {
             scene.background = new THREE.CubeTextureLoader().load([
-                `/api/stage/getbackground/cube/${stageId}/posx`,
-                `/api/stage/getbackground/cube/${stageId}/negx`,
-                `/api/stage/getbackground/cube/${stageId}/posy`,
-                `/api/stage/getbackground/cube/${stageId}/negy`,
-                `/api/stage/getbackground/cube/${stageId}/posz`,
-                `/api/stage/getbackground/cube/${stageId}/negz`
+                `/api/stage/getbackground/cube/${modelStageId}/posx`,
+                `/api/stage/getbackground/cube/${modelStageId}/negx`,
+                `/api/stage/getbackground/cube/${modelStageId}/posy`,
+                `/api/stage/getbackground/cube/${modelStageId}/negy`,
+                `/api/stage/getbackground/cube/${modelStageId}/posz`,
+                `/api/stage/getbackground/cube/${modelStageId}/negz`
             ])
             modelScene.traverse(function(child) {
                 if (child.isMesh)
                     child.material.envMap = scene.background
             })
         } else if (model.background && model.background.type === 'texture') {
-            scene.background = new THREE.TextureLoader().load(`/api/stage/getbackground/texture/${stageId}/0`)
+            scene.background = new THREE.TextureLoader().load(`/api/stage/getbackground/texture/${modelStageId}/0`)
         } else{
             // Grid
 
@@ -617,7 +619,7 @@ const showStages = function() {
                 element.innerHTML = template.replace(/\$id/g, stage.id_str)
                 element.innerHTML = element.innerHTML.replace(/\$name/g, stage.name)
                 element.innerHTML = element.innerHTML.replace(/\$modelName/g, stage.model.name)
-                init(element, stage.model)
+                init(element, stage.model, null, null, null, stage.id_str)
             }
             animate()
         }
