@@ -1,8 +1,45 @@
-let camera, container, scene, rendererVR
-let selectedObjectVR = null, lastSelectedObjectVR = null
+let camera, container, pointer, scene, rendererVR
+let gamepads = [], isPresenting = false, lastStatusClick = false, lastSelectedObjectVR = null, selectedObjectVR = null
 
 const animateVR = function() {
     rendererVR.setAnimationLoop(renderVR)
+}
+
+const checkGamepads = function() {
+    let gamepads = navigator.getGamepads && navigator.getGamepads()
+    let isClick = false
+    let modelSceneVr = scene.children[scene.children.length - 1]
+
+    for (let i = 0; i < gamepads.length; i++) {
+        let gamepad = gamepads[i]
+
+        if (!gamepad) continue
+
+        gamepad.buttons.forEach((btn) => isClick |= btn.pressed || btn.touched)
+
+        if (gamepad.axes.length > 0) {
+            if (gamepad.axes[0] > 0.5) {
+                modelSceneVr.rotation['y'] = +modelSceneVr.rotation['y'] - 0.1
+                isClick = false
+            } else if (gamepad.axes[0] < -0.5) {
+                modelSceneVr.rotation['y'] = +modelSceneVr.rotation['y'] + 0.1
+                isClick = false
+            }
+            if (gamepad.axes[1] > 0.5) {
+                modelSceneVr.rotation['z'] = +modelSceneVr.rotation['z'] - 0.1
+                isClick = false
+            } else if (gamepad.axes[1] < -0.5) {
+                modelSceneVr.rotation['z'] = +modelSceneVr.rotation['z'] + 0.1
+                isClick = false
+            }
+        }
+    }
+
+    if (isClick && !lastStatusClick)
+        onPointerDown()
+    else if (!isClick && lastStatusClick)
+        onPointerUp()
+    lastStatusClick = isClick
 }
 
 const getIntersectsVR = function() {
@@ -14,7 +51,7 @@ const getIntersectsVR = function() {
     return raycaster.intersectObject(scene.children[scene.children.length - 1], true)
 }
 
-const initVR = function(model, modelActions, modelData) {
+const initVR = function(model, modelActions, modelData, modelEvents) {
     container = document.createElement('div')
     container.className = 'model'
 
@@ -27,16 +64,20 @@ const initVR = function(model, modelActions, modelData) {
     camera = new THREE.PerspectiveCamera(70, window.innerWidth / window.innerHeight, 0.1, 10)
     scene.add(camera)
 
-    crosshair = new THREE.Mesh(
-        new THREE.RingBufferGeometry(0.02, 0.04, 32),
+    let circle = new THREE.CircleBufferGeometry(0.01, 32)
+    let ring = new THREE.RingBufferGeometry(0.02, 0.04, 32)
+
+    pointer = new THREE.Mesh(
+        ring,
         new THREE.MeshBasicMaterial({
             color: 0xffffff,
             opacity: 0.5,
             transparent: true
         })
     )
-    crosshair.position.z = -2
-    camera.add(crosshair)
+    pointer.userData.geometries = [circle, ring]
+    pointer.position.z = -2
+    camera.add(pointer)
 
     scene.add(new THREE.HemisphereLight(0x606060, 0x404040))
 
@@ -103,6 +144,8 @@ const initVR = function(model, modelActions, modelData) {
             setupActions(modelSceneVr, modelActions)
         if (modelData)
             showData(modelData)
+        if (modelEvents)
+            setupEvents(modelSceneVr, modelEvents)
     }, undefined, function(e) {
         console.error(e)
     })
@@ -113,40 +156,60 @@ const initVR = function(model, modelActions, modelData) {
     rendererVR.vr.enabled = true
     container.appendChild(rendererVR.domElement)
 
-    window.addEventListener('resize', onWindowResize, false)
+    if (navigator.getVRDisplays)
+        navigator.getVRDisplays().then((displays) => window.addEventListener('vrdisplaypresentchange', () => isPresenting = displays[0].isPresenting))
 
+    window.addEventListener('resize', onWindowResize, false)
     window.addEventListener('vrdisplaypointerrestricted', onPointerRestricted, false)
     window.addEventListener('vrdisplaypointerunrestricted', onPointerUnrestricted, false)
 
     content.appendChild(WEBVR.createButton(rendererVR))
 }
 
-const onCrosshairMove = function() {
-    let intersects = getIntersectsVR(0, 0)
+const onPointerDown = function() {
+    let intersects = getIntersectsVR()
+
+    pointer.scale.x = 0.5
+    pointer.scale.y = 0.5
+    pointer.scale.z = 0.5
+
+    if (intersects.length > 0) {
+        let res = intersects.filter((res) => res && res.object)[0]
+        selectedObjectVR = res.object
+        if (events.click[selectedObjectVR.name])
+            sendEvent(events.click[selectedObjectVR.name])
+    }
+}
+
+const onPointerMove = function() {
+    let intersects = getIntersectsVR()
 
     if (intersects.length > 0) {
         let res = intersects.filter((res) => res && res.object)[0]
         selectedObjectVR = res.object
 
+        pointer.geometry = pointer.userData.geometries[1]
+
         if (lastSelectedObjectVR && (selectedObjectVR.name !== lastSelectedObjectVR.name)) {
             if (lastSelectedObjectVR.material) {
                 lastSelectedObjectVR.material.emissive.b = 0
-                /*if (events.mousein[selectedObjectVR.name])
-                    sendEvent(events.mousein[selectedObjectVR.name])*/
+                if (events.mousein[selectedObjectVR.name])
+                    sendEvent(events.mousein[selectedObjectVR.name])
             }
-            /*if (events.mouseout[selectedObjectVR.name])
-                sendEvent(events.mouseout[selectedObjectVR.name])*/
+            if (events.mouseout[selectedObjectVR.name])
+                sendEvent(events.mouseout[selectedObjectVR.name])
         } else if (!lastSelectedObjectVR) {
-            /*if (events.mouseout[selectedObjectVR.name])
-                sendEvent(events.mouseout[selectedObjectVR.name])*/
+            if (events.mouseout[selectedObjectVR.name])
+                sendEvent(events.mouseout[selectedObjectVR.name])
         }
         selectedObjectVR.material.emissive.b = 0.5
         lastSelectedObjectVR = selectedObjectVR
     } else {
+        pointer.geometry = pointer.userData.geometries[0]
         if (lastSelectedObjectVR) {
             lastSelectedObjectVR.material.emissive.b = 0
-            /*if (events.mousein[selectedObjectVR.name])
-                sendEvent(events.mousein[selectedObjectVR.name])*/
+            if (events.mousein[selectedObjectVR.name])
+                sendEvent(events.mousein[selectedObjectVR.name])
             lastSelectedObjectVR = null
         }
     }
@@ -167,6 +230,12 @@ const onPointerUnrestricted = function() {
     }
 }
 
+const onPointerUp = function() {
+    pointer.scale.x = 1
+    pointer.scale.y = 1
+    pointer.scale.z = 1
+}
+
 const onWindowResize = function() {
     let rect = container.getBoundingClientRect()
 
@@ -181,14 +250,16 @@ const onWindowResize = function() {
 }
 
 const renderVR = function() {
-    onCrosshairMove()
+    if (isPresenting)
+        checkGamepads()
+    onPointerMove()
     let dt = clock.getDelta()
     if (mixer)
         mixer.update(dt)
     rendererVR.render(scene, camera)
 }
 
-const showVRModel = function(model, modelActions, modelData) {
+const showVRModel = function(model, modelActions, modelData, modelEvents) {
     model = model.replace(/&#34;/gi, '"')
     model = JSON.parse(model)
 
@@ -196,6 +267,6 @@ const showVRModel = function(model, modelActions, modelData) {
         $('#models-list').append(WEBGL.getWebGLErrorMessage())
     }
 
-    initVR(model, modelActions, modelData)
+    initVR(model, modelActions, modelData, modelEvents)
     animateVR()
 }

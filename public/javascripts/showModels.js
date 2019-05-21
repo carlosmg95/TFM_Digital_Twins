@@ -1,6 +1,6 @@
 let actions, activeAction, clock, mixer, modelAnimations, modelName, previousAction, stageActions = {}
 let canvas
-let clickTimer = null, selectedObject = null, lastSelectedObject = null
+let clickTimer = null, lastSelectedObject = null, selectedObject = null
 let content = document.getElementById('models-list')
 let events = {
     "click": {},
@@ -132,8 +132,6 @@ const getRunningTime = function(values, now) {
 }
 
 const init = function(element, model, modelActions, modelData, modelEvents, modelStageId) {
-    modelStageId = modelStageId || stageId
-
     canvas = document.getElementById('c')
     canvas.style.height = `${window.innerHeight}px`
     clock = new THREE.Clock()
@@ -236,8 +234,8 @@ const init = function(element, model, modelActions, modelData, modelEvents, mode
             showData(modelData)
         if (modelEvents) {
             setupEvents(modelScene, modelEvents)
-            element.addEventListener('click', onMouseClick, false)
-            element.addEventListener('touchstart', onMouseClick, false)
+            element.addEventListener('mousedown', onMouseDown, false)
+            element.addEventListener('touchstart', onMouseDown, false)
             element.addEventListener('dblclick', onMouseDblClick, false)
             element.addEventListener('mousemove', onMouseMove, false)
             element.addEventListener('touchmove', onMouseMove, false)
@@ -258,17 +256,17 @@ const init = function(element, model, modelActions, modelData, modelEvents, mode
     renderer.setPixelRatio(window.devicePixelRatio)
 }
 
-const onMouseClick = function(event) {
+const onMouseDown = function(event) {
     event.preventDefault()
 
     let intersects = getIntersects(event.layerX, event.layerY)
 
     if (intersects.length > 0) {
-        scenes[0].userData.element.parentElement.removeEventListener('click', onMouseClick, false)
+        scenes[0].userData.element.parentElement.removeEventListener('mousedown', onMouseDown, false)
         let res = intersects.filter((res) => res && res.object)[0]
         clearTimeout(clickTimer)
         clickTimer = setTimeout(function() {
-            scenes[0].userData.element.parentElement.addEventListener('click', onMouseClick, false)
+            scenes[0].userData.element.parentElement.addEventListener('mousedown', onMouseDown, false)
             selectedObject = res.object
             if (events.click[selectedObject.name])
                 sendEvent(events.click[selectedObject.name])
@@ -283,7 +281,7 @@ const onMouseDblClick = function(event) {
 
     if (intersects.length > 0) {
         clearTimeout(clickTimer)
-        scenes[0].userData.element.parentElement.addEventListener('click', onMouseClick, false)
+        scenes[0].userData.element.parentElement.addEventListener('mousedown', onMouseDown, false)
         let res = intersects.filter((res) => res && res.object)[0]
         selectedObject = res.object
         if (events.dblclick[selectedObject.name])
@@ -500,7 +498,7 @@ const showData = function(modelData) {
     })
 }
 
-const showModel = function(model, className, modelActions, modelData, modelEvents) {
+const showModel = function(model, className, modelActions, modelData, modelEvents, modelStageId) {
     model = JSON.parse(model)
 
     content.innerHTML = ''
@@ -525,7 +523,7 @@ const showModel = function(model, className, modelActions, modelData, modelEvent
     element.id = `model-${model.name}-${model.ext}`
     element.innerHTML = template.replace(/\$name/g, model.name)
 
-    init(element, model, modelActions, modelData, modelEvents)
+    init(element, model, modelActions, modelData, modelEvents, modelStageId)
     animate()
 }
 
