@@ -1,5 +1,9 @@
 let camera, container, pointer, scene, rendererVR
-let gamepads = [], isPresenting = false, lastStatusClick = false, lastSelectedObjectVR = null, selectedObjectVR = null
+let clickTime = new Date(), clickTimerVr = null, gamepads = [], isPresenting = false, lastStatusClick = false, lastSelectedObjectVR = null, selectedObjectVR = null
+
+const eventPointerDblClick = new CustomEvent('pointerdblclick')
+const eventPointerDown = new CustomEvent('pointerdown')
+const eventPointerUp = new CustomEvent('pointerup')
 
 const animateVR = function() {
     rendererVR.setAnimationLoop(renderVR)
@@ -35,10 +39,16 @@ const checkGamepads = function() {
         }
     }
 
-    if (isClick && !lastStatusClick)
-        onPointerDown()
-    else if (!isClick && lastStatusClick)
-        onPointerUp()
+    if (isClick && !lastStatusClick) {
+        dispatchEvent(eventPointerDown)
+        let time = new Date()
+        if (time - clickTime < 200) {
+            dispatchEvent(eventPointerDblClick)
+        }
+        clickTime = time
+    } else if (!isClick && lastStatusClick) {
+        dispatchEvent(eventPointerUp)
+    }
     lastStatusClick = isClick
 }
 
@@ -159,6 +169,9 @@ const initVR = function(model, modelActions, modelData, modelEvents) {
     if (navigator.getVRDisplays)
         navigator.getVRDisplays().then((displays) => window.addEventListener('vrdisplaypresentchange', () => isPresenting = displays[0].isPresenting))
 
+    window.addEventListener('pointerdblclick', onPointerDblClick, false)
+    window.addEventListener('pointerdown', onPointerDown, false)
+    window.addEventListener('pointerup', onPointerUp, false)
     window.addEventListener('resize', onWindowResize, false)
     window.addEventListener('vrdisplaypointerrestricted', onPointerRestricted, false)
     window.addEventListener('vrdisplaypointerunrestricted', onPointerUnrestricted, false)
@@ -166,18 +179,36 @@ const initVR = function(model, modelActions, modelData, modelEvents) {
     content.appendChild(WEBVR.createButton(rendererVR))
 }
 
-const onPointerDown = function() {
+const onPointerDblClick = function() {
     let intersects = getIntersectsVR()
 
+    if (intersects.length > 0) {
+        clearTimeout(clickTimerVr)
+        window.addEventListener('pointerdown', onPointerDown, false)
+        let res = intersects.filter((res) => res && res.object)[0]
+        selectedObjectVR = res.object
+        if (events.dblclick[selectedObjectVR.name])
+            sendEvent(events.dblclick[selectedObjectVR.name])
+    }
+}
+
+const onPointerDown = function() {
     pointer.scale.x = 0.5
     pointer.scale.y = 0.5
     pointer.scale.z = 0.5
 
+    let intersects = getIntersectsVR()
+
     if (intersects.length > 0) {
+        window.removeEventListener('pointerdown', onPointerDown, false)
         let res = intersects.filter((res) => res && res.object)[0]
-        selectedObjectVR = res.object
-        if (events.click[selectedObjectVR.name])
-            sendEvent(events.click[selectedObjectVR.name])
+        clearTimeout(clickTimerVr)
+        clickTimerVr = setTimeout(function() {
+            window.addEventListener('pointerdown', onPointerDown, false)
+            selectedObjectVR = res.object
+            if (events.click[selectedObjectVR.name])
+                sendEvent(events.click[selectedObjectVR.name])
+        }, 200)
     }
 }
 
