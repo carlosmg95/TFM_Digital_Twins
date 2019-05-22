@@ -197,6 +197,16 @@ module.exports.readData = function(topic, payload, message) {
         case 0:
             sendAction(dataid, data, len, stageid, username)
             break
+        case 1:
+        case 2:
+        case 3:
+        case 4:
+        case 5:
+            saveData(stageid, dataid, type, {
+                "value": data,
+                "timestamp": new Date()
+            })
+            break
         default:
             return
     }
@@ -230,11 +240,15 @@ const saveData = function(stageId, dataName, type, value) {
                             let index = data.findIndex((datum) => datum.name === dataName)
                             let {name, type, values} = data[index]
 
-                            if (value.value !== values[0].value)  // If different value, the new value is in the first position
+                            if (type === 0) {
+                                if (value.value !== values[0].value)  // If different value, the new value is in the first position
+                                    values = [value, ...values]
+                                else if (value.value === 'START')  // If same value and it is "START", it replaces the value
+                                    values[0] = value
+                                // If same value and it's not "START", it doesn't change
+                            } else {
                                 values = [value, ...values]
-                            else if (value.value === 'START')  // If same value and it is "START", it replaces the value
-                                values[0] = value
-                            // If same value and it's not "START", it doesn't change
+                            }
 
                             // Set the data in the last position
                             data.splice(index, 1)
