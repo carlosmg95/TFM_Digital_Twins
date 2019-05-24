@@ -138,8 +138,25 @@
         <i class="fas fa-cube"></i>
       </button>
     </div>
-  </div>
-  <!-- .Buttons -->
+  </div>  <!-- .Buttons -->
+
+  <!-- Charts -->
+  <div class="row mt-3">
+    <div class="col-12">
+      <!-- Card -->
+      <div class="card mb-4">
+        <!-- Header -->
+        <div class="card-header py-3">
+          <h6 class="m-0 font-weight-bold text-primary">Datos</h6>
+        </div>  <!-- .Header -->
+
+        <!-- Body -->
+        <div class="card-body">
+          <div id="charts" class="row"></div>
+        </div>  <!-- .Body -->
+      </div>  <!-- .Card -->
+    </div>
+  </div>  <!-- .Charts -->
 </div>  <!-- .Page Content -->
 
 <!-- Delete modal -->
@@ -187,6 +204,9 @@
 <!-- WebSockets -->
 <script type="text/javascript" src="/components/socket.io-client/dist/socket.io.js"></script>
 
+<!-- Charts -->
+<script type="text/javascript" src="/components/zingchart/client/zingchart.min.js"></script>
+
 <!-- Three JS -->
 <script type="text/javascript" src="/components/three/build/three.min.js"></script>
 <script type="text/javascript" src="/components/three/examples/js/controls/OrbitControls.js"></script>
@@ -206,6 +226,7 @@
 </script>
 
 <!-- Custom JS -->
+<script type="text/javascript" src="/javascripts/chartHelper.js"></script>
 <script type="text/javascript" src="/javascripts/models.js"></script>
 <script type="text/javascript" src="/javascripts/showModels.js"></script>
 <script type="text/javascript" src="/javascripts/vrModel.js"></script>
@@ -383,11 +404,20 @@
             $('#edit-model')[0].hidden = false
         else
             $('#edit-model')[0].hidden = true
-          
+
         let socket = io.connect(baseUrl)
         socket.on('<%= user.username %>/<%= stage.id_str %>', function(data) {
-            let {name, status} = data.action
-            stageActions[name](status)
+            if (data.action) {
+                let {name, value} = data.action
+                stageActions[name](value)
+            } else if (data.data) {
+                let {name, timestamp, value} = data.data
+                zingchart.exec(`data-${name}-cont`, 'addnode', {
+                    "graphid" : 0,
+                    "plotindex" : 0,
+                    "value": [new Date(timestamp).getTime(), value]
+                })
+            }
         })
     })
 </script>

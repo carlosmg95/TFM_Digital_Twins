@@ -53,7 +53,8 @@
     "startbootstrap-one-page-wonder": "^5.0.4",
     "startbootstrap-sb-admin-2": "^4.0.3",
     "three": "^0.102.1",
-    "underscore": "^1.9.1"
+    "underscore": "^1.9.1",
+    "zingchart": "^2.8.6"
   },
   "devDependencies": {
     "geckodriver": "^1.16.2",

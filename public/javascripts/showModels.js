@@ -347,13 +347,13 @@ const render = function() {
 
         // check if it's offscreen. If so skip it
         if (rect.bottom < 0 || rect.top > renderer.domElement.clientHeight ||
-             rect.right < 0 || rect.left > renderer.domElement.clientWidth) {
+           rect.right < 0 || rect.left > renderer.domElement.clientWidth) {
 
             return  // it's off screen
 
         }
         if ($(element).parent().hasClass('model-show'))
-            element.style.height = `${window.innerHeight - rect.top - document.getElementById('user-footer').clientHeight - document.getElementById('vr-btn').clientHeight - 10}px`
+            element.style.height = `${window.innerHeight * 0.6}px`
 
         // set the viewport
         let width = rect.right - rect.left
@@ -486,14 +486,38 @@ const showActionsData = function(actionName, values) {
     }
 }
 
+const showContData = function(dataName, values) {
+    $('#charts').append(`<div id="data-${dataName}-cont" class="mb-1 col-12 col-lg-6"></div>`)
+    $('#charts').append(`<div id="data-${dataName}-sum" class="mb-1 col-12 col-lg-6"></div>`)
+
+    zingchart.render({
+        "id": `data-${dataName}-cont`,
+        "data": getConfig('line', dataName, 'Datos continuos', values, 'unidades'),
+        "height": "100%",
+        "width": "97%"
+    })
+    zingchart.render({
+        "id": `data-${dataName}-sum`,
+        "data": getConfig('bar', dataName, 'Datos totales', values),
+        "height": "100%",
+        "width": "97%"
+    })
+}
+
 const showData = function(modelData) {
     modelData = JSON.parse(modelData)
 
     modelData.forEach(function(datum) {
+        let {name, values} = datum
         switch(datum.type) {
             case 0:
-                showActionsData(datum.name, datum.values)
+                showActionsData(name, values)
                 break
+            case 5:
+                showContData(name, values)
+                break
+            default:
+                return
         }
     })
 }

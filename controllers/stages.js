@@ -202,10 +202,7 @@ module.exports.readData = function(topic, payload, message) {
         case 3:
         case 4:
         case 5:
-            saveData(stageid, dataid, type, {
-                "value": data,
-                "timestamp": new Date()
-            })
+            sendData(dataid, data, type, len, stageid, username)
             break
         default:
             return
@@ -318,5 +315,19 @@ const sendAction = function(actionName, data, len, stageId, username) {
 
     saveData(stageId, actionName, 0, value)
     if (typeof io !== 'undefined')
-        io.emit(`${username}/${stageId}`, { "action": { "name": actionName, status } })
+        io.emit(`${username}/${stageId}`, { "action": { "name": actionName, "value": status } })
+}
+
+const sendData = function(dataName, data, type, len, stageId, username) {
+    len = Math.min(len, MAX_SIZE_MSG_MQTT - HEADER_SIZE_MSG_MQTT)
+    data = +data.substring(0, len)
+
+    let value = {
+        "value": data,
+        "timestamp": new Date()
+    }
+
+    saveData(stageId, dataName, type, value)
+    if (typeof io !== 'undefined')
+        io.emit(`${username}/${stageId}`, { "data": { "name": dataName, ...value } })
 }
