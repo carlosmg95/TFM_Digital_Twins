@@ -19,7 +19,7 @@ const checkGamepads = function() {
 
         if (!gamepad) continue
 
-        gamepad.buttons.forEach((btn) => isClick |= btn.pressed || btn.touched)
+        isClick = gamepad.buttons.some((btn) => btn.pressed || btn.touched)
 
         if (gamepad.axes.length > 0) {
             if (gamepad.axes[0] > 0.5) {
