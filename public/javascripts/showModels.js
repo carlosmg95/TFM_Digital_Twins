@@ -492,13 +492,13 @@ const showContData = function(dataName, values) {
 
     zingchart.render({
         "id": `data-${dataName}-cont`,
-        "data": getConfig('line', dataName, 'Datos continuos', values, 'unidades'),
+        "data": getConfig(`data-${dataName}-cont`, 'line', dataName, 'Datos continuos', values, 'unidades'),
         "height": "100%",
         "width": "97%"
     })
     zingchart.render({
         "id": `data-${dataName}-sum`,
-        "data": getConfig('bar', dataName, 'Datos totales', values),
+        "data": getConfig(`data-${dataName}-sum`, 'bar', dataName, 'Datos totales', values),
         "height": "100%",
         "width": "97%"
     })

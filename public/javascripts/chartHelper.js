@@ -2,7 +2,10 @@
 // Public Functions
 // ====================================================================================================================
 
-const getConfig = function(type, title, subtitle, modelData, units) {
+let modifyTimeout = null
+let zoomToValues = {}
+
+const getConfig = function(id, type, title, subtitle, modelData, units) {
     let plot, values
 
     let config = {
@@ -39,10 +42,11 @@ const getConfig = function(type, title, subtitle, modelData, units) {
                         "margin": "5 17 2 0",
                         "padding": "3 3 3 3"
                     },
+                    "margin-top": "50",
                     "marker": {
                         "visible": false
                     },
-                    "vertical-align": "middle"
+                    "vertical-align": "top"
                 },
                 "plot": {
                     "animation": {
@@ -62,14 +66,14 @@ const getConfig = function(type, title, subtitle, modelData, units) {
                     }
                 },
                 "subtitle": {
-                    "adjustLayout": true,
+                    "adjust-layout": true,
                     "align": "left",
                     "text": subtitle
                 },
                 "title": {
-                    "adjustLayout": true,
+                    "adjust-layout": true,
                     "align": "left",
-                    "marginLeft": "15%",
+                    "margin-left": "15%",
                     "text": title
                 },
                 "tooltip": {
@@ -80,14 +84,14 @@ const getConfig = function(type, title, subtitle, modelData, units) {
             }
         ],
         "gui": {
-            "contextMenu": {
+            "context-menu": {
                 "alpha": 0.9,
                 "button": {
                     "visible": true
                 },
                 "docked": true,
                 "item": {
-                    "textAlpha": 1
+                    "text-alpha": 1
                 },
                 "position": "right"
             }
@@ -95,7 +99,7 @@ const getConfig = function(type, title, subtitle, modelData, units) {
     }
 
     if (type === 'line') {
-        config = getLineConfig(config, modelData, units)
+        config = getLineConfig(id, config, modelData, units)
     } else if (type === 'bar') {
         config = getBarConfig(config, modelData, units)
     }
@@ -105,7 +109,8 @@ const getConfig = function(type, title, subtitle, modelData, units) {
 
 
 const modify = function(p) {
-    zingchart.zoom = function(p) {}
+    clearTimeout(modifyTimeout)
+    zingchart.zoom = function(p) {}  // Void infinity loops
     let values = zingchart.exec(p.id, 'getseriesvalues', {
         "plotindex": 0
     })
@@ -114,45 +119,59 @@ const modify = function(p) {
 
     let maxIndex, minIndex
 
-    if (!p.kmin || !p.kmax || p.action === 'viewall') {
+    if (p.action === 'viewall') {
         minIndex = 0
         maxIndex = x.length - 1
-    } else if (p.kmin) {
+    } else if (p.kmin) {  // When zoom
         minIndex = x.findIndex((value) => value >= p.kmin)
         maxIndex = p.kmax ? x.length - x.reverse().findIndex((value) => value <= p.kmax) - 1 : x.length - 1
+        x.reverse()
+    } else {  // When a new message
+        minIndex = x.indexOf(zoomToValues[p.id][0])
+        maxIndex = x.indexOf(zoomToValues[p.id][1])
+        maxIndex = p.nodeindex && p.nodeindex - 1 === maxIndex ? p.nodeindex : maxIndex
     }
+    zoomToValues[p.id] = [x[minIndex], x[maxIndex]]
 
     values = y.slice(minIndex, maxIndex + 1)
 
-    zingchart.exec(p.id, 'appendseriesdata', {
-        "data": {
-            "legend-text": `Media: ${average(values).toFixed(2)}<br>Mediana: ${median(values).toFixed(2)}<br>` + 
-                           `Moda: ${mode(values).join(', ')}<br>Varianza: ${variance(values).toFixed(2)}`
-        },
-        "graphid": p.graphid,
-        "plotindex": 0
-    })
-    zingchart.exec(p.id, 'modify', {
-        "data" : {
-            "scale-y" : {
-                "markers": [
-                    {
-                        "label-alignment": "normal",
-                        "label-placement": "normal",
-                        "line-color": "green",
-                        "line-width": 1,
-                        "placement": "bottom",
-                        "range": [average(values)],
-                        "text": "Media",
-                        "type": "line"
-                    }
-                ],
-                "max-value": Math.max(...values),
-                "min-value": Math.min(...values)
-            }
-        },
-        "graphid": 0
-    })
+    if (p.async !== false) {
+        zingchart.exec(p.id, 'appendseriesdata', {
+            "data": {
+                "legend-text": `Media: ${average(values).toFixed(2)}<br>Mediana: ${median(values).toFixed(2)}<br>` + 
+                               `Moda: ${mode(values).join(', ')}<br>Varianza: ${variance(values).toFixed(2)}`
+            },
+            "graphid": p.graphid,
+            "plotindex": 0
+        })
+        zingchart.exec(p.id, 'modify', {
+            "data": {
+                "scale-x": {
+                    "zoom-to-values": zoomToValues[p.id]
+                },
+                "scale-y": {
+                    "markers": [
+                        {
+                            "label-alignment": "normal",
+                            "label-placement": "normal",
+                            "line-color": "green",
+                            "line-width": 1,
+                            "placement": "bottom",
+                            "range": [average(values)],
+                            "text": "Media",
+                            "type": "line"
+                        }
+                    ],
+                    "max-value": Math.max(...values),
+                    "min-value": Math.min(...values)
+                }
+            },
+            "graphid": 0
+        })
+    } else {
+        delete(p.async)
+        modifyTimeout = setTimeout(() => modify(p), 1000)
+    }
 
     // Change bar chart
 
@@ -201,17 +220,25 @@ const getBarConfig = function(config, values, units) {
     return config
 }
 
-const getLineConfig = function(config, values, units) {
+const getLineConfig = function(id, config, values, units) {
     plot = values.map(function(value) {
         return [new Date(value.timestamp).getTime(), +value.value]
     }).reverse()
     values = plot.map((value) => value[1])
 
+    let zoomValue = plot.length <= 50 ? 0 : plot.length - 50
+    zoomToValues[id] = [plot[zoomValue][0], plot[plot.length - 1][0]]
+
+    config['graphset'][0]['preview'] = {
+        "adjust-layout": true,
+        "live": true
+    }
     config['graphset'][0]['scale-x'] = {
         "transform": {
             "all": "%d/%m/%Y<br>%H:%i:%s",
             "type": "date"
         },
+        "zoom-to-values": zoomToValues[id],
         "zooming": true
     }
     config['graphset'][0]['scale-y'] = {
@@ -225,9 +252,9 @@ const getLineConfig = function(config, values, units) {
                 "line-color": "green",
                 "line-width": 1,
                 "placement": "bottom",
+                "range": [average(values)],
                 "text": "Media",
-                "type": "line",
-                "range": [average(values)]
+                "type": "line"
             }
         ]
     }
@@ -243,6 +270,7 @@ const getLineConfig = function(config, values, units) {
             "values": plot
         }
     ]
+    config['graphset'][0]['timezone'] = new Date().getTimezoneOffset() / (-60)
 
     return config
 }
@@ -260,12 +288,14 @@ zingchart.node_add = function(p) {
 // Array functions
 
 const average = function(arr) {
-    let sum = arr.reduce((prev, curr) => prev += curr)
+    let sum = arr.reduce((prev, curr) => prev += curr, 0)
     return +sum / arr.length
 }
 
 const getDataOrder = function(arr) {
     let avg = Math.abs(average(arr))
+    if (avg === 0)
+        return 1
     let order = Math.log10(avg)
     order = order >= 0 ? Math.ceil(order) : Math.floor(order)
     return order
