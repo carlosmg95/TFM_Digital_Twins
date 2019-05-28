@@ -486,19 +486,22 @@ const showActionsData = function(actionName, values) {
     }
 }
 
-const showContData = function(dataName, values) {
-    $('#charts').append(`<div id="data-${dataName}-cont" class="mb-1 col-12 col-lg-6"></div>`)
-    $('#charts').append(`<div id="data-${dataName}-sum" class="mb-1 col-12 col-lg-6"></div>`)
+const showContData = function(dataName, values, units) {
+    let idCont = `data-${dataName}-cont`
+    let idSum = `data-${dataName}-sum`
+
+    $('#charts').append(`<div id="${idCont}" class="mb-1 col-12 col-lg-6"></div>`)
+    $('#charts').append(`<div id="${idSum}" class="mb-1 col-12 col-lg-6"></div>`)
 
     zingchart.render({
-        "id": `data-${dataName}-cont`,
-        "data": getConfig(`data-${dataName}-cont`, 'line', dataName, 'Datos continuos', values, 'unidades'),
+        "id": idCont,
+        "data": getConfig(idCont, 'line', dataName, 'Datos continuos', values, {units}),
         "height": "100%",
         "width": "97%"
     })
     zingchart.render({
-        "id": `data-${dataName}-sum`,
-        "data": getConfig(`data-${dataName}-sum`, 'bar', dataName, 'Datos totales', values),
+        "id": idSum,
+        "data": getConfig(idSum, 'bar', dataName, 'Datos totales', values),
         "height": "100%",
         "width": "97%"
     })
@@ -508,17 +511,41 @@ const showData = function(modelData) {
     modelData = JSON.parse(modelData)
 
     modelData.forEach(function(datum) {
-        let {name, values} = datum
+        let {max, min, name, units, values} = datum
         switch(datum.type) {
             case 0:
                 showActionsData(name, values)
                 break
+            case 4:
+                showDisData(name, values, max, min)
+                break
             case 5:
-                showContData(name, values)
+                showContData(name, values, units)
                 break
             default:
                 return
         }
+    })
+}
+
+const showDisData = function(dataName, values, max, min) {
+    let idDis = `data-${dataName}-dis`
+    let idAvg = `data-${dataName}-dis-avg`
+
+    $('#charts').append(`<div id="${idDis}" class="mb-1 col-12 col-lg-6"></div>`)
+    $('#charts').append(`<div id="${idAvg}" class="mb-1 col-12 col-lg-6"></div>`)
+
+    zingchart.render({
+        "id": idDis,
+        "data": getConfig(idDis, 'gauge', dataName, 'Último valor', [values[0].value], {max, min}),
+        "height": "100%",
+        "width": "97%"
+    })
+    zingchart.render({
+        "id": idAvg,
+        "data": getConfig(idAvg, 'gauge', `${dataName}<br><br>(NO actualiza automáticamente)`, 'Valor medio', values.map((value) => value.value), {max, min}),
+        "height": "100%",
+        "width": "97%"
     })
 }
 

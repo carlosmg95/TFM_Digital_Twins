@@ -401,5 +401,5 @@ const sendData = function(dataName, data, type, len, stageId, username) {
 
     saveData(stageId, dataName, type, value)
     if (typeof io !== 'undefined')
-        io.emit(`${username}/${stageId}`, { "data": { "name": dataName, ...value } })
+        io.emit(`${username}/${stageId}`, { "data": { "name": dataName, type, ...value } })
 }

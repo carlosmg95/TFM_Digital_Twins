@@ -411,12 +411,20 @@
                 let {name, value} = data.action
                 stageActions[name](value)
             } else if (data.data) {
-                let {name, timestamp, value} = data.data
-                zingchart.exec(`data-${name}-cont`, 'addnode', {
-                    "graphid" : 0,
-                    "plotindex" : 0,
-                    "value": [new Date(timestamp).getTime(), value]
-                })
+                let {name, timestamp, type, value} = data.data
+                if (type === 4) {
+                    zingchart.exec(`data-${name}-dis`, 'setseriesvalues', {
+                        "graphid" : 0,
+                        "plotindex" : 0,
+                        "values": [value]
+                    })
+                } else if (type === 5) {
+                    zingchart.exec(`data-${name}-cont`, 'addnode', {
+                        "graphid" : 0,
+                        "plotindex" : 0,
+                        "value": [new Date(timestamp).getTime(), value]
+                    })
+                }
             }
         })
     })

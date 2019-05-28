@@ -5,8 +5,8 @@
 let modifyTimeout = null
 let zoomToValues = {}
 
-const getConfig = function(id, type, title, subtitle, modelData, units) {
-    let plot, values
+const getConfig = function(id, type, title, subtitle, modelData, extraData) {
+    let {max, min, units} = extraData
 
     let config = {
         "graphset": [
@@ -27,26 +27,6 @@ const getConfig = function(id, type, title, subtitle, modelData, units) {
                         "border-width": 2,
                         "multiple": true
                     }
-                },
-                "legend": {
-                    "background-color": "transparent",
-                    "border-width": 0,
-                    "draggable": true,
-                    "header": {
-                        "background-color": "#f0f0f0",
-                        "text": "Parámetros estadísticos"
-                    },
-                    "item": {
-                        "cursor": "hand",
-                        "font-color": "#fff",
-                        "margin": "5 17 2 0",
-                        "padding": "3 3 3 3"
-                    },
-                    "margin-top": "50",
-                    "marker": {
-                        "visible": false
-                    },
-                    "vertical-align": "top"
                 },
                 "plot": {
                     "animation": {
@@ -101,7 +81,9 @@ const getConfig = function(id, type, title, subtitle, modelData, units) {
     if (type === 'line') {
         config = getLineConfig(id, config, modelData, units)
     } else if (type === 'bar') {
-        config = getBarConfig(config, modelData, units)
+        config = getBarConfig(config, modelData)
+    } else if (type === 'gauge') {
+        config = getGaugeConfig(config, modelData, max, min)
     }
 
     return config
@@ -150,18 +132,16 @@ const modify = function(p) {
                     "zoom-to-values": zoomToValues[p.id]
                 },
                 "scale-y": {
-                    "markers": [
-                        {
-                            "label-alignment": "normal",
-                            "label-placement": "normal",
-                            "line-color": "green",
-                            "line-width": 1,
-                            "placement": "bottom",
-                            "range": [average(values)],
-                            "text": "Media",
-                            "type": "line"
-                        }
-                    ],
+                    "markers": [{
+                        "label-alignment": "normal",
+                        "label-placement": "normal",
+                        "line-color": "green",
+                        "line-width": 1,
+                        "placement": "bottom",
+                        "range": [average(values)],
+                        "text": "Media",
+                        "type": "line"
+                    }],
                     "max-value": Math.max(...values),
                     "min-value": Math.min(...values)
                 }
@@ -194,7 +174,7 @@ const modify = function(p) {
 // Private functions
 // ====================================================================================================================
 
-const getBarConfig = function(config, values, units) {
+const getBarConfig = function(config, values) {
     values = values.map((value) => value.value)
     let order = getDataOrder(values)
     if (order >= 0) {
@@ -208,14 +188,103 @@ const getBarConfig = function(config, values, units) {
     config['graphset'][0]['scale-y']['label'] = {
         "text": "repeticiones"
     }
-    config['graphset'][0]['series'] = [
-        {
-            "text": "",
-            "values": plot
-        }
-    ]
+    config['graphset'][0]['series'] = [{
+        "text": "",
+        "values": plot
+    }]
     delete(config['graphset'][0]['utc'])
-    delete(config['graphset'][0]['legend'])
+
+    return config
+}
+
+const getGaugeConfig = function(config, modelData, max, min) {
+    modelData = modelData.length > 1 ? [+average(modelData).toFixed(2)] : modelData
+
+    config['graphset'][0]['plot'] = {
+        "animation": {
+            "delay": "0",
+            "effect": "3",
+            "method": "5",
+            "sequence": "1"
+        },
+        "csize": "14%",
+        "tooltip": {
+            "visible": false
+        },
+        "size": "56%"
+    }
+    config['graphset'][0]['scale'] = {
+        "size-factor": 0.9
+    }
+    config['graphset'][0]['scaleR'] = {
+        "aperture": 290,
+        "center": {
+            "visible": false
+        },
+        "item": {
+            "visible": false
+        },
+        "ring": {
+            "background-color": "#C1C1C1",
+            "size": 20
+        },
+        "tick": {
+            "visible": false
+        },
+        "values": `${min}:${max}:${(max - min) / 10}`
+    }
+    config['graphset'][0]['scale-2'] = {
+        "size-factor": 0.55
+    }
+    config['graphset'][0]['scale-r-2'] = {
+        "aperture": 290,
+        "center": {
+            "background-color": "#BEBEBE",
+            "border-color": "#5F5F5F",
+            "border-width": 1,
+            "size": 14
+        },
+        "item": {
+            "font-size": 16,
+            "offsetR": -1
+        },
+        "label": {
+            "text": "text"
+        },
+        "minor-tick": {
+            "line-color": "#C1C1C1",
+            "placement": "inner",
+            "size": 7
+        },
+        "minor-ticks": 4,
+        "ring": {
+            "visible": false
+        },
+        "tick": {
+            "line-color": "#5F5F5F",
+            "line-width": 4,
+            "placement": "outter",
+            "size": 15
+        },
+        values: `${min}:${max}:${(max - min) / 10}`
+    }
+    config['graphset'][0]['series'] = [{
+        "background-color": "#F8B237",
+        "value-box": {
+            "font-color": "#515151",
+            "font-size": 28,
+            "offset-y": 40,
+            "placement": "center",
+            "text": "%v"
+        },
+        "values": modelData
+    }]
+    config['graphset'][0]['subtitle']['y'] = '60%'
+    config['graphset'][0]['subtitle']['align'] = 'center'
+    config['graphset'][0]['title']['y'] = '75%'
+    config['graphset'][0]['title']['align'] = 'center'
+
+    delete(config['gui'])
 
     return config
 }
@@ -229,6 +298,26 @@ const getLineConfig = function(id, config, values, units) {
     let zoomValue = plot.length <= 50 ? 0 : plot.length - 50
     zoomToValues[id] = [plot[zoomValue][0], plot[plot.length - 1][0]]
 
+    config['graphset'][0]['legend'] = {
+        "background-color": "transparent",
+        "border-width": 0,
+        "draggable": true,
+        "header": {
+            "background-color": "#f0f0f0",
+            "text": "Parámetros estadísticos"
+        },
+        "item": {
+            "cursor": "hand",
+            "font-color": "#fff",
+            "margin": "5 17 2 0",
+            "padding": "3 3 3 3"
+        },
+        "margin-top": "50",
+        "marker": {
+            "visible": false
+        },
+        "vertical-align": "top"
+    }
     config['graphset'][0]['preview'] = {
         "adjust-layout": true,
         "live": true
@@ -245,44 +334,39 @@ const getLineConfig = function(id, config, values, units) {
         "label": {
             "text": units
         },
-        "markers": [
-            {
-                "label-placement": "normal",
-                "label-alignment": "normal",
-                "line-color": "green",
-                "line-width": 1,
-                "placement": "bottom",
-                "range": [average(values)],
-                "text": "Media",
-                "type": "line"
-            }
-        ]
+        "markers": [{
+            "label-placement": "normal",
+            "label-alignment": "normal",
+            "line-color": "green",
+            "line-width": 1,
+            "placement": "bottom",
+            "range": [average(values)],
+            "text": "Media",
+            "type": "line"
+        }]
     }
-    config['graphset'][0]['series'] = [
-        {
-            "legend-item": {
-                "background-color": "#7CA82B",
-                "border-radius": 2
-            },
-            "legend-text": `Media: ${average(values).toFixed(2)}<br>Mediana: ${median(values).toFixed(2)}<br>` + 
-                            `Moda: ${mode(values).join(', ')}<br>Varianza: ${variance(values).toFixed(2)}`,
-            "text": "",
-            "values": plot
-        }
-    ]
+    config['graphset'][0]['series'] = [{
+        "legend-item": {
+            "background-color": "#7CA82B",
+            "border-radius": 2
+        },
+        "legend-text": `Media: ${average(values).toFixed(2)}<br>Mediana: ${median(values).toFixed(2)}<br>` + 
+                        `Moda: ${mode(values).join(', ')}<br>Varianza: ${variance(values).toFixed(2)}`,
+        "text": "",
+        "values": plot
+    }]
     config['graphset'][0]['timezone'] = new Date().getTimezoneOffset() / (-60)
 
     return config
 }
 
-zingchart.load = function(p){
+zingchart.load = function(p) {
     zingchart.zoom = modify
 }
 
 zingchart.node_add = function(p) {
-    if (p.id.match(/.*-cont/)) {
+    if (p.id.match(/.*-cont/))
         modify(p)
-    }
 }
 
 // Array functions
