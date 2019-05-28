@@ -80,12 +80,16 @@ module.exports.create = function(req, res, next) {
         // Save the stage data
         function saveStage(cb) {
             let article = {
-                name,
                 id_str,
-                "owner_id": ownerId,
                 model,
-                actions,
-                events
+                name,
+                "owner_id": ownerId
+            }
+            if (actions.length > 0) {
+                article.actions = actions
+            }
+            if (events.length > 0) {
+                article.events = events
             }
             mongodb.create('stages', article, function(error, result) {
                 if (error)
@@ -213,73 +217,141 @@ module.exports.readData = function(topic, payload, message) {
 // Private functions
 // ====================================================================================================================
 
-const saveData = function(stageId, dataName, type, value) {
-    async.waterfall([
-        // Get the data of the stage
-        function getData(cb) {
-            mongodb.read('stages', { "id_str": stageId }, function(error, docs) {
-                if (error || !docs[0])
-                    return
-                let data, dataAux, dataNames
+const saveActionData = function(stageId, dataName, value, cb) {
+    mongodb.read('stages', { "id_str": stageId }, function(error, docs) {
+        if (error || !docs[0])
+            return
+        let data, dataAux, dataNames
 
-                if (docs[0].data) {  // If there is saved data
-                    data = docs[0].data
+        if (!fns.arrayContains(docs[0].actions.map((action) => action.name), dataName))
+            return
 
-                    if (value.value === 'STOP_ALL') {
-                        dataNames = data.filter((datum) => datum.type === type).map((datum) => datum.name)  // Update all data
-                        value.value = 'STOP'
-                    } else {
-                        dataNames = [dataName]  // Update only one datum
-                    }
+        if (docs[0].data) {  // If there is saved data
+            data = docs[0].data
 
-                    dataNames.forEach(function(dataName) {
-                        if (data.reduce((pre, curr) => pre |= (curr.name === dataName), false)) {  // If there is saved data with this name
-                            let index = data.findIndex((datum) => datum.name === dataName)
-                            let {name, type, values} = data[index]
+            if (value.value === 'STOP_ALL') {
+                dataNames = data.filter((datum) => datum.type === type).map((datum) => datum.name)  // Update all data
+                value.value = 'STOP'
+            } else {
+                dataNames = [dataName]  // Update only one datum
+            }
 
-                            if (type === 0) {
-                                if (value.value !== values[0].value)  // If different value, the new value is in the first position
-                                    values = [value, ...values]
-                                else if (value.value === 'START')  // If same value and it is "START", it replaces the value
-                                    values[0] = value
-                                // If same value and it's not "START", it doesn't change
-                            } else {
-                                values = [value, ...values]
-                            }
+            dataNames.forEach(function(dataName) {
+                if (data.some((datum) => datum.name === dataName)) {  // If there is saved data with this name
+                    let {name, type, values} = data.find((datum) => datum.name === dataName)
 
-                            // Set the data in the last position
-                            data.splice(index, 1)
-                            data.push({
-                                "name": dataName,
-                                "type": type,
-                                "values": values
-                            })
-                        } else {  // If there is no saved data with this name yet
-                            data.push({
-                                "name": dataName,
-                                "type": type,
-                                "values": [value]
-                            })
-                        }
+                    if (value.value !== values[0].value)  // If different value, the new value is in the first position
+                        values = [value, ...values]
+                    else if (value.value === 'START')  // If same value and it is "START", it replaces the value
+                        values[0] = value
+                    // If same value and it's not "START", it doesn't change
+
+                    // Set the data in the last position
+                    data.splice(index, 1)
+                    data.push({
+                        "name": dataName,
+                        "type": type,
+                        "values": values
                     })
-                } else {  // If there is no saved data yet
-                    data = [{
+                } else {  // If there is no saved data with this name yet
+                    data.push({
                         "name": dataName,
                         "type": type,
                         "values": [value]
-                    }]
+                    })
                 }
-                cb(null, data)
-            }, { "project": { "data": 1, "_id": 0 } })
-        },
-        // Update the stage with the new data
-        function updateStage(data, cb) {
-            mongodb.update('stages', { "id_str": stageId }, {data}, function(error, result) {
-                if (error)
-                    return
             })
+        } else {  // If there is no saved data yet
+            data = [{
+                "name": dataName,
+                "type": type,
+                "values": [value]
+            }]
         }
-    ])
+        cb(null, data)
+    }, { "project": { "_id": 0, "actions": 1, "data": 1 } })
+}
+
+const saveData = function(stageId, dataName, type, value) {
+    // Update the stage with the new data
+    const updateStage = function(data, cb) {
+        mongodb.update('stages', { "id_str": stageId }, {data}, function(error, result) {
+            if (error)
+                return
+        })
+    }
+
+    let functions = []
+
+    switch(type) {
+        case 0:
+            functions = [(cb) => saveActionData(stageId, dataName, value, cb), updateStage]
+            break
+        case 4:
+        case 5:
+            functions = [(cb) => saveNumData(stageId, dataName, type, value, cb), updateStage]
+            break
+        default:
+            return
+
+    }
+
+    async.waterfall(functions)
+}
+
+const saveNumData = function(stageId, dataName, type, value, cb) {
+    mongodb.read('stages', { "id_str": stageId }, function(error, docs) {
+        if (error || !docs[0])
+            return
+        let data, dataAux, dataNames, newData
+
+        if (!docs[0].data_data || !fns.arrayContains(docs[0].data_data.filter((data) => data.type === type).map((data) => data.name), dataName))
+            return
+
+        dataData = docs[0].data_data.find((datum) => (datum.name === dataName) && (datum.type === type))
+
+        if (type === 4) {
+            value.value = Math.max(dataData.min, value.value)
+            value.value = Math.min(dataData.max, value.value)
+            newData = {
+                "max": dataData.max,
+                "min": dataData.min,
+                "name": dataName,
+                "type": type,
+                "values": [value]
+            }
+        } else if (type === 5) {
+            newData = {
+                "name": dataName,
+                "type": type,
+                "units": dataData.units,
+                "values": [value]
+            }
+        } else {
+            return
+        }
+
+        if (docs[0].data) {  // If there is saved data
+            data = docs[0].data
+
+            if (data.some((datum) => datum.name === dataName)) {  // If there is saved data with this name
+                let {name, type, values} = data.find((datum) => datum.name === dataName)
+
+                values = [value, ...values]
+
+                data = data.map(function(datum) {
+                    if (datum.name === dataName)
+                        datum.values = values
+                    return datum
+                })
+            } else {  // If there is no saved data with this name yet
+                data.push(newData)
+            }
+        } else {  // If there is no saved data yet
+            data = [newData]
+        }
+        cb(null, data)
+    }, { "project": { "_id": 0, "data": 1, "data_data": 1 } })
 }
 
 const sendAction = function(actionName, data, len, stageId, username) {
