@@ -109,6 +109,23 @@ module.exports.create = function(req, res, next) {
     })
 }
 
+module.exports.getActionsData = function(req, res, next) {
+    let {idStr} = req.params
+    let ownerId = req.session.user.id
+    let where = { "data.type": 0, "id_str": idStr, "owner_id": ownerId }
+
+    mongodb.read('stages', where, function(error, docs) {
+        if (error) {
+            req.error = error
+            return res.renderError(500)
+        }
+        if (!docs || docs.length === 0)
+            return res.renderError(404)
+        req.data = docs  // Get all the stages in the index page
+        next()
+    }, { "project": { "_id": 0, "data": 1 } })
+}
+
 module.exports.getBackground = function(req, res, next) {
     let {idStr, pos, type} = req.params
     let ownerId = req.session.user.id
@@ -137,9 +154,9 @@ module.exports.getBackground = function(req, res, next) {
 }
 
 module.exports.getStages = function(req, res, next) {
-    let {id_str} = req.params
+    let {idStr} = req.params
     let ownerId = req.session.user.id
-    let where = id_str ? {id_str, "owner_id": ownerId} : {"owner_id": ownerId}  // If there isn't a id_str, it get all models
+    let where = idStr ? { "id_str": idStr, "owner_id": ownerId } : { "owner_id": ownerId }  // If there isn't a id_str, it get all models
 
     mongodb.read('stages', where, function(error, docs) {
         if (error) {
@@ -148,7 +165,7 @@ module.exports.getStages = function(req, res, next) {
         }
         if (docs && docs.length !== 0)
             req.stage = docs[0]  // Show the stage in its page
-        else if (id_str && (!docs || docs.length === 0))
+        else if (idStr && (!docs || docs.length === 0))
             return res.renderError(404)
         req.data = docs  // Get all the stages in the index page
         next()
@@ -230,7 +247,7 @@ const saveActionData = function(stageId, dataName, value, cb) {
             data = docs[0].data
 
             if (value.value === 'STOP_ALL') {
-                dataNames = data.filter((datum) => datum.type === type).map((datum) => datum.name)  // Update all data
+                dataNames = data.filter((datum) => datum.type === 0).map((datum) => datum.name)  // Update all data
                 value.value = 'STOP'
             } else {
                 dataNames = [dataName]  // Update only one datum
@@ -239,24 +256,27 @@ const saveActionData = function(stageId, dataName, value, cb) {
             dataNames.forEach(function(dataName) {
                 if (data.some((datum) => datum.name === dataName)) {  // If there is saved data with this name
                     let {name, type, values} = data.find((datum) => datum.name === dataName)
+                    let index = data.findIndex((datum) => datum.name === dataName)
 
-                    if (value.value !== values[0].value)  // If different value, the new value is in the first position
+                    if (value.value !== values[0].value) {  // If different value, the new value is in the first position
                         values = [value, ...values]
-                    else if (value.value === 'START')  // If same value and it is "START", it replaces the value
-                        values[0] = value
+                    } else if (value.value === 'START') {  // If same value and it is "START", it updates the value
+                        values[0].first_timestamp = values[0].first_timestamp || values[0].timestamp
+                        values[0].timestamp = value.timestamp
+                    }
                     // If same value and it's not "START", it doesn't change
 
                     // Set the data in the last position
                     data.splice(index, 1)
                     data.push({
                         "name": dataName,
-                        "type": type,
+                        "type": 0,
                         "values": values
                     })
                 } else {  // If there is no saved data with this name yet
                     data.push({
                         "name": dataName,
-                        "type": type,
+                        "type": 0,
                         "values": [value]
                     })
                 }
@@ -264,7 +284,7 @@ const saveActionData = function(stageId, dataName, value, cb) {
         } else {  // If there is no saved data yet
             data = [{
                 "name": dataName,
-                "type": type,
+                "type": 0,
                 "values": [value]
             }]
         }

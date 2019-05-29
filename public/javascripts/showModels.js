@@ -484,6 +484,33 @@ const showActionsData = function(actionName, values) {
         if (time)
             stageActions[actionName]('START', time)
     }
+
+    let idAction = `data-${actionName}-action-time`
+    let idSum = `data-${actionName}-sum`
+
+    if ($(`#${idAction}`).length === 0) {
+        $('#charts').append(`<div id="${idAction}" class="mb-1 col-12 col-lg-6"></div>`)
+        $('#charts').append(`<div id="${idSum}" class="mb-1 col-12 col-lg-6"></div>`)
+    }
+
+    values = values.map(function(value) {
+        if (value.value === 'START')
+            value.timestamp = value.first_timestamp || value.timestamp
+        return value
+    })
+
+    zingchart.render({
+        "id": idSum,
+        "data": getConfig(idSum, 'pie', actionName, 'Datos totales', values),
+        "height": "100%",
+        "width": "97%"
+    })
+    zingchart.render({
+        "id": idAction,
+        "data": getConfig(idAction, 'area', actionName, 'Reparto en tiempo', values),
+        "height": "100%",
+        "width": "97%"
+    })
 }
 
 const showContData = function(dataName, values, units) {

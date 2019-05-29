@@ -33,4 +33,5 @@ module.exports = function(app) {
     app.post('/api/stages/create', stages.create, api.common.data)
     app.get('/api/stage/existid/:idStr', stages.idStrExist, api.common.data)
     app.get('/api/stage/getbackground/:type/:idStr/:pos', stages.getBackground, api.common.file)
+    app.get('/api/stage/getactionsdata/:idStr', stages.getActionsData, api.common.data)
 }

@@ -405,6 +405,16 @@
         else
             $('#edit-model')[0].hidden = true
 
+        setInterval(function() {
+            $.get('/api/stage/getactionsdata/<%= stage.id_str %>', function(result) {
+                if (result.code === 0) {
+                    let data = result.data[0].data
+
+                    data.forEach((datum) => showActionsData(datum.name, datum.values))
+                }
+            })
+        }, 10 * 60 * 1000)
+
         let socket = io.connect(baseUrl)
         socket.on('<%= user.username %>/<%= stage.id_str %>', function(data) {
             if (data.action) {
