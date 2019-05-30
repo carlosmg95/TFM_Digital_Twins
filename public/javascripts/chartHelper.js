@@ -85,7 +85,7 @@ const getConfig = function(id, type, title, subtitle, modelData, extraData) {
     } else if (type === 'gauge') {
         config = getGaugeConfig(config, modelData, max, min)
     } else if (type === 'line') {
-        config = getLineConfig(id, config, modelData, units)
+        config = getLineConfig(id, config, modelData, units, max, min)
     } else if (type === 'pie') {
         config = getPieConfig(id, config, modelData, min, max)
     }
@@ -95,8 +95,8 @@ const getConfig = function(id, type, title, subtitle, modelData, extraData) {
 
 
 const modify = function(p) {
-    if (p.id.match(/.*-cont$/))
-        modifyCon(p)
+    if (p.id.match(/.*-cont$/) || p.id.match(/.*-dis-hist$/))
+        modifyNum(p)
     else if (p.id.match(/.*-action-time$/))
         modifyActions(p)
 }
@@ -175,14 +175,14 @@ const getAreaConfig = function(id, config, values) {
 }
 
 const getBarConfig = function(config, values) {
-    values = values.map((value) => value.value)
-    let order = getDataOrder(values)
+    let localValues = values.map((value) => value.value)
+    let order = getDataOrder(localValues)
     if (order >= 0) {
-        values = values.map((value) => +Math.round(value))
+        localValues = localValues.map((value) => +Math.round(value))
     } else {
-        values = values.map((value) => +Math.round(value * Math.pow(10, -order)) / Math.pow(10, -order))
+        localValues = localValues.map((value) => +Math.round(value * Math.pow(10, -order)) / Math.pow(10, -order))
     }
-    plot = group(values)
+    let plot = group(localValues)
 
     config['graphset'][0]['plot']['aspect'] = "histogram"
     config['graphset'][0]['scale-y']['label'] = {
@@ -197,8 +197,8 @@ const getBarConfig = function(config, values) {
     return config
 }
 
-const getGaugeConfig = function(config, modelData, max, min) {
-    modelData = modelData.length > 1 ? [+average(modelData).toFixed(2)] : modelData
+const getGaugeConfig = function(config, values, max, min) {
+    let localValues = values.length > 1 ? [+average(values).toFixed(2)] : values
 
     config['graphset'][0]['plot'] = {
         "animation": {
@@ -277,7 +277,7 @@ const getGaugeConfig = function(config, modelData, max, min) {
             "placement": "center",
             "text": "%v"
         },
-        "values": modelData
+        "values": localValues
     }]
     config['graphset'][0]['subtitle']['y'] = '60%'
     config['graphset'][0]['subtitle']['align'] = 'center'
@@ -289,11 +289,11 @@ const getGaugeConfig = function(config, modelData, max, min) {
     return config
 }
 
-const getLineConfig = function(id, config, values, units) {
-    plot = values.map(function(value) {
+const getLineConfig = function(id, config, values, units, max, min) {
+    let plot = values.map(function(value) {
         return [new Date(value.timestamp).getTime(), +value.value]
     }).reverse()
-    values = plot.map((value) => value[1])
+    let localValues = plot.map((value) => value[1])
 
     zoomToValues[id] = [plot[plot.length - 1][0] - 1 * 24 * 60 * 60 * 1000, plot[plot.length - 1][0]]  // Show the last day
 
@@ -339,7 +339,7 @@ const getLineConfig = function(id, config, values, units) {
             "line-color": "green",
             "line-width": 1,
             "placement": "bottom",
-            "range": [average(values)],
+            "range": [average(localValues)],
             "text": "Media",
             "type": "line"
         }]
@@ -349,12 +349,18 @@ const getLineConfig = function(id, config, values, units) {
             "background-color": "#7CA82B",
             "border-radius": 2
         },
-        "legend-text": `Media: ${average(values).toFixed(2)}<br>Mediana: ${median(values).toFixed(2)}<br>` + 
-                        `Moda: ${mode(values).join(', ')}<br>Varianza: ${variance(values).toFixed(2)}`,
+        "legend-text": `Media: ${average(localValues).toFixed(2)}<br>Mediana: ${median(localValues).toFixed(2)}<br>` + 
+                        `Moda: ${mode(localValues).join(', ')}<br>Varianza: ${variance(localValues).toFixed(2)}`,
         "text": "",
         "values": plot
     }]
     config['graphset'][0]['timezone'] = new Date().getTimezoneOffset() / (-60)
+
+    if (id.match(/.*-dis-hist$/) && max !== undefined && min !== undefined) {
+        config['graphset'][0]['type'] = 'area'
+        config['graphset'][0]['scale-y']['max-value'] = max
+        config['graphset'][0]['scale-y']['min-value'] = min
+    }
 
     return config
 }
@@ -592,7 +598,7 @@ const modifyActions = function(p) {
     })
 }
 
-const modifyCon = function(p) {
+const modifyNum = function(p) {
     clearTimeout(modifyTimeout)
     zingchart.zoom = function(p) {}  // Void infinity loops
     let values = zingchart.exec(p.id, 'getseriesvalues', {
@@ -601,7 +607,7 @@ const modifyCon = function(p) {
     let x = values.map((value) => value[0])
     let y = values.map((value) => value[1])
 
-    let maxIndex, minIndex
+    let maxIndex, maxValue, minIndex, minValue
 
     if (p.action === 'viewall') {
         minIndex = 0
@@ -618,6 +624,11 @@ const modifyCon = function(p) {
     zoomToValues[p.id] = [x[minIndex], x[maxIndex]]
 
     values = y.slice(minIndex, maxIndex + 1)
+
+    if (p.id.match(/.*-dis-hist$/)) {
+        maxValue = zingchart.exec(p.id, 'getobjectinfo', { "object": "scale", "name": 'scale-y' }).maxValue
+        minValue = zingchart.exec(p.id, 'getobjectinfo', { "object": "scale", "name": 'scale-y' }).minValue
+    }
 
     if (p.async !== false) {
         zingchart.exec(p.id, 'appendseriesdata', {
@@ -644,8 +655,8 @@ const modifyCon = function(p) {
                         "text": "Media",
                         "type": "line"
                     }],
-                    "max-value": Math.max(...values),
-                    "min-value": Math.min(...values)
+                    "max-value": maxValue !== undefined ? maxValue : Math.max(...values),
+                    "min-value": minValue !== undefined ? minValue : Math.min(...values)
                 }
             },
             "graphid": 0
@@ -657,18 +668,20 @@ const modifyCon = function(p) {
 
     // Change bar chart
 
-    let barId = p.id.replace(/-cont$/, '-sum')
-    let order = getDataOrder(values)
-    if (order >= 0) {
-        values = values.map((value) => +Math.round(value))
-    } else {
-        values = values.map((value) => +Math.round(value * Math.pow(10, -order)) / Math.pow(10, -order))
+    if (p.id.match(/.*-cont$/)) {
+        let barId = p.id.replace(/-cont$/, '-sum')
+        let order = getDataOrder(values)
+        if (order >= 0) {
+            values = values.map((value) => +Math.round(value))
+        } else {
+            values = values.map((value) => +Math.round(value * Math.pow(10, -order)) / Math.pow(10, -order))
+        }
+        let plot = group(values)
+        zingchart.exec(barId, 'setseriesvalues', {
+            plotindex : 0,
+            values : plot
+        })
     }
-    let plot = group(values)
-    zingchart.exec(barId, 'setseriesvalues', {
-        plotindex : 0,
-        values : plot
-    })
     zingchart.zoom = modify
 }
 
@@ -677,8 +690,8 @@ zingchart.load = function(p) {
 }
 
 zingchart.node_add = function(p) {
-    if (p.id.match(/.*-cont$/))
-        modifyCon(p)
+    if (p.id.match(/.*-cont$/) || p.id.match(/.*-dis-hist$/))
+        modifyNum(p)
 }
 
 // Array functions

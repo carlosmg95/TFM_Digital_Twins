@@ -557,10 +557,10 @@ const showData = function(modelData) {
 
 const showDisData = function(dataName, values, max, min) {
     let idDis = `data-${dataName}-dis`
-    let idAvg = `data-${dataName}-dis-avg`
+    let idHist = `data-${dataName}-dis-hist`
 
     $('#charts').append(`<div id="${idDis}" class="mb-1 col-12 col-lg-6"></div>`)
-    $('#charts').append(`<div id="${idAvg}" class="mb-1 col-12 col-lg-6"></div>`)
+    $('#charts').append(`<div id="${idHist}" class="mb-1 col-12 col-lg-6"></div>`)
 
     zingchart.render({
         "id": idDis,
@@ -569,8 +569,8 @@ const showDisData = function(dataName, values, max, min) {
         "width": "97%"
     })
     zingchart.render({
-        "id": idAvg,
-        "data": getConfig(idAvg, 'gauge', `${dataName}<br><br>(NO actualiza automáticamente)`, 'Valor medio', values.map((value) => value.value), {max, min}),
+        "id": idHist,
+        "data": getConfig(idHist, 'line', `${dataName}`, 'Histórico', values, {max, min}),
         "height": "100%",
         "width": "97%"
     })

@@ -428,6 +428,11 @@
                         "plotindex" : 0,
                         "values": [value]
                     })
+                    zingchart.exec(`data-${name}-dis-hist`, 'addnode', {
+                        "graphid" : 0,
+                        "plotindex" : 0,
+                        "value": [new Date(timestamp).getTime(), value]
+                    })
                 } else if (type === 5) {
                     zingchart.exec(`data-${name}-cont`, 'addnode', {
                         "graphid" : 0,
