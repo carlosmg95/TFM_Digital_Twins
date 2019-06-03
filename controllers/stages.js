@@ -22,7 +22,7 @@ module.exports.create = function(req, res, next) {
     async.series([
         // Get the model data
         function getModel(cb) {
-            mongodb.read('models', {"owner_id": ownerId, "name": model.name}, function(error, docs) {
+            mongodb.read('models', { "owner_id": ownerId, "name": model.name }, function(error, docs) {
                 if (error)
                     return cb(error)
 
@@ -219,8 +219,6 @@ module.exports.readData = function(topic, payload, message) {
             sendAction(dataid, data, len, stageid, username)
             break
         case 1:
-        case 2:
-        case 3:
         case 4:
         case 5:
             sendData(dataid, data, type, len, stageid, username)
@@ -307,6 +305,7 @@ const saveData = function(stageId, dataName, type, value) {
         case 0:
             functions = [(cb) => saveActionData(stageId, dataName, value, cb), updateStage]
             break
+        case 1:
         case 4:
         case 5:
             functions = [(cb) => saveNumData(stageId, dataName, type, value, cb), updateStage]
@@ -330,7 +329,16 @@ const saveNumData = function(stageId, dataName, type, value, cb) {
 
         dataData = docs[0].data_data.find((datum) => (datum.name === dataName) && (datum.type === type))
 
-        if (type === 4) {
+        if (type === 1) {
+            if (!fns.arrayContains(dataData.states, value.value))
+                return
+            newData = {
+                "name": dataName,
+                "states": dataData.states,
+                "type": type,
+                "values": [value]
+            }
+        } else if (type === 4) {
             value.value = Math.max(dataData.min, value.value)
             value.value = Math.min(dataData.max, value.value)
             newData = {
@@ -412,7 +420,7 @@ const sendAction = function(actionName, data, len, stageId, username) {
 
 const sendData = function(dataName, data, type, len, stageId, username) {
     len = Math.min(len, MAX_SIZE_MSG_MQTT - HEADER_SIZE_MSG_MQTT)
-    data = +data.substring(0, len)
+    data = (type === 4) || (type === 5) ? parseInt(data.substring(0, len)) : data.substring(0, len)
 
     let value = {
         "value": data,

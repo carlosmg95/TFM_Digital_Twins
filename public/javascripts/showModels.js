@@ -478,15 +478,15 @@ const setupEvents = function(modelScene, modelEvents) {
     })
 }
 
-const showActionsData = function(actionName, values) {
+const showActionsData = function({name, values}) {
     let time = getRunningTime(values, new Date())
     if (values[0].value === 'START' || values[0].value === 'RESUME') {
         if (time)
-            stageActions[actionName]('START', time)
+            stageActions[name]('START', time)
     }
 
-    let idAction = `data-${actionName}-action-time`
-    let idSum = `data-${actionName}-sum`
+    let idAction = `data-${name}-action-time`
+    let idSum = `data-${name}-sum`
 
     if ($(`#${idAction}`).length === 0) {
         $('#charts').append(`<div id="${idAction}" class="mb-1 col-12 col-lg-6"></div>`)
@@ -501,34 +501,55 @@ const showActionsData = function(actionName, values) {
 
     zingchart.render({
         "id": idSum,
-        "data": getConfig(idSum, 'pie', actionName, 'Datos totales', values),
+        "data": getConfig(idSum, 'pie', name, 'Datos totales', values),
         "height": "100%",
         "width": "97%"
     })
     zingchart.render({
         "id": idAction,
-        "data": getConfig(idAction, 'area', actionName, 'Reparto en tiempo', values),
+        "data": getConfig(idAction, 'area', name, 'Reparto en tiempo', values),
         "height": "100%",
         "width": "97%"
     })
 }
 
-const showContData = function(dataName, values, units) {
-    let idCont = `data-${dataName}-cont`
-    let idSum = `data-${dataName}-sum`
+const showCatData = function({name, values, states}) {
+    let idBar = `data-${name}-cat-bar`
+    let idPie = `data-${name}-cat-pie`
+
+    $('#charts').append(`<div id="${idBar}" class="mb-1 col-12 col-lg-6"></div>`)
+    $('#charts').append(`<div id="${idPie}" class="mb-1 col-12 col-lg-6"></div>`)
+
+    zingchart.render({
+        "id": idBar,
+        "data": getConfig(idBar, 'bar', name, 'Datos totales', values, {states}),
+        "height": "100%",
+        "width": "97%"
+    })
+    zingchart.render({
+        "id": idPie,
+        "data": getConfig(idPie, 'pie', name, 'Porcentaje estados', values, {states}),
+        "height": "100%",
+        "width": "97%"
+    })
+}
+
+const showContData = function({name, values, units}) {
+    let idCont = `data-${name}-cont`
+    let idSum = `data-${name}-sum`
 
     $('#charts').append(`<div id="${idCont}" class="mb-1 col-12 col-lg-6"></div>`)
     $('#charts').append(`<div id="${idSum}" class="mb-1 col-12 col-lg-6"></div>`)
 
     zingchart.render({
         "id": idCont,
-        "data": getConfig(idCont, 'line', dataName, 'Datos continuos', values, {units}),
+        "data": getConfig(idCont, 'line', name, 'Datos continuos', values, {units}),
         "height": "100%",
         "width": "97%"
     })
     zingchart.render({
         "id": idSum,
-        "data": getConfig(idSum, 'bar', dataName, 'Datos totales', values),
+        "data": getConfig(idSum, 'bar', name, 'Datos totales', values),
         "height": "100%",
         "width": "97%"
     })
@@ -538,16 +559,18 @@ const showData = function(modelData) {
     modelData = JSON.parse(modelData)
 
     modelData.forEach(function(datum) {
-        let {max, min, name, units, values} = datum
         switch(datum.type) {
             case 0:
-                showActionsData(name, values)
+                showActionsData(datum)
+                break
+            case 1:
+                showCatData(datum)
                 break
             case 4:
-                showDisData(name, values, max, min)
+                showDisData(datum)
                 break
             case 5:
-                showContData(name, values, units)
+                showContData(datum)
                 break
             default:
                 return
@@ -555,22 +578,22 @@ const showData = function(modelData) {
     })
 }
 
-const showDisData = function(dataName, values, max, min) {
-    let idDis = `data-${dataName}-dis`
-    let idHist = `data-${dataName}-dis-hist`
+const showDisData = function({name, values, max, min}) {
+    let idDis = `data-${name}-dis`
+    let idHist = `data-${name}-dis-hist`
 
     $('#charts').append(`<div id="${idDis}" class="mb-1 col-12 col-lg-6"></div>`)
     $('#charts').append(`<div id="${idHist}" class="mb-1 col-12 col-lg-6"></div>`)
 
     zingchart.render({
         "id": idDis,
-        "data": getConfig(idDis, 'gauge', dataName, 'Último valor', [values[0].value], {max, min}),
+        "data": getConfig(idDis, 'gauge', name, 'Último valor', [values[0].value], {max, min}),
         "height": "100%",
         "width": "97%"
     })
     zingchart.render({
         "id": idHist,
-        "data": getConfig(idHist, 'line', `${dataName}`, 'Histórico', values, {max, min}),
+        "data": getConfig(idHist, 'line', `${name}`, 'Histórico', values, {max, min}),
         "height": "100%",
         "width": "97%"
     })

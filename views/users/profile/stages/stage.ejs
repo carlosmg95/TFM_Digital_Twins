@@ -410,7 +410,7 @@
                 if (result.code === 0) {
                     let data = result.data[0].data
 
-                    data.forEach((datum) => showActionsData(datum.name, datum.values))
+                    data.forEach((datum) => showActionsData(datum))
                 }
             })
         }, 10 * 60 * 1000)
@@ -422,7 +422,24 @@
                 stageActions[name](value)
             } else if (data.data) {
                 let {name, timestamp, type, value} = data.data
-                if (type === 4) {
+                if (type === 1) {
+                    let catValues = zingchart.exec(`data-${name}-cat-bar`, 'getseriesvalues', {
+                        "graphid" : 0,
+                        "plotindex" : 0
+                    })
+                    let plotIndex = 0
+                    catValues.forEach((catValue, i) => { if (catValue[0] === value) { catValue[1]++; plotIndex = i }})
+                    zingchart.exec(`data-${name}-cat-bar`, 'setseriesvalues', {
+                        "graphid" : 0,
+                        "plotindex" : 0,
+                        "values": catValues
+                    })
+                    zingchart.exec(`data-${name}-cat-pie`, 'setseriesvalues', {
+                        "graphid" : 0,
+                        "plotindex" : plotIndex,
+                        "values": [catValues[plotIndex]]
+                    })
+                } else if (type === 4) {
                     zingchart.exec(`data-${name}-dis`, 'setseriesvalues', {
                         "graphid" : 0,
                         "plotindex" : 0,

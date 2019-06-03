@@ -6,7 +6,7 @@ let modifyTimeout = null
 let zoomToValues = {}
 
 const getConfig = function(id, type, title, subtitle, modelData, extraData) {
-    let {max, min, units} = extraData || {}
+    let {max, min, states, units} = extraData || {}
 
     let config = {
         "graphset": [
@@ -81,13 +81,13 @@ const getConfig = function(id, type, title, subtitle, modelData, extraData) {
     if (type === 'area') {
         config = getAreaConfig(id, config, modelData)
     } else if (type === 'bar') {
-        config = getBarConfig(config, modelData)
+        config = getBarConfig(config, modelData, states)
     } else if (type === 'gauge') {
         config = getGaugeConfig(config, modelData, max, min)
     } else if (type === 'line') {
         config = getLineConfig(id, config, modelData, units, max, min)
     } else if (type === 'pie') {
-        config = getPieConfig(id, config, modelData, min, max)
+        config = getPieConfig(id, config, modelData, states, min, max)
     }
 
     return config
@@ -174,17 +174,25 @@ const getAreaConfig = function(id, config, values) {
     return config
 }
 
-const getBarConfig = function(config, values) {
+const getBarConfig = function(config, values, states) {
     let localValues = values.map((value) => value.value)
-    let order = getDataOrder(localValues)
-    if (order >= 0) {
-        localValues = localValues.map((value) => +Math.round(value))
+    if (states) {
+        config['graphset'][0]['plot']['aspect'] = "bar"
+        config['graphset'][0]['scale-x'] = [{
+            "labels": states
+        }]
     } else {
-        localValues = localValues.map((value) => +Math.round(value * Math.pow(10, -order)) / Math.pow(10, -order))
+        let order = getDataOrder(localValues)
+        if (order >= 0) {
+            localValues = localValues.map((value) => +Math.round(value))
+        } else {
+            localValues = localValues.map((value) => +Math.round(value * Math.pow(10, -order)) / Math.pow(10, -order))
+        }
+        config['graphset'][0]['plot']['aspect'] = "histogram"
     }
-    let plot = group(localValues)
 
-    config['graphset'][0]['plot']['aspect'] = "histogram"
+    let plot = group(localValues, states)
+
     config['graphset'][0]['scale-y']['label'] = {
         "text": "repeticiones"
     }
@@ -192,6 +200,7 @@ const getBarConfig = function(config, values) {
         "text": "",
         "values": plot
     }]
+
     delete(config['graphset'][0]['utc'])
 
     return config
@@ -365,7 +374,81 @@ const getLineConfig = function(id, config, values, units, max, min) {
     return config
 }
 
-const getPieConfig = function(id, config, values, min, max) {
+const getPieConfig = function(id, config, values, states, min, max) {
+    let localValues = values.slice()
+
+    config['graphset'][0]['legend'] = {
+        "adjust-layout": true,
+        "align": "center",
+        "background-color": "#FBFCFE",
+        "border-width": 0,
+        "item": {
+            "cursor": "pointer",
+            "font-color": "#777",
+            "font-size": 12,
+            "offsetX": -6
+        },
+        "marker": {
+            "border-width": 0,
+            "cursor": "pointer",
+            "size": 5,
+            "type": "circle"
+        },
+        "media-rules": [{
+            "max-width": 500,
+            "visible": false
+        }],
+        "toggle-action": "remove",
+        "vertical-align": "bottom"
+    }
+    config['graphset'][0]['plot'] = {
+        "background-color": "#FBFCFE",
+        "border-width": 0,
+        "slice": "50%",
+        "value-box": [{
+            "placement": "out",
+            "text": "%t",
+            "type": "all"
+        },
+        {
+            "placement": "in",
+            "rules": [{
+                "rule": "%v == 0",
+                "visible": "false"
+            }],
+            "text": "%npv%",
+            "type": "all",
+
+        }]
+    }
+    config['graphset'][0]['series'] = []
+    config['graphset'][0]['tooltip'] = {
+        "anchor": "c",
+        "background-color": "none",
+        "border-width": 0,
+        "fontSize": 12,
+        "media-rules": [{
+            "max-width": 500,
+            "y": "54%"
+        }],
+        "rules": [],
+        "sticky": true,
+        "text": `<span style="color:%color">%t</span><br><span style="color:%color">%v</span>`,
+        "thousands-separator": ",",
+        "x": "50%",
+        "y": "50%"
+    }
+
+    if (id.match(/-cat-pie$/)) {
+        config = getPieCatConfig(config, localValues, states)
+    } else if (id.match(/-sum$/)) {
+        config = getPieActionConfig(config, localValues, min, max)
+    }
+
+    return config
+}
+
+const getPieActionConfig = function(config, values, min, max) {
     let localValues = values.slice()
     localValues.reverse()
     localValues.push({ "timestamp": new Date() })
@@ -406,62 +489,6 @@ const getPieConfig = function(id, config, values, min, max) {
         return curr
     })
 
-    config['graphset'][0]['legend'] = {
-        "adjust-layout": true,
-        "align": "center",
-        "background-color": "#FBFCFE",
-        "border-width": 0,
-        "item": {
-            "cursor": "pointer",
-            "font-color": "#777",
-            "font-size": 12,
-            "offsetX": -6
-        },
-        "marker": {
-            "border-width": 0,
-            "cursor": "pointer",
-            "size": 5,
-            "type": "circle"
-        },
-        "media-rules": [{
-            "max-width": 500,
-            "visible": false
-        }],
-        "toggle-action": "remove",
-        "vertical-align": "bottom"
-    }
-    config['graphset'][0]['plot'] = {
-        "background-color": "#FBFCFE",
-        "border-width": 0,
-        "slice": "50%",
-        "value-box": [{
-            "placement": "out",
-            "text": "%t",
-            "type": "all"
-        },
-        {
-            "placement": "in",
-            "text": "%npv%",
-            "type": "all"
-        }]
-    }
-    config['graphset'][0]['series'] = []
-    config['graphset'][0]['tooltip'] = {
-        "anchor": "c",
-        "background-color": "none",
-        "border-width": 0,
-        "fontSize": 12,
-        "media-rules": [{
-            "max-width": 500,
-            "y": "54%"
-        }],
-        "rules": [],
-        "sticky": true,
-        "text": `<span style="color:%color">%p</span><br><span style="color:%color">%v</span>`,
-        "thousands-separator": ",",
-        "x": "50%",
-        "y": "50%"
-    }
     if (series['RUNNING'] > 0) {
         config['graphset'][0]['series'].push({
             "background-color": "green",
@@ -513,6 +540,31 @@ const getPieConfig = function(id, config, values, min, max) {
         })
         nSeries++
     }
+
+    return config
+}
+
+const getPieCatConfig = function(config, values, states) {
+    let localValues = values.map((value) => value.value)
+    localValues = group(localValues, states)
+
+    let n = Math.round(Math.random() * (178 - 78) + 78)
+
+    localValues.forEach(function(value, i) {
+        let rgb = [n, n, n]
+        rgb[i % 3] = (n + (i + 1) * 10) % 256
+        let color = `rgb(${rgb.join(', ')})`
+        config['graphset'][0]['series'].push({
+            "background-color": color,
+            "line-color": color,
+            "line-width": 1,
+            "marker": {
+                "background-color": color
+            },
+            "text": value[0],
+            "values": [value[1]]
+        })
+    })
 
     return config
 }
@@ -617,7 +669,7 @@ const modifyNum = function(p) {
         maxIndex = p.kmax ? x.length - x.reverse().findIndex((value) => value <= p.kmax) - 1 : x.length - 1
         x.reverse()
     } else if (p.nodeindex) {  // When a new message
-        minIndex = x.indexOf(zoomToValues[p.id][0])
+        minIndex = Math.max(x.indexOf(zoomToValues[p.id][0]), 0)
         maxIndex = x.indexOf(zoomToValues[p.id][1])
         maxIndex = p.nodeindex && p.nodeindex - 1 === maxIndex ? p.nodeindex : maxIndex
     }
@@ -661,7 +713,7 @@ const modifyNum = function(p) {
             },
             "graphid": 0
         })
-    } else {
+    } else if (p.async === false) {
         delete(p.async)
         modifyTimeout = setTimeout(() => modify(p), 1000)
     }
@@ -710,9 +762,9 @@ const getDataOrder = function(arr) {
     return order
 }
 
-const group = function(arr) {
+const group = function(arr, order) {  // Order es un orden especifico
     let group = [], n = 1
-    arr = arr.sort((a, b) => a - b)
+    arr = arr.sort()
 
     if (arr[0] === arr[arr.length - 1]) {
         group = [[arr[0], arr.length]]
@@ -733,6 +785,12 @@ const group = function(arr) {
             return curr
         })
     }
+
+    if (order)
+        group = order.map(function(pos) {
+            let values = group.filter((value) => value[0] === pos)
+            return [pos, (values[0] && values[0][1]) || 0]
+        })
 
     return group
 }
