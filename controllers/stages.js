@@ -219,6 +219,8 @@ module.exports.readData = function(topic, payload, message) {
             sendAction(dataid, data, len, stageid, username)
             break
         case 1:
+        case 2:
+        case 3:
         case 4:
         case 5:
             sendData(dataid, data, type, len, stageid, username)
@@ -306,9 +308,11 @@ const saveData = function(stageId, dataName, type, value) {
             functions = [(cb) => saveActionData(stageId, dataName, value, cb), updateStage]
             break
         case 1:
+        case 2:
+        case 3:
         case 4:
         case 5:
-            functions = [(cb) => saveNumData(stageId, dataName, type, value, cb), updateStage]
+            functions = [(cb) => saveCatNumData(stageId, dataName, type, value, cb), updateStage]
             break
         default:
             return
@@ -318,7 +322,7 @@ const saveData = function(stageId, dataName, type, value) {
     async.waterfall(functions)
 }
 
-const saveNumData = function(stageId, dataName, type, value, cb) {
+const saveCatNumData = function(stageId, dataName, type, value, cb) {
     mongodb.read('stages', { "id_str": stageId }, function(error, docs) {
         if (error || !docs[0])
             return
@@ -329,7 +333,7 @@ const saveNumData = function(stageId, dataName, type, value, cb) {
 
         dataData = docs[0].data_data.find((datum) => (datum.name === dataName) && (datum.type === type))
 
-        if (type === 1) {
+        if (type === 1 || type === 2 || type === 3) {
             if (!fns.arrayContains(dataData.states, value.value))
                 return
             newData = {

@@ -564,6 +564,8 @@ const showData = function(modelData) {
                 showActionsData(datum)
                 break
             case 1:
+            case 2:
+            case 3:
                 showCatData(datum)
                 break
             case 4:

@@ -422,7 +422,7 @@
                 stageActions[name](value)
             } else if (data.data) {
                 let {name, timestamp, type, value} = data.data
-                if (type === 1) {
+                if (type === 1 || type === 2 || type === 3) {
                     let catValues = zingchart.exec(`data-${name}-cat-bar`, 'getseriesvalues', {
                         "graphid" : 0,
                         "plotindex" : 0
