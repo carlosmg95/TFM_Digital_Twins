@@ -71,7 +71,7 @@ const initAR = function(model, modelActions, modelData) {
     // init controls for camera
     let markerControls = new THREEx.ArMarkerControls(arToolkitContext, camera, {
         type : 'pattern',
-        patternUrl : '/javascripts/patt.hiro',
+        patternUrl : '/javascripts/patt.iot',
         // as we controls the camera, set changeMatrixMode: 'cameraTransformMatrix'
         changeMatrixMode: 'cameraTransformMatrix'
     })
