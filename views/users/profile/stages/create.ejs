@@ -129,6 +129,21 @@
         </div>  <!-- .Body -->
       </div>  <!-- .Card -->
     </div>  <!-- .Events Data -->
+
+    <!-- Data Data -->
+    <div id="data-data" class="col-12 mb-2" hidden>
+      <!-- Card -->
+      <div class="card border-left-primary">
+        <h5 class="card-header font-weight-bold text-primary">Datos</h5>
+        <!-- Body -->
+        <div class="card-body">
+          <!-- Data -->
+          <div class="row data">
+
+          </div>  <!-- .Data -->
+        </div>  <!-- .Body -->
+      </div>  <!-- .Card -->
+    </div>  <!-- .Data Data -->
   </div>   <!-- .Data -->
 </div>  <!-- .Page Content -->
 
@@ -249,6 +264,70 @@
       </label>
     </div>  <!-- .Fin -->
   </div>  <!-- .Animation form -->
+</script>
+
+<script id="template-model-data" type="notjs">
+  <!-- Datum -->
+  <div id="datum-item-$n" class="col-12 col-lg-6 mb-3">
+    <!-- Datum Card -->
+    <div class="card">
+      <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+        <h6 class="m-0 font-weight-bold text-secondary">Dato</h6>
+        <a href="javascript:void(0);" role="button" onclick="removeDatum($n)">
+          <i class="fas fa-times"></i>
+        </a>
+      </div>
+      <!-- Datum body -->
+      <div class="card-body">
+        <!-- Datum form -->
+        <form id="form-datum-$n">
+          <!-- Name -->
+          <div class="form-group">
+            <label>Nombre</label>
+            <input type="text" id="datum-name-$n" class="form-control datum-name" placeholder="temperatura" required>
+            <div class="form-group-error" data-err="Este campo se debe rellenar"><small class="form-text text-danger"></small></div>
+          </div>  <!-- .Name -->
+
+          <!-- Type -->
+          <div class="form-group">
+            <label for="datum-type-$n">Tipo</label>
+            <select class="form-control" id="datum-type-$n" name="datum-type-$n" onchange="selectType(this.value, $n)" required>
+              <option>-- Selecciona --</option>
+              <option value="Dicotómico">Categórico - Dicotómico</option>
+              <option value="Nominal">Categórico - Nominal</option>
+              <option value="Ordinal">Categórico - Ordinal</option>
+              <option value="Discreto">Numérico - Discreto</option>
+              <option value="Continuo">Numérico - Continuo</option>
+            </select>
+            <div class="form-group-error" data-err="Selecciona un tipo de dato"><small class="form-text text-danger"></small></div>
+          </div>  <!-- .Type -->
+
+          <!-- States -->
+          <div class="form-group" id="group-states-$n" hidden>
+            <label for="datum-states-$n">Categorías</label>
+            <textarea class="form-control" id="datum-states-$n" name="datum-states-$n" placeholder="Escribe las posibles categorías que puede tener el dato en el orden deseado y separadas por ';'"></textarea>
+            <div class="form-group-error" data-err="Introduce al menos dos estados"><small class="form-text text-danger"></small></div>
+          </div>  <!-- .States -->
+
+          <!-- Units -->
+          <div class="form-group" id="group-units-$n" hidden>
+            <label for="datum-units-$n">Unidades</label>
+            <input type="text" class="form-control" id="datum-units-$n" name="datum-units-$n" placeholder="ºC" />
+            <div class="form-group-error" data-err="Este campo no puede estar vacío"><small class="form-text text-danger"></small></div>
+          </div>  <!-- .Units -->
+
+          <!-- MaxMin -->
+          <div class="form-group" id="group-max-min-$n" hidden>
+            <label for="datum-min-$n">Valor mínimo</label>
+            <input type="number" class="form-control" id="datum-min-$n" name="datum-min-$n" placeholder="0" />
+            <label for="datum-max-$n">Valor máximo</label>
+            <input type="number" class="form-control" id="datum-max-$n" name="datum-max-$n" placeholder="100" />
+            <div class="form-group-error" data-err="Este campo no puede estar vacío"><small class="form-text text-danger"></small></div>
+          </div>  <!-- .MaxMin -->
+        </form>  <!-- .Datum form -->
+      </div>  <!-- .Datum body -->
+    </div>  <!-- .Datum Card -->
+  </div>  <!-- .Datum -->
 </script>
 
 <script id="template-model-events" type="notjs">
@@ -376,7 +455,7 @@
     </div>  <!-- .RotateZ -->
   </div>  <!-- .Edit -->
 
-  <!-- New Actions and Events -->
+  <!-- New Actions, Events and Data -->
   <div id="add.act-evn-model-stage" class="col-12 col-lg-6">
     <!-- Add Action -->
     <div class="row mb-1 mt-3">
@@ -395,7 +474,16 @@
         </a>
       </div>
     </div>  <!-- .Add Event -->
-  </div>  <!-- .New Actions and Events -->
+
+    <!-- Add Data -->
+    <div class="row mb-1">
+      <div class="col-12">
+        <a class="btn btn-sm btn-primary shadow-sm btn-icon-split w-100" onclick="newData()">
+          <span class="text text-white">Añadir dato</span>
+        </a>
+      </div>
+    </div>  <!-- .Add Data -->
+  </div>  <!-- .New Actions, Events and Data -->
 </script>
 
 <!-- Custom JS -->
@@ -419,33 +507,6 @@
       $(self).before(animationsTemplate)
   }
 
-  const selectModel = async function(value) {
-      value = value || $('#create-stage-model').val()
-      if (value === 'Subir modelo') {
-          $('#model-data')[0].hidden = true
-          $('#actions-data')[0].hidden = true
-          $('#events-data')[0].hidden = true
-          $('#models-list')[0].innerHTML = ''
-          $('#upload-modal').modal('show')
-      } else if (value === '-- Selecciona --') {
-          $('#model-data')[0].hidden = true
-          $('#actions-data')[0].hidden = true
-          $('#events-data')[0].hidden = true
-          $('#models-list')[0].innerHTML = ''
-      } else {
-          let actions = $('#actions-data').find('.card-body').find('.row')
-          actions.text('')
-          let events = $('#events-data').find('.card-body').find('.row')
-          events.text('')
-          $('#model-data > .card').css('height', `${$('#stage-data')[0].clientHeight}px`)
-          $('#model-data')[0].hidden = false
-          $('#actions-data')[0].hidden = true
-          $('#events-data')[0].hidden = true
-          await showModelByName(value, 'model-data')
-          showExtraOptions()
-      }
-  }
-
   const newAction = function() {
       let actionData = $('#actions-data')
       let actions = $('#actions-data').find('.card-body').find('.row.actions')
@@ -461,6 +522,18 @@
 
       actions.append(actionsTemplate)
       actionData[0].hidden = false
+  }
+
+  const newData = function() {
+      let dataData = $('#data-data')
+      let data = $('#data-data').find('.card-body').find('.row.data')
+      let dataTemplate = document.getElementById('template-model-data').text
+      let nData = data[0].children.length
+
+      dataTemplate = dataTemplate.replace(/\$n/g, nData + 1)
+
+      data.append(dataTemplate)
+      dataData[0].hidden = false
   }
 
   const newEvent = function() {
@@ -499,6 +572,19 @@
           $('#actions-data')[0].hidden = true
   }
 
+  const removeDatum = function(datum) {
+      let data = $('#data-data').find('.card-body').find('.row')
+      let div = $(`div#datum-item-${datum}`)
+      let nData = data[0].children.length
+
+      div.addClass('hidden')
+      div[0].hidden = true
+
+      let nHiddens = $('div[id^=datum-item].hidden').length
+      if (nHiddens === nData)
+          $('#data-data')[0].hidden = true
+  }
+
   const removeEvent = function(event) {
       let events = $('#events-data').find('.card-body').find('.row')
       let div = $(`div#event-item-${event}`)
@@ -510,6 +596,70 @@
       let nHiddens = $('div[id^=event-item].hidden').length
       if (nHiddens === nEvents)
           $('#events-data')[0].hidden = true
+  }
+
+  const selectModel = async function(value) {
+      value = value || $('#create-stage-model').val()
+      if (value === 'Subir modelo') {
+          $('#model-data')[0].hidden = true
+          $('#actions-data')[0].hidden = true
+          $('#events-data')[0].hidden = true
+          $('#models-list')[0].innerHTML = ''
+          $('#upload-modal').modal('show')
+      } else if (value === '-- Selecciona --') {
+          $('#model-data')[0].hidden = true
+          $('#actions-data')[0].hidden = true
+          $('#events-data')[0].hidden = true
+          $('#models-list')[0].innerHTML = ''
+      } else {
+          let actions = $('#actions-data').find('.card-body').find('.row')
+          actions.text('')
+          let events = $('#events-data').find('.card-body').find('.row')
+          events.text('')
+          let data = $('#data-data').find('.card-body').find('.row')
+          data.text('')
+          $('#model-data > .card').css('height', `${$('#stage-data')[0].clientHeight}px`)
+          $('#model-data')[0].hidden = false
+          $('#actions-data')[0].hidden = true
+          $('#events-data')[0].hidden = true
+          $('#data-data')[0].hidden = true
+          await showModelByName(value, 'model-data')
+          showExtraOptions()
+      }
+  }
+
+  const selectType = async function(value, n) {
+      value = value || $('#datum-type').val()
+
+      switch(value) {
+          case '-- Selecciona --':
+              $(`#group-states-${n}`)[0].hidden = true
+              $(`#group-units-${n}`)[0].hidden = true
+              $(`#group-max-min-${n}`)[0].hidden = true
+              break
+          case 'Dicotómico':
+          case 'Nominal':
+          case 'Ordinal':
+              $(`#group-states-${n}`)[0].hidden = false
+              $(`#group-units-${n}`)[0].hidden = true
+              $(`#group-max-min-${n}`)[0].hidden = true
+              break
+          case 'Discreto':
+              $(`#group-states-${n}`)[0].hidden = true
+              $(`#group-units-${n}`)[0].hidden = true
+              $(`#group-max-min-${n}`)[0].hidden = false
+              break
+          case 'Continuo':
+              $(`#group-states-${n}`)[0].hidden = true
+              $(`#group-units-${n}`)[0].hidden = false
+              $(`#group-max-min-${n}`)[0].hidden = true
+              break
+          default:
+              $(`#group-states-${n}`)[0].hidden = true
+              $(`#group-units-${n}`)[0].hidden = true
+              $(`#group-max-min-${n}`)[0].hidden = true
+              return
+      }
   }
 
   const showExtraOptions = function() {
