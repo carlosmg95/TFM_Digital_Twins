@@ -22,6 +22,15 @@ module.exports.arrayContains = function(arr, element) {
     return arr.indexOf(element) !== -1
 }
 
+// Convert a buffer to ascii
+module.exports.bufferToAscii = function(buffer) {
+    let arrayAscii = []
+    buffer.forEach(function(char, i) {
+        this[i] = String.fromCharCode(char)
+    }, arrayAscii)
+    return arrayAscii
+}
+
 // Check if the format is wrong
 module.exports.checkWrongName = function(name) {
     let regexp = new RegExp(config.wrongPatterns)
@@ -83,6 +92,11 @@ module.exports.formatError = function(error, replaceContent, replaceChar) {
     return err
 }
 
+// Get the accepted extensions for a model
+module.exports.getAcceptedExt = function() {
+    return config.acceptedExt.join(',')
+}
+
 // Get the code of an error
 module.exports.getErrorCode = function(error) {
     return errors[error].code
@@ -118,7 +132,7 @@ module.exports.getReservedWords = function() {
 // Get parameters from an Url
 module.exports.getUrlParams = function(url) {
     var parts = url.split('?')
-    if(parts.length <2) {
+    if(parts.length < 2) {
         return []
     }
     return parts[1].split('&').map(function(queryStr) {
@@ -145,6 +159,19 @@ module.exports.pathLike = function(path, string, regExp) {
         return match && match[0] ? true : false
     }
     return relativeUrl === string
+}
+
+// Read the MQTT msg
+module.exports.readMQTT = function(buffer) {
+    let data, len, type
+    if ((buffer[0] & 0xf0) !== 0xd0)
+        return { data, len, type }
+    if ((buffer[0] & 0x08) !== 0)
+        return { data, len, type }
+    len = +buffer[1]
+    type = +(buffer[0] & 0x7)
+    data = buffer.toString('ascii', 2, len + 2).replace(',', '.')
+    return { data, len, type }
 }
 
 // Remove a string slice in every element from an array

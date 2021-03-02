@@ -6,7 +6,7 @@ const deleteUser = async function() {
     let username = $('#delete-username').val()
     let password = hash($('#delete-password').val())
 
-    strButton = $('#delete-btn')[0].innerText  // Save the text of the button
+    let strButton = $('#delete-btn')[0].innerText  // Save the text of the button
     $('#delete-btn')[0].innerHTML = '<i class="fas fa-spinner fa-spin"></i>'  // Show a wait icon
     $('#delete-btn').attr('disabled', 'disabled')  // Disable the button
 
@@ -41,7 +41,7 @@ const editUser = async function() {
     let passwordNew2 = hash($('#edit-new-password-repeat').val())
     let username = $('#edit-username').val()
 
-    strButton = $('#edit-btn')[0].innerText  // Save the text of the button
+    let strButton = $('#edit-btn')[0].innerText  // Save the text of the button
     $('#edit-btn')[0].innerHTML = '<i class="fas fa-spinner fa-spin"></i>'  // Show a wait icon
     $('#edit-btn').attr('disabled', 'disabled')  // Disable the button
 

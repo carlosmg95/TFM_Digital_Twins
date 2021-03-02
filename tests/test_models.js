@@ -125,10 +125,26 @@ module.exports = {
             .saveScreenshot('tests/screenshots/models/uploadModelWithoutFile.png')
     },
 
+    // Try to upload a model with a file too large - Should FAIL -> Error because of file input
+    'Try to upload a model with a file too large': function(browser) {
+        if (config.maxSize)
+            browser
+                // Set a file
+                .setValue('form#upload-form input[name=model-file]', path.resolve('/home/carlos/Documentos/MIOT/TFM/three.js/examples/models/gltf/BoomBox/glTF-Binary/BoomBox.glb'))
+                // Send data
+                .click('button#upload-btn')
+                // Show error
+                .waitForElementVisible('form#upload-form input[name=model-file] + div.form-group-error', 'Error appears')
+                .assert.containsText('form#upload-form input[name=model-file] + div.form-group-error', `El archivo supera los ${config.maxSize} MB máximos`, 'Error because file too large')
+                .assert.hidden('form#upload-form input[name=model-name] + div.form-group-error', 'Error no appears')
+                .saveScreenshot('tests/screenshots/models/uploadModelTooLarge.png')
+    },
+
     // Try to upload a right model - Should SUCCESS -> No modal and show new model-item
     'Try to upload a right model': function(browser) {
         browser
             // Set a file
+            .clearValue('form#upload-form input[name=model-file]')
             .setValue('form#upload-form input[name=model-file]', path.resolve('/home/carlos/Documentos/MIOT/TFM/three.js/examples/models/gltf/Horse.glb'))
             // Send data
             .click('button#upload-btn')

@@ -4,3 +4,8 @@ files/
 node_modules/
 tests/reports/
 tests/screenshots/
+conf/config.js
+publish_mqtt
+certs/
+sendData.py
+temp.sh

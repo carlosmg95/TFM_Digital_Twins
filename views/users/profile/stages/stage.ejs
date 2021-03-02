@@ -1,5 +1,7 @@
 <script type="text/javascript">
   const existingNameErrorCode = +"<%= fns.getErrorCode('EXISTING_MODEL_NAME') %>"
+  const stageId = '<%= stage.id_str %>'
+  const username = '<%= user.username %>'
   const wrongPassErrorCode = +"<%= fns.getErrorCode('WRONG_PASSWORD') %>"
 </script>
 
@@ -8,20 +10,20 @@
   <div class="clearfix">
     <!-- Page Heading -->
     <div class="d-sm-flex align-items-center justify-content-between mb-4 float-left">
-      <h1 class="h3 mb-0 text-gray-800"><%= model.name %></h1>    
+      <h1 class="h3 mb-0 text-gray-800"><%= stage.name %></h1>    
     </div>  <!-- .Page Heading -->
 
     <a href="" class="d-none d-sm-inline-block btn btn-sm float-right btn-danger shadow-sm btn-icon-split ml-2 delete" data-toggle="modal" data-target="#delete-modal">
       <span class="icon text-white-50">
         <i class="fas fa-trash"></i>
       </span>
-      <span class="text">Borrar <%= model.name %></span>
+      <span class="text">Borrar <%= stage.name %></span>
     </a>
-    <a href="/profile/models/<%= model.name %>?edit" class="d-none d-sm-inline-block btn btn-sm float-right btn-success shadow-sm btn-icon-split ml-2 edit">
+    <a href="/profile/stages/<%= stage.id_str %>?edit" class="d-none d-sm-inline-block btn btn-sm float-right btn-success shadow-sm btn-icon-split ml-2 edit">
       <span class="icon text-white-50">
         <i class="fas fa-edit"></i>
       </span>
-      <span class="text">Editar <%= model.name %></span>
+      <span class="text">Editar <%= stage.name %></span>
     </a>
   </div>
 
@@ -30,8 +32,8 @@
     <div class="col-12">
       <nav aria-label="breadcrumb">
         <ol class="breadcrumb">
-          <li class="breadcrumb-item"><a href="/profile/models">Lista</a></li>
-          <li class="breadcrumb-item active" aria-current="page"><%= model.name %></li>
+          <li class="breadcrumb-item"><a href="/profile/stages">Lista</a></li>
+          <li class="breadcrumb-item active" aria-current="page"><%= stage.name %></li>
         </ol>
       </nav>
     </div>
@@ -45,7 +47,7 @@
         <!-- Header -->
         <div class="card-header py-3 clearfix">
           <h6 class="m-0 font-weight-bold text-primary float-left">Editar</h6>
-          <a class="float-right" href="/profile/models/<%= model.name %>"><i class="fas fa-times"></i></a>
+          <a class="float-right" href="/profile/stages/<%= stage.id_str %>"><i class="fas fa-times"></i></a>
         </div>  <!-- .Header -->
 
         <!-- Body -->
@@ -136,8 +138,25 @@
         <i class="fas fa-cube"></i>
       </button>
     </div>
-  </div>
-  <!-- .Buttons -->
+  </div>  <!-- .Buttons -->
+
+  <!-- Charts -->
+  <div class="row mt-3">
+    <div class="col-12">
+      <!-- Card -->
+      <div class="card mb-4">
+        <!-- Header -->
+        <div class="card-header py-3">
+          <h6 class="m-0 font-weight-bold text-primary">Datos</h6>
+        </div>  <!-- .Header -->
+
+        <!-- Body -->
+        <div class="card-body">
+          <div id="charts" class="row"></div>
+        </div>  <!-- .Body -->
+      </div>  <!-- .Card -->
+    </div>
+  </div>  <!-- .Charts -->
 </div>  <!-- .Page Content -->
 
 <!-- Delete modal -->
@@ -146,7 +165,7 @@
     <div class="modal-content">
       <!-- Modal header -->
       <div class="modal-header">
-        <h5 class="modal-title" id="delete-modal-label">Borrar <%= model.name %></h5>
+        <h5 class="modal-title" id="delete-modal-label">Borrar <%= stage.name %></h5>
         <button type="button" class="close" data-dismiss="modal" aria-label="Close">
           <span aria-hidden="true">&times;</span>
         </button>
@@ -159,8 +178,7 @@
         Esta acción no se puede deshacer. ¿Borrar de todas formas?  
         <form id="delete-form" class="mt-3">     
           <div class="form-group mx-sm-3 mb-2">
-            <input type="text" id="delete-name" name="delete-name" value="<%= model.name %>" hidden>
-            <input type="text" id="delete-extension" name="delete-extension" value="<%= model.ext %>" hidden>
+            <input type="text" id="delete-name" name="delete-name" value="<%= stage.id_str %>" hidden>
             <label for="delete-password" class="sr-only">Contraseña</label>
             <input type="password" class="form-control" id="delete-password" name="delete-password" placeholder="Contraseña">
             <div class="form-group-error"><small class="form-text text-danger"></small></div>
@@ -171,7 +189,7 @@
       <!-- Modal footer -->
       <div class="modal-footer">
         <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
-        <button id="delete-btn" type="submit" class="btn btn-primary" onclick="deleteModel('<%= model.name %>')">Borrar</button>
+        <button id="delete-btn" type="submit" class="btn btn-primary" onclick="deleteStage('<%= stage.id_str %>')">Borrar</button>
       </div>  <!-- .Modal footer -->
     </div>
   </div>
@@ -183,6 +201,12 @@
   })
 </script>
 
+<!-- WebSockets -->
+<script type="text/javascript" src="/components/socket.io-client/dist/socket.io.js"></script>
+
+<!-- Charts -->
+<script type="text/javascript" src="/components/zingchart/client/zingchart.min.js"></script>
+
 <!-- Three JS -->
 <script type="text/javascript" src="/components/three/build/three.min.js"></script>
 <script type="text/javascript" src="/components/three/examples/js/controls/OrbitControls.js"></script>
@@ -192,7 +216,6 @@
 <script type="text/javascript" src="/components/three/examples/js/loaders/FBXLoader.js"></script>
 <script type="text/javascript" src="/components/three/examples/js/vr/WebVR.js"></script>
 <script type="text/javascript" src="/components/three/examples/js/geometries/BoxLineGeometry.js"></script>
-<script type="text/javascript" src="/components/three/examples/js/libs/dat.gui.min.js"></script>
 <script type="text/javascript" src="/components/ar.js/three.js/build/ar.js"></script>
 
 <script id="template" type="notjs">
@@ -202,10 +225,8 @@
   <div class="model-body"></div>
 </script>
 
-<!-- Crypto -->
-<script type="text/javascript" src="/components/crypto-js/crypto-js.js"></script>
-
 <!-- Custom JS -->
+<script type="text/javascript" src="/javascripts/chartHelper.js"></script>
 <script type="text/javascript" src="/javascripts/models.js"></script>
 <script type="text/javascript" src="/javascripts/showModels.js"></script>
 <script type="text/javascript" src="/javascripts/vrModel.js"></script>
@@ -229,23 +250,23 @@
     // Show AR mode
     const showAR = function() {
         document.body.innerHTML = '' +
-          '<div id="<%= model.name %>" class="progress">' +
+          '<div id="<%= stage.model.name %>" class="progress">' +
             '<div class="progress-bar" role="progressbar" style="width: 0%;" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>' +
           '</div>'
-        rotateModel = true
-        showARModel('<%- JSON.stringify(model) %>')
+        rotateModel = false
+        showARModel('<%- JSON.stringify(stage.model) %>', '<%- JSON.stringify(stage.actions) %>', '<%- JSON.stringify(stage.data) %>')
     }
 
     // Show normal mode
     const showNormal = function() {
-        showModel('<%- JSON.stringify(model) %>', 'model-show')
+        showModel('<%- JSON.stringify(stage.model) %>', 'model-show', '<%- JSON.stringify(stage.actions) %>', '<%- JSON.stringify(stage.data) %>', '<%- JSON.stringify(stage.events) %>', '<%= stage.id_str %>')
         $('button#normal-btn')[0].hidden = true
         $('button#vr-btn')[0].hidden = false
     }
 
     // Show VR mode
     const showVR = function() {
-        showVRModel('<%- JSON.stringify(model) %>', true)
+        showVRModel('<%- JSON.stringify(stage.model) %>', '<%- JSON.stringify(stage.actions) %>', '<%- JSON.stringify(stage.data) %>', '<%- JSON.stringify(stage.events) %>')
         $('button#normal-btn')[0].hidden = false
         $('button#vr-btn')[0].hidden = true
     }
@@ -277,7 +298,7 @@
 
         btnRotateXMinus.on('mouseup', function() {
             clearInterval(timer)
-            sendNewData('<%= model.name %>')
+            sendNewData(/*' model.name '*/)
         })
 
         btnRotateXPlus.on('mousedown', function() {
@@ -289,7 +310,7 @@
 
         btnRotateXPlus.on('mouseup', function() {
             clearInterval(timer)
-            sendNewData('<%= model.name %>')
+            sendNewData(/*' model.name '*/)
         })
 
         // Rotate Y
@@ -303,7 +324,7 @@
 
         btnRotateYMinus.on('mouseup', function() {
             clearInterval(timer)
-            sendNewData('<%= model.name %>')
+            sendNewData(/*' model.name '*/)
         })
 
         btnRotateYPlus.on('mousedown', function() {
@@ -315,7 +336,7 @@
 
         btnRotateYPlus.on('mouseup', function() {
             clearInterval(timer)
-            sendNewData('<%= model.name %>')
+            sendNewData(/*' model.name '*/)
         })
 
         // Rotate Z
@@ -329,7 +350,7 @@
 
         btnRotateZMinus.on('mouseup', function() {
             clearInterval(timer)
-            sendNewData('<%= model.name %>')
+            sendNewData(/*' model.name '*/)
         })
 
         btnRotateZPlus.on('mousedown', function() {
@@ -341,7 +362,7 @@
 
         btnRotateZPlus.on('mouseup', function() {
             clearInterval(timer)
-            sendNewData('<%= model.name %>')
+            sendNewData(/*' model.name '*/)
         })
 
         // Scale
@@ -355,7 +376,7 @@
 
         btnScaleMinus.on('mouseup', function() {
             clearInterval(timer)
-            sendNewData('<%= model.name %>')
+            sendNewData(/*' model.name '*/)
         })
 
         btnScalePlus.on('mousedown', function() {
@@ -367,7 +388,7 @@
 
         btnScalePlus.on('mouseup', function() {
             clearInterval(timer)
-            sendNewData('<%= model.name %>')
+            sendNewData(/*' model.name '*/)
         })
 
         // Show model
@@ -376,12 +397,67 @@
         else
             $('button#vr-btn')[0].hidden = true
 
-        showModel('<%- JSON.stringify(model) %>', 'model-show')
+        showModel('<%- JSON.stringify(stage.model) %>', 'model-show', '<%- JSON.stringify(stage.actions) %>', '<%- JSON.stringify(stage.data) %>', '<%- JSON.stringify(stage.events) %>', '<%= stage.id_str %>')
 
         // Show edit buttons
         if (Object.keys(getUrlParams()).indexOf('edit') !== -1)
             $('#edit-model')[0].hidden = false
         else
             $('#edit-model')[0].hidden = true
+
+        setInterval(function() {
+            $.get('/api/stage/getactionsdata/<%= stage.id_str %>', function(result) {
+                if (result.code === 0) {
+                    let data = result.data[0].data
+
+                    data.forEach((datum) => showActionsData(datum))
+                }
+            })
+        }, 10 * 60 * 1000)
+
+        let socket = io.connect(baseUrl)
+        socket.on('<%= user.username %>/<%= stage.id_str %>', function(data) {
+            if (data.action) {
+                let {name, value} = data.action
+                stageActions[name](value)
+            } else if (data.data) {
+                let {name, timestamp, type, value} = data.data
+                if (type === 1 || type === 2 || type === 3) {
+                    let catValues = zingchart.exec(`data-${name}-cat-bar`, 'getseriesvalues', {
+                        "graphid" : 0,
+                        "plotindex" : 0
+                    })
+                    let plotIndex = 0
+                    catValues.forEach((catValue, i) => { if (catValue[0] === value) { catValue[1]++; plotIndex = i }})
+                    zingchart.exec(`data-${name}-cat-bar`, 'setseriesvalues', {
+                        "graphid" : 0,
+                        "plotindex" : 0,
+                        "values": catValues
+                    })
+                    zingchart.exec(`data-${name}-cat-pie`, 'setseriesvalues', {
+                        "graphid" : 0,
+                        "plotindex" : plotIndex,
+                        "values": [catValues[plotIndex]]
+                    })
+                } else if (type === 4) {
+                    zingchart.exec(`data-${name}-dis`, 'setseriesvalues', {
+                        "graphid" : 0,
+                        "plotindex" : 0,
+                        "values": [value]
+                    })
+                    zingchart.exec(`data-${name}-dis-hist`, 'addnode', {
+                        "graphid" : 0,
+                        "plotindex" : 0,
+                        "value": [new Date(timestamp).getTime(), value]
+                    })
+                } else if (type === 5) {
+                    zingchart.exec(`data-${name}-cont`, 'addnode', {
+                        "graphid" : 0,
+                        "plotindex" : 0,
+                        "value": [new Date(timestamp).getTime(), value]
+                    })
+                }
+            }
+        })
     })
 </script>

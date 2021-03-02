@@ -1,0 +1,785 @@
+<script type="text/javascript">
+  const existingIdStrErrorCode = +"<%= fns.getErrorCode('EXISTING_STAGE_ID_STR') %>"
+  const tooLargeErrorCode = +"<%= fns.getErrorCode('TOO_LARGE') %>"
+  const wrongPassErrorCode = +"<%= fns.getErrorCode('WRONG_PASSWORD') %>"
+  const wrongRegexp = new RegExp('<%- fns.getWrongPatterns() %>')
+</script>
+
+<!-- Page Content -->
+<div class="container-fluid">
+  <div class="clearfix">
+    <!-- Page Heading -->
+    <div class="d-sm-flex align-items-center justify-content-between mb-4 float-left">
+      <h1 class="h3 mb-0 text-gray-800">Crear nuevo escenario</h1>    
+    </div>  <!-- .Page Heading -->
+    </a>
+  </div>
+
+  <!-- Breadcrumb -->
+  <div class="row">
+    <div class="col-12">
+      <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+          <li class="breadcrumb-item"><a href="/profile/stages">Lista</a></li>
+          <li class="breadcrumb-item active" aria-current="page">Crear nuevo escenario</li>
+        </ol>
+      </nav>
+    </div>
+  </div>  <!-- .Breadcrumb -->
+
+  <!-- Button -->
+  <div class="row mb-3">
+    <div class="col-12 col-md-auto">
+      <button type="button" id="create-stage-btn" class="btn btn-info btn-block btn-flat" onclick="createStage()">Crear escenario</button>
+    </div>
+  </div>  <!-- .Button -->
+
+  <!-- Alert -->
+  <div id="create-stage-err" class="alert alert-danger text-center" role="alert" hidden></div>  <!-- .Alert -->
+
+  <!-- Data -->
+  <div class="row">
+    <!-- Stage Data -->
+    <div id="stage-data" class="col-12 col-lg-6 mb-2">
+      <!-- Card -->
+      <div class="card border-left-success">
+        <h5 class="card-header font-weight-bold text-primary">Datos escenario</h5>
+        <!-- Body -->
+        <div class="card-body">
+          <form id="create-stage-form">
+            <!-- Name -->
+            <div class="form-group">
+              <label for="create-stage-name">Nombre</label>
+              <input type="text" class="form-control" id="create-stage-name" placeholder="Parque eólico" onchange="checkName(this.value)" required>
+              <div class="form-group-error" data-err="Este campo se debe rellenar"><small class="form-text text-danger"></small></div>
+            </div>  <!-- .Name -->
+
+            <!-- Id -->
+            <div class="form-group">
+              <label for="create-stage-id">Identificador</label>
+              <input type="text" class="form-control" id="create-stage-id" placeholder="escenario1" onchange="checkId(this.value)" required>
+              <div class="form-group-error" data-err="El identificador no puede contener espacios ni caracteres especiales"><small class="form-text text-danger"></small></div>
+            </div>  <!-- .Id -->
+
+            <!-- Model -->
+            <div class="form-group">
+              <label for="create-stage-model">Modelo</label>
+              <select class="form-control" id="create-stage-model" onchange="selectModel(this.value); checkModel(this.value)" required>
+                <option>-- Selecciona --</option>
+                <% for (let i in userModels) { %>
+                <option><%= userModels[i].name %></option>
+                <% } if (!userModels || userModels.length === 0) { %>
+                <option>Subir modelo</option>
+                <% } %>
+              </select>
+              <div class="form-group-error" data-err="Selecciona un modelo"><small class="form-text text-danger"></small></div>
+            </div>  <!-- .Model -->
+
+            <!-- Background -->
+            <div class="form-group">
+              <label for="background-file">Paisaje</label>
+              <input type="file" class="form-control-file" id="background-file" name="background-file" accept=".png, .jpg, .jpeg" multiple="true">
+              <div><small>Se puede subir o un solo fichero que se usará de fondo o seis ficheros que deben llamarse: posx, negx, posy, negy, posz y negz</small></div>
+            </div>  <!-- .Background -->
+          </form>
+        </div>  <!-- .Body -->
+      </div>  <!-- .Card -->
+    </div>  <!-- .Stage Data -->
+
+    <!-- Model Data -->
+    <div id="model-data" class="col-12 col-lg-6 mb-2" hidden>
+      <!-- Card -->
+      <div class="card border-left-info" style="background-color: rgba(0,0,0,0);">
+        <h5 class="card-header font-weight-bold text-primary">Datos modelo</h5>
+        <!-- Body -->
+        <div class="card-body">
+          <!-- .Model -->
+          <div id="models-list" class="row model-show">
+          </div>  <!-- .Model -->
+        </div>  <!-- .Body -->
+      </div>  <!-- .Card -->
+    </div>  <!-- .Model Data -->
+
+    <!-- Actions Data -->
+    <div id="actions-data" class="col-12 mb-2" hidden>
+      <!-- Card -->
+      <div class="card border-left-warning">
+        <h5 class="card-header font-weight-bold text-primary">Datos de acciones</h5>
+        <!-- Body -->
+        <div class="card-body">
+          <!-- Actions -->
+          <div class="row actions">
+            
+          </div>  <!-- .Actions -->
+        </div>  <!-- .Body -->
+      </div>  <!-- .Card -->
+    </div>  <!-- .Actions Data -->
+
+    <!-- Events Data -->
+    <div id="events-data" class="col-12 mb-2" hidden>
+      <!-- Card -->
+      <div class="card border-left-danger">
+        <h5 class="card-header font-weight-bold text-primary">Datos de eventos</h5>
+        <!-- Body -->
+        <div class="card-body">
+          <!-- Events -->
+          <div class="row events">
+
+          </div>  <!-- .Events -->
+        </div>  <!-- .Body -->
+      </div>  <!-- .Card -->
+    </div>  <!-- .Events Data -->
+
+    <!-- Data Data -->
+    <div id="data-data" class="col-12 mb-2" hidden>
+      <!-- Card -->
+      <div class="card border-left-primary">
+        <h5 class="card-header font-weight-bold text-primary">Datos</h5>
+        <!-- Body -->
+        <div class="card-body">
+          <!-- Data -->
+          <div class="row data">
+
+          </div>  <!-- .Data -->
+        </div>  <!-- .Body -->
+      </div>  <!-- .Card -->
+    </div>  <!-- .Data Data -->
+  </div>   <!-- .Data -->
+</div>  <!-- .Page Content -->
+
+<!-- Upload modal -->
+<div class="modal fade" id="upload-modal" tabindex="-1" role="dialog" aria-labelledby="upload-modal-label" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <!-- Modal header -->
+      <div class="modal-header">
+        <h5 class="modal-title" id="upload-modal-label">Subir fichero</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>  <!-- .Modal header -->
+
+      <!-- Modal body -->
+      <div class="modal-body">
+        <form id="upload-form">
+          <div class="form-group">
+            <label for="model-name">Nombre</label>
+            <input type="text" class="form-control" id="model-name" name="model-name">
+            <div class="form-group-error" data-err="Se debe rellenar el nombre del fichero"><small class="form-text text-danger"></small></div>
+          </div>
+          <div class="form-group">
+            <label for="model-file">Fichero 3D</label>
+            <input type="file" class="form-control-file" id="model-file" name="model-file" accept="<%= fns.getAcceptedExt() %>">
+            <div class="form-group-error" data-err="Se debe proporcionar un fichero"><small class="form-text text-danger"></small></div>
+          </div>
+        </form>
+      </div>   <!-- .Modal body -->
+
+      <!-- Modal footer -->
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
+        <button id="upload-btn" type="submit" class="btn btn-primary" onclick="uploadFile()">Subir</button>
+      </div>  <!-- .Modal footer -->
+    </div>
+  </div>
+</div>  <!-- .Upload modal -->
+
+<!-- Three JS -->
+<script type="text/javascript" src="/components/three/build/three.min.js"></script>
+<script type="text/javascript" src="/components/three/examples/js/controls/OrbitControls.js"></script>
+<script type="text/javascript" src="/components/three/examples/js/WebGL.js"></script>
+<script type="text/javascript" src="/components/three/examples/js/libs/inflate.min.js"></script>
+<script type="text/javascript" src="/components/three/examples/js/loaders/GLTFLoader.js"></script>
+<script type="text/javascript" src="/components/three/examples/js/loaders/FBXLoader.js"></script>
+<script type="text/javascript" src="/components/three/examples/js/geometries/BoxLineGeometry.js"></script>
+
+<script id="template" type="notjs">
+  <div id="$name" class="progress">
+    <div class="progress-bar" role="progressbar" style="width: 0%;" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
+  </div>
+  <div class="model-body"></div>
+</script>
+
+<script id="template-model-actions" type="notjs">
+  <!-- Action -->
+  <div id="action-item-$n" class="col-12 col-lg-6 mb-3">
+    <!-- Action Card -->
+    <div class="card">
+      <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+        <h6 class="m-0 font-weight-bold text-secondary">Acción</h6>
+        <a href="javascript:void(0);" role="button" onclick="removeAction($n)">
+          <i class="fas fa-times"></i>
+        </a>
+      </div>
+      <!-- Action body -->
+      <div class="card-body">
+        <!-- Action form -->
+        <form id="form-action-$n">
+          <!-- Name -->
+          <div class="form-group">
+            <label>Nombre</label>
+            <input type="text" id="action-name-$n" class="form-control action-name" placeholder="volar" onchange="checkActionEventName(this.value, 'action', $n)" required>
+            <div class="form-group-error" data-err="Este campo se debe rellenar"><small class="form-text text-danger"></small></div>
+          </div>  <!-- .Name -->
+          <div id="action-animations-$n">
+            $animationForm
+            <a href="javascript:void(0);" role="button" onclick="addAnimation($n, this)">+ Añadir animación</a>
+          </div>
+        </form>  <!-- .Action form -->
+      </div>  <!-- .Action body -->
+    </div>  <!-- .Action Card -->
+  </div>  <!-- .Action -->
+</script>
+
+<script id="template-model-animations" type="notjs">
+  <!-- Animations form -->
+  <div id="form-animation-$n-$y" class="border-top border-warning pt-2 mt-2">
+    <!-- Animation -->
+    <div class="form-group">
+      <label>Animación</label>
+      <select id="animation-name-$n-$y" class="form-control action-animations" onchange="checkAnimationName(this.value, $n, $y)" required>
+        <option>-- Selecciona --</option>
+        $selectOptions
+      </select>
+      <div class="form-group-error" data-err="Se debe añadir una animación"><small class="form-text text-danger"></small></div>
+    </div>  <!-- .Animation -->
+
+    <!-- Repeat -->
+    <div class="form-group">
+      <label>Repeticiones</label>
+      <input type="number" class="form-control action-repeat" value="0" min="0"  data-toggle="tooltip" data-placement="top" title="0 para infinito" required>
+    </div>  <!-- .Repeat -->
+
+    <!-- Fin -->
+    <div class="form-check form-check-inline">
+      <input class="form-check-input" type="radio" name="action-fin-$y" value="end" checked>
+      <label class="form-check-label">
+        Acabar en el último <em>frame</em>
+      </label>
+    </div>
+    <div class="form-check form-check-inline">
+      <input class="form-check-input" type="radio" name="action-fin-$y" value="start">
+      <label class="form-check-label">
+        Acabar en el primer <em>frame</em>
+      </label>
+    </div>  <!-- .Fin -->
+  </div>  <!-- .Animation form -->
+</script>
+
+<script id="template-model-data" type="notjs">
+  <!-- Datum -->
+  <div id="datum-item-$n" class="col-12 col-lg-6 mb-3">
+    <!-- Datum Card -->
+    <div class="card">
+      <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+        <h6 class="m-0 font-weight-bold text-secondary">Dato</h6>
+        <a href="javascript:void(0);" role="button" onclick="removeDatum($n)">
+          <i class="fas fa-times"></i>
+        </a>
+      </div>
+      <!-- Datum body -->
+      <div class="card-body">
+        <!-- Datum form -->
+        <form id="form-datum-$n">
+          <!-- Name -->
+          <div class="form-group">
+            <label>Nombre</label>
+            <input type="text" id="datum-name-$n" class="form-control datum-name" placeholder="temperatura" required>
+            <div class="form-group-error" data-err="Este campo se debe rellenar"><small class="form-text text-danger"></small></div>
+          </div>  <!-- .Name -->
+
+          <!-- Type -->
+          <div class="form-group">
+            <label for="datum-type-$n">Tipo</label>
+            <select class="form-control" id="datum-type-$n" name="datum-type-$n" onchange="selectType(this.value, $n)" required>
+              <option>-- Selecciona --</option>
+              <option value="Dicotómico">Categórico - Dicotómico</option>
+              <option value="Nominal">Categórico - Nominal</option>
+              <option value="Ordinal">Categórico - Ordinal</option>
+              <option value="Discreto">Numérico - Discreto</option>
+              <option value="Continuo">Numérico - Continuo</option>
+            </select>
+            <div class="form-group-error" data-err="Selecciona un tipo de dato"><small class="form-text text-danger"></small></div>
+          </div>  <!-- .Type -->
+
+          <!-- States -->
+          <div class="form-group" id="group-states-$n" hidden>
+            <label for="datum-states-$n">Categorías</label>
+            <textarea class="form-control" id="datum-states-$n" name="datum-states-$n" placeholder="Escribe las posibles categorías que puede tener el dato en el orden deseado y separadas por ';'"></textarea>
+            <div class="form-group-error" data-err="Introduce al menos dos estados"><small class="form-text text-danger"></small></div>
+          </div>  <!-- .States -->
+
+          <!-- Units -->
+          <div class="form-group" id="group-units-$n" hidden>
+            <label for="datum-units-$n">Unidades</label>
+            <input type="text" class="form-control" id="datum-units-$n" name="datum-units-$n" placeholder="ºC" />
+            <div class="form-group-error" data-err="Este campo no puede estar vacío"><small class="form-text text-danger"></small></div>
+          </div>  <!-- .Units -->
+
+          <!-- MaxMin -->
+          <div class="form-group" id="group-max-min-$n" hidden>
+            <label for="datum-min-$n">Valor mínimo</label>
+            <input type="number" class="form-control" id="datum-min-$n" name="datum-min-$n" placeholder="0" />
+            <label for="datum-max-$n">Valor máximo</label>
+            <input type="number" class="form-control" id="datum-max-$n" name="datum-max-$n" placeholder="100" />
+            <div class="form-group-error" data-err="Este campo no puede estar vacío"><small class="form-text text-danger"></small></div>
+          </div>  <!-- .MaxMin -->
+        </form>  <!-- .Datum form -->
+      </div>  <!-- .Datum body -->
+    </div>  <!-- .Datum Card -->
+  </div>  <!-- .Datum -->
+</script>
+
+<script id="template-model-events" type="notjs">
+  <!-- Event -->
+  <div id="event-item-$n" class="col-12 col-lg-6 mb-3">
+    <!-- Event Card -->
+    <div class="card">
+      <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+        <h6 class="m-0 font-weight-bold text-secondary">Evento</h6>
+        <a href="javascript:void(0);" role="button" onclick="removeEvent($n)">
+          <i class="fas fa-times"></i>
+        </a>
+      </div>
+      <!-- Event body -->
+      <div class="card-body">
+        <!-- Event form -->
+        <form id="form-event-$n">
+          <!-- Name -->
+          <div class="form-group">
+            <label>Nombre</label>
+            <input type="text" id="event-name-$n" class="form-control event-name" placeholder="pulsar_boton" onchange="checkActionEventName(this.value, 'event', $n)" required>
+            <div class="form-group-error" data-err="Este campo se debe rellenar"><small class="form-text text-danger"></small></div>
+          </div>  <!-- .Name -->
+          <div class="row">
+            <div class="col-6">
+              <strong>Partes del modelo</strong>
+              $children
+            </div>
+            <!-- HTML events -->
+            <div class="col-6">
+              <strong>Eventos</strong>
+              <div class="form-check">
+                <input class="form-check-input" type="radio" name="event-html-event-$n" value="click" checked>
+                <label class="form-check-label">
+                  <em>Click</em>
+                </label>
+              </div>
+              <div class="form-check">
+                <input class="form-check-input" type="radio" name="event-html-event-$n" value="dblclick">
+                <label class="form-check-label">
+                  Doble <em>click</em>
+                </label>
+              </div>
+              <div class="form-check">
+                <input class="form-check-input" type="radio" name="event-html-event-$n" value="mousein">
+                <label class="form-check-label">
+                  Ratón entra a objeto
+                </label>
+              </div>
+              <div class="form-check">
+                <input class="form-check-input" type="radio" name="event-html-event-$n" value="mouseout">
+                <label class="form-check-label">
+                  Ratón sale de objeto
+                </label>
+              </div>
+            </div>  <!-- .HTML events -->
+          </div>
+        </form>  <!-- .Event form -->
+      </div>  <!-- .Event body -->
+    </div>  <!-- .Event Card -->
+  </div>  <!-- .Event -->
+</script>
+
+<script id="template-model-options" type="notjs">
+  <!-- Edit -->
+  <div id="edit-model-stage" class="col-12 col-lg-6">
+    <!-- Scale -->
+    <div class="row mb-1">
+      <div class="col-12">
+        <a class="btn btn-sm btn-info shadow-sm btn-icon-split w-100">
+          <span class="text text-white w-100">Escalar</span>
+          <span id="minus-scale" class="icon text-white-50 w-100">
+            <i class="fas fa-minus"></i>
+          </span>
+          <span id="plus-scale" class="icon text-white-50 w-100">
+            <i class="fas fa-plus"></i>
+          </span>
+        </a>
+      </div>
+    </div>  <!-- Scale -->
+
+    <!-- RotateX -->
+    <div class="row mb-1">
+      <div class="col-12">
+        <a class="btn btn-sm btn-info shadow-sm btn-icon-split w-100">
+          <span class="text text-white w-100">RotarX</span>
+          <span id="minus-rotate-x" class="icon text-white-50 w-100">
+            <i class="fas fa-arrow-left"></i>
+          </span>
+          <span id="plus-rotate-x" class="icon text-white-50 w-100">
+            <i class="fas fa-arrow-right"></i>
+          </span>
+        </a>
+      </div>
+    </div>  <!-- .RotateX -->
+
+    <!-- RotateY -->
+    <div class="row mb-1">
+      <div class="col-12">
+        <a class="btn btn-sm btn-info shadow-sm btn-icon-split w-100">
+          <span class="text text-white w-100">RotarY</span>
+          <span id="minus-rotate-y" class="icon text-white-50 w-100">
+            <i class="fas fa-arrow-left"></i>
+          </span>
+          <span id="plus-rotate-y" class="icon text-white-50 w-100">
+            <i class="fas fa-arrow-right"></i>
+          </span>
+        </a>
+      </div>
+    </div>  <!-- .RotateY -->
+
+    <!-- RotateZ -->
+    <div class="row mb-1">
+      <div class="col-12">
+        <a class="btn btn-sm btn-info shadow-sm btn-icon-split w-100">
+          <span class="text text-white w-100">RotarZ</span>
+          <span id="minus-rotate-z" class="icon text-white-50 w-100">
+            <i class="fas fa-arrow-left"></i>
+          </span>
+          <span id="plus-rotate-z" class="icon text-white-50 w-100">
+            <i class="fas fa-arrow-right"></i>
+          </span>
+        </a>
+      </div>
+    </div>  <!-- .RotateZ -->
+  </div>  <!-- .Edit -->
+
+  <!-- New Actions, Events and Data -->
+  <div id="add.act-evn-model-stage" class="col-12 col-lg-6">
+    <!-- Add Action -->
+    <div class="row mb-1 mt-3">
+      <div class="col-12">
+        <a class="btn btn-sm btn-warning shadow-sm btn-icon-split w-100" onclick="newAction()">
+          <span class="text text-white">Añadir acción</span>
+        </a>
+      </div>
+    </div>  <!-- .Add Action -->
+
+    <!-- Add Event -->
+    <div class="row mb-1">
+      <div class="col-12">
+        <a class="btn btn-sm btn-danger shadow-sm btn-icon-split w-100" onclick="newEvent()">
+          <span class="text text-white">Añadir evento</span>
+        </a>
+      </div>
+    </div>  <!-- .Add Event -->
+
+    <!-- Add Data -->
+    <div class="row mb-1">
+      <div class="col-12">
+        <a class="btn btn-sm btn-primary shadow-sm btn-icon-split w-100" onclick="newData()">
+          <span class="text text-white">Añadir dato</span>
+        </a>
+      </div>
+    </div>  <!-- .Add Data -->
+  </div>  <!-- .New Actions, Events and Data -->
+</script>
+
+<!-- Custom JS -->
+<script type="text/javascript" src="/javascripts/showModels.js"></script>
+<script type="text/javascript" src="/javascripts/stages.js"></script>
+
+<script type="text/javascript">
+  $('#upload-modal').on('hidden.bs.modal', function(e) {
+      location.reload()
+  })
+
+  const addAnimation = function(action, self) {
+      let animations = getAnimations()
+      let animationsTemplate = document.getElementById('template-model-animations').text
+      let nAnimations = $(`#action-animations-${action}`)[0].children.length
+
+      animationsTemplate = animationsTemplate.replace(/\$y/g, nAnimations)
+      animationsTemplate = animationsTemplate.replace(/\$selectOptions/g, animations.map((animation) => `<option value="${animation}">${animation}</option>`).join(''))
+      animationsTemplate = animationsTemplate.replace(/\$n/g, action)
+
+      $(self).before(animationsTemplate)
+  }
+
+  const newAction = function() {
+      let actionData = $('#actions-data')
+      let actions = $('#actions-data').find('.card-body').find('.row.actions')
+      let actionsTemplate = document.getElementById('template-model-actions').text
+      let animations = getAnimations()
+      let animationsTemplate = document.getElementById('template-model-animations').text
+      let nActions = actions[0].children.length
+
+      animationsTemplate = animationsTemplate.replace(/\$y/g, 1)
+      animationsTemplate = animationsTemplate.replace(/\$selectOptions/g, animations.map((animation) => `<option value="${animation}">${animation}</option>`).join(''))
+      actionsTemplate = actionsTemplate.replace(/\$animationForm/g, animationsTemplate)
+      actionsTemplate = actionsTemplate.replace(/\$n/g, nActions + 1)
+
+      actions.append(actionsTemplate)
+      actionData[0].hidden = false
+  }
+
+  const newData = function() {
+      let dataData = $('#data-data')
+      let data = $('#data-data').find('.card-body').find('.row.data')
+      let dataTemplate = document.getElementById('template-model-data').text
+      let nData = data[0].children.length
+
+      dataTemplate = dataTemplate.replace(/\$n/g, nData + 1)
+
+      data.append(dataTemplate)
+      dataData[0].hidden = false
+  }
+
+  const newEvent = function() {
+      let eventData = $('#events-data')
+      let events = $('#events-data').find('.card-body').find('.row.events')
+      let eventsTemplate = document.getElementById('template-model-events').text
+      let nEvents = events[0].children.length
+      let parts = getModelChildren().map(function(child, i) {
+        let s =        '<div class="form-check">'
+        s += i === 0 ? '  <div class="form-group-error" data-err="Debes elegir al menos uno"><small class="form-text text-danger"></small></div>' : ''
+        s +=           `  <input class="form-check-input" type="checkbox" name="event-children-${nEvents + 1}" value="${child}">` +
+                       '  <label class="form-check-label">' +
+                       `    ${child}` +
+                       '  </label>' +
+                       '</div>'
+        return s
+      }).join('')
+
+      eventsTemplate = eventsTemplate.replace(/\$n/g, nEvents + 1)
+      eventsTemplate = eventsTemplate.replace(/\$children/g, parts)
+
+      events.append(eventsTemplate)
+      eventData[0].hidden = false
+  }
+
+  const removeAction = function(action) {
+      let actions = $('#actions-data').find('.card-body').find('.row')
+      let div = $(`div#action-item-${action}`)
+      let nActions = actions[0].children.length
+      
+      div.addClass('hidden')
+      div[0].hidden = true
+
+      let nHiddens = $('div[id^=action-item].hidden').length
+      if (nHiddens === nActions)
+          $('#actions-data')[0].hidden = true
+  }
+
+  const removeDatum = function(datum) {
+      let data = $('#data-data').find('.card-body').find('.row')
+      let div = $(`div#datum-item-${datum}`)
+      let nData = data[0].children.length
+
+      div.addClass('hidden')
+      div[0].hidden = true
+
+      let nHiddens = $('div[id^=datum-item].hidden').length
+      if (nHiddens === nData)
+          $('#data-data')[0].hidden = true
+  }
+
+  const removeEvent = function(event) {
+      let events = $('#events-data').find('.card-body').find('.row')
+      let div = $(`div#event-item-${event}`)
+      let nEvents = events[0].children.length
+
+      div.addClass('hidden')
+      div[0].hidden = true
+
+      let nHiddens = $('div[id^=event-item].hidden').length
+      if (nHiddens === nEvents)
+          $('#events-data')[0].hidden = true
+  }
+
+  const selectModel = async function(value) {
+      value = value || $('#create-stage-model').val()
+      if (value === 'Subir modelo') {
+          $('#model-data')[0].hidden = true
+          $('#actions-data')[0].hidden = true
+          $('#events-data')[0].hidden = true
+          $('#models-list')[0].innerHTML = ''
+          $('#upload-modal').modal('show')
+      } else if (value === '-- Selecciona --') {
+          $('#model-data')[0].hidden = true
+          $('#actions-data')[0].hidden = true
+          $('#events-data')[0].hidden = true
+          $('#models-list')[0].innerHTML = ''
+      } else {
+          let actions = $('#actions-data').find('.card-body').find('.row')
+          actions.text('')
+          let events = $('#events-data').find('.card-body').find('.row')
+          events.text('')
+          let data = $('#data-data').find('.card-body').find('.row')
+          data.text('')
+          $('#model-data > .card').css('height', `${$('#stage-data')[0].clientHeight}px`)
+          $('#model-data')[0].hidden = false
+          $('#actions-data')[0].hidden = true
+          $('#events-data')[0].hidden = true
+          $('#data-data')[0].hidden = true
+          await showModelByName(value, 'model-data')
+          showExtraOptions()
+      }
+  }
+
+  const selectType = async function(value, n) {
+      value = value || $('#datum-type').val()
+
+      switch(value) {
+          case '-- Selecciona --':
+              $(`#group-states-${n}`)[0].hidden = true
+              $(`#group-units-${n}`)[0].hidden = true
+              $(`#group-max-min-${n}`)[0].hidden = true
+              break
+          case 'Dicotómico':
+          case 'Nominal':
+          case 'Ordinal':
+              $(`#group-states-${n}`)[0].hidden = false
+              $(`#group-units-${n}`)[0].hidden = true
+              $(`#group-max-min-${n}`)[0].hidden = true
+              break
+          case 'Discreto':
+              $(`#group-states-${n}`)[0].hidden = true
+              $(`#group-units-${n}`)[0].hidden = true
+              $(`#group-max-min-${n}`)[0].hidden = false
+              break
+          case 'Continuo':
+              $(`#group-states-${n}`)[0].hidden = true
+              $(`#group-units-${n}`)[0].hidden = false
+              $(`#group-max-min-${n}`)[0].hidden = true
+              break
+          default:
+              $(`#group-states-${n}`)[0].hidden = true
+              $(`#group-units-${n}`)[0].hidden = true
+              $(`#group-max-min-${n}`)[0].hidden = true
+              return
+      }
+  }
+
+  const showExtraOptions = function() {
+      let extraOptions = document.getElementById('template-model-options').text
+      $('#models-list').append(extraOptions)
+
+      // Rotate X
+      let btnRotateXMinus = $('#minus-rotate-x')
+      let btnRotateXPlus = $('#plus-rotate-x')
+      // Rotate Y
+      let btnRotateYMinus = $('#minus-rotate-y')
+      let btnRotateYPlus = $('#plus-rotate-y')
+      // Rotate Z
+      let btnRotateZMinus = $('#minus-rotate-z')
+      let btnRotateZPlus = $('#plus-rotate-z')
+      // Scale
+      let btnScaleMinus = $('#minus-scale')
+      let btnScalePlus = $('#plus-scale')
+
+      let timer = null
+
+      // Rotate X
+
+      btnRotateXMinus.on('mousedown', function() {
+          rotate('-', 'x')
+          timer = setInterval(function() {
+              rotate('-', 'x')
+          }, 100)
+      })
+
+      btnRotateXMinus.on('mouseup', function() {
+          clearInterval(timer)
+      })
+
+      btnRotateXPlus.on('mousedown', function() {
+          rotate('+', 'x')
+          timer = setInterval(function() {
+              rotate('+', 'x')
+          }, 100)
+      })
+
+      btnRotateXPlus.on('mouseup', function() {
+          clearInterval(timer)
+      })
+
+      // Rotate Y
+
+      btnRotateYMinus.on('mousedown', function() {
+          rotate('-', 'y')
+          timer = setInterval(function() {
+              rotate('-', 'y')
+          }, 100)
+      })
+
+      btnRotateYMinus.on('mouseup', function() {
+          clearInterval(timer)
+      })
+
+      btnRotateYPlus.on('mousedown', function() {
+          rotate('+', 'y')
+          timer = setInterval(function() {
+              rotate('+', 'y')
+          }, 100)
+      })
+
+      btnRotateYPlus.on('mouseup', function() {
+          clearInterval(timer)
+      })
+
+      // Rotate Z
+
+      btnRotateZMinus.on('mousedown', function() {
+          rotate('-', 'z')
+          timer = setInterval(function() {
+              rotate('-', 'z')
+          }, 100)
+      })
+
+      btnRotateZMinus.on('mouseup', function() {
+          clearInterval(timer)
+      })
+
+      btnRotateZPlus.on('mousedown', function() {
+          rotate('+', 'z')
+          timer = setInterval(function() {
+              rotate('+', 'z')
+          }, 100)
+      })
+
+      btnRotateZPlus.on('mouseup', function() {
+          clearInterval(timer)
+      })
+
+      // Scale
+
+      btnScaleMinus.on('mousedown', function() {
+          scale('-')
+          timer = setInterval(function() {
+              scale('-')
+          }, 100)
+      })
+
+      btnScaleMinus.on('mouseup', function() {
+          clearInterval(timer)
+      })
+
+      btnScalePlus.on('mousedown', function() {
+          scale('+')
+          timer = setInterval(function() {
+              scale('+')
+          }, 100)
+      })
+
+      btnScalePlus.on('mouseup', function() {
+          clearInterval(timer)
+      })
+  }
+
+  $(function() {
+      selectModel()
+      $('[data-toggle="tooltip"]').tooltip()
+  })
+</script>

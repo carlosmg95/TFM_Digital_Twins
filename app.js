@@ -6,9 +6,13 @@
 const cookieParser = require('cookie-parser')
 const express = require('express')
 const fileUpload = require('express-fileupload')
+//const fs = require('fs')
 const http = require('http')
+//const https = require('https')
 const methodOverride = require('method-override')
 const morgan = require('morgan')
+const mqtt = require('mqtt')
+const mqttr = require('mqttr')
 const parser = require('body-parser')
 const partials = require('express-partials')
 const path = require('path')
@@ -122,6 +126,14 @@ app.use(express.static(path.join(__dirname, 'public')))
 // Upload files
 app.use(fileUpload())
 
+// HTTPs
+/*app.use(function(req, res, next) {
+    if (req.headers['x-forwarded-proto'] !== 'https')
+        res.redirect(`https://${req.get('Host')}${req.url}`)
+    else
+        next()
+})*/
+
 // Initialize router
 router.mount(app)
 
@@ -129,11 +141,45 @@ router.mount(app)
 app.set('port', config.port)
 
 // ====================================================================================================================
+// Create MQTT subscription
+// ====================================================================================================================
+
+let clientMQTT  = mqttr.connect(`mqtt://${config.mqttDomain}:${config.portMQTT}`)
+router.mountMQTT(clientMQTT)
+
+// ====================================================================================================================
 // Create server
 // ====================================================================================================================
 
 // Create HTTP server
 let server = http.createServer(app)
+/*
+// Create HTTPs server
+let options = {
+    "key": fs.readFileSync('certs/dgiotwins-2019-key.pem').toString(),
+    "cert": fs.readFileSync('certs/dgiotwins-2019-cert.pem').toString()
+}
+let serverSecure = https.createServer(options, app)
+serverSecure.listen(8443, function() {
+    console.log(`Express server listening on port ${server.address().port}`)
+})*/
+
+// Web socket connection
+const io = require('socket.io')(server)
+io.on('connection', function (socket) {
+    global['io'] = io
+    global['socket'] = socket
+
+    socket.on('event', function(eventSent) {
+        let {event, stageId, username} = eventSent
+        let buffer1 = Buffer.from([0xd8, 0x01])
+        let buffer2 = Buffer.from('1', 'utf-8')
+        let buffer = Buffer.concat([buffer1, buffer2])
+        let client = mqtt.connect(`mqtt://${config.mqttDomain}:${config.portMQTT}`)
+
+        client.publish(`dgiotwins/user/${username}/stage/${stageId}/data/${event}`, buffer)
+    })
+})
 
 // Listen on provided port, on all network interfaces
 server.listen(config.port)

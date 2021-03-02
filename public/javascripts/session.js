@@ -4,7 +4,7 @@ const createUser = async function() {
     let password1 = hash($('#signup-password').val())
     let password2 = hash($('#signup-repeat-password').val())
 
-    strButton = $('#signup-btn')[0].innerText  // Save the text of the button
+    let strButton = $('#signup-btn')[0].innerText  // Save the text of the button
     $('#signup-btn')[0].innerHTML = '<i class="fas fa-spinner fa-spin"></i>'  // Show a wait icon
     $('#signup-btn').attr('disabled', 'disabled')  // Disable the button
 
@@ -14,8 +14,8 @@ const createUser = async function() {
     
     if (rightUsername && rightEmail && rightPasswords) {
         $.post('/api/users/join', {
-            "username": username,
-            "email": email,
+            username,
+            email,
             "password": password1
         })
         .done(function(data) {
@@ -54,14 +54,14 @@ const login = async function() {
     let username = $('#login-username').val()
     let password = hash($('#login-password').val())
 
-    strButton = $('#login-btn')[0].innerText  // Save the text of the button
+    let strButton = $('#login-btn')[0].innerText  // Save the text of the button
     $('#login-btn')[0].innerHTML = '<i class="fas fa-spinner fa-spin"></i>'  // Show a wait icon
     $('#login-btn').attr('disabled', 'disabled')  // Disable the button
 
     if (username && $('#login-password').val()) {
         await $.post('/api/users/login', {
-            "username": username,
-            "password": password
+            username,
+            password
         })
         .done(function(data) {
             let code = data.code

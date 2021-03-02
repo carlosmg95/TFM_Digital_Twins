@@ -18,6 +18,7 @@ const apiErrors = {
     WRONG_REQ_PARAMS:           {code: 103, message: 'Parámetros erróneos'},
     NO_RESULTS_FOUND:           {code: 104, message: 'Sin resultados'},
     NO_PARAMS:                  {code: 105, message: 'Faltan parámetros'},
+    TOO_LARGE:                  {code: 413, message: 'El archivo supera los %p MB máximos'},
     // Validation errors
         // Users
     EXISTING_USERNAME:          {code: 600, message: 'El usuario "%p" ya existe'},
@@ -27,7 +28,9 @@ const apiErrors = {
     WRONG_FORMAT_USER:          {code: 604, message: 'El formato del username ("%p") es incorrecto'},
         // Models
     EXISTING_MODEL_NAME:        {code: 700, message: 'El nombre "%p" ya existe'},
-    WRONG_FORMAT_MODEL:         {code: 701, message: 'El formato del nombre ("%p") es incorrecto'}
+    WRONG_FORMAT_MODEL:         {code: 701, message: 'El formato del nombre ("%p") es incorrecto'},
+        // Stages
+    EXISTING_STAGE_ID_STR:      {code: 800, message: 'El id "%p" ya existe'}
 }
 
 // Client-side errors
@@ -48,6 +51,12 @@ const clientSideErrors = {
         code: 404,
         status: 'Not Found',
         message: 'The requested URL doesn\'t exist or is no longer available',
+        image: '/images/sad.ico'
+    },
+    413: {
+        code: 413,
+        status: 'Too Large',
+        message: 'Request Entity Too Large',
         image: '/images/sad.ico'
     },
     500: {

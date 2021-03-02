@@ -1,11 +1,9 @@
 // It remove the default submit function
 $('#delete-form').on('submit', function(e){
     e.preventDefault()
-    let f = $(this)
 })
 $('#upload-form').on('submit', function(e){
     e.preventDefault()
-    let f = $(this)
 })
 
 const deleteModel = async function(modelName) {
@@ -13,7 +11,7 @@ const deleteModel = async function(modelName) {
     let name = modelName || $('#delete-name').val()
     let password = hash($('#delete-password').val())
 
-    strButton = $('#delete-btn')[0].innerText  // Save the text of the button
+    let strButton = $('#delete-btn')[0].innerText  // Save the text of the button
     $('#delete-btn')[0].innerHTML = '<i class="fas fa-spinner fa-spin"></i>'  // Show a wait icon
     $('#delete-btn').attr('disabled', 'disabled')  // Disable the button
 
@@ -50,11 +48,11 @@ const deleteModel = async function(modelName) {
 const uploadFile = async function() {
     let formData = new FormData(document.getElementById('upload-form'))
 
-    strButton = $('#upload-btn')[0].innerText  // Save the text of the button
+    let strButton = $('#upload-btn')[0].innerText  // Save the text of the button
     $('#upload-btn')[0].innerHTML = '<i class="fas fa-spinner fa-spin"></i>'  // Show a wait icon
     $('#upload-btn').attr('disabled', 'disabled')  // Disable the button
 
-    let rightFile = checkFile()
+    let rightFile = await checkFile()
     let rightName = await checkName()
 
     if (rightName && rightFile) {
@@ -83,16 +81,35 @@ const uploadFile = async function() {
 //  Private functions                                                                                                 //
 // ================================================================================================================== //
 
-const checkFile = function(file) {
+const checkFile = async function(file) {
     file = file || $('#model-file').val()
+    let rightFile = true
+    let rightSize = true
 
     if (!file) {
         showErrorMsg($('#model-file'))
-        return false
+        rightFile = false
     } else {
+        let size = $('#model-file')[0].files[0].size
+        await $.get(`/api/models/checksize/${size}`, function(result) {
+            let code = result.code
+            let errorMsg = result.error
+
+            if (tooLargeErrorCode === code) {
+                showErrorMsg($('#model-file'), errorMsg)
+                rightSize = false
+            } else {
+                rightSize = true
+            }
+        })
+    }
+    
+    if (rightFile && rightSize) {
         hideErrorMsg($('#model-file'))
         return true
     }
+
+    return false
 }
 
 const checkName = async function(name) {
