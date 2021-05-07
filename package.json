@@ -50,7 +50,7 @@
     "startbootstrap-one-page-wonder": "^5.0.2",
     "startbootstrap-sb-admin-2": "^4.0.2",
     "three": "^0.125.0",
-    "underscore": "^1.9.1"
+    "underscore": "^1.12.1"
   },
   "devDependencies": {
     "geckodriver": "^1.15.1",
