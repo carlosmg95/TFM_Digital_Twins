@@ -52,7 +52,7 @@
     "socket.io": "^2.2.0",
     "startbootstrap-one-page-wonder": "^5.0.4",
     "startbootstrap-sb-admin-2": "^4.0.3",
-    "three": "^0.125.0",
+    "three": "^0.137.0",
     "underscore": "^1.12.1",
     "zingchart": "^2.8.6"
   },
