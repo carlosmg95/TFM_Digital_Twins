@@ -57,7 +57,7 @@
     "zingchart": "^2.8.6"
   },
   "devDependencies": {
-    "geckodriver": "^2.0.4",
+    "geckodriver": "^3.0.2",
     "nightwatch": "^1.7.8"
   }
 }
